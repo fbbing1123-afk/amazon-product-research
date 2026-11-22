@@ -58,7 +58,8 @@ class CategoryShareTests(unittest.TestCase):
         report, source = self.fixture()
         fill_category_section(report, source)
         sheet = report.active
-        self.assertIn("蓝色 >50%", sheet["A1"].value)
+        self.assertNotIn("蓝色", sheet["A1"].value)
+        self.assertIn("注：数量占比按有效类目样本计算", sheet["A1"].value)
         sheet["I3"] = 12345
         self.assertEqual(12345, sheet["I3"].value)
         self.assertIn("66.7%", sheet["I3"].number_format)
@@ -87,8 +88,8 @@ class CategoryShareTests(unittest.TestCase):
             reopened = load_workbook(after, rich_text=True)
             self.assertEqual(42095, reopened.active["I3"].value)
             self.assertEqual('n', reopened.active["I3"].data_type)
-            self.assertIn("\n产品占比：33.3%", reopened.active["I3"].number_format)
-            self.assertIn("\n产品占比：66.7%", reopened.active["I4"].number_format)
+            self.assertIn("\n数量占比：33.3%", reopened.active["I3"].number_format)
+            self.assertIn("\n数量占比：66.7%", reopened.active["I4"].number_format)
             self.assertEqual("FCE4D6", reopened.active["I3"].fill.fgColor.rgb[-6:])
             self.assertEqual("D9EAF7", reopened.active["I4"].fill.fgColor.rgb[-6:])
             reopened.close()
