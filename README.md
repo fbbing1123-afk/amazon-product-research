@@ -9,7 +9,7 @@
 - 类目月总销量下方显示数量占比百分比，并保留蓝色/粉色底色；支持从独立数据源工作簿局部刷新已有报告，详见[类目规则](ecommerce-workflow-skill/docs/market_research_category_section_rules.md)。
 - 关键词竞价刷新已用8个关键词实测，相关26项测试通过；其它业务模块和整条工作流尚未在本机重新验收。
 - 类目截图边缘裁切及部分结果问题仍需实测；保留固定等待满 20 秒策略。
-- GitHub 私有仓库：[amazon-product-research](https://github.com/fbbing1123-afk/amazon-product-research)，源码和版本历史用于跨电脑同步及授权同事下载。
+- GitHub 公开仓库：[amazon-product-research](https://github.com/fbbing1123-afk/amazon-product-research)，任何人无需 GitHub 账号即可查看、下载或克隆源码。
 - 仓库不包含业务 Excel、原始模板、历史输出、登录状态或依赖目录。
 
 ## 文件入口
@@ -27,6 +27,32 @@
 `开发交接.md` 中“尚未建立 Git 仓库”的描述属于历史状态；当前状态以本 README 和实际 Git 记录为准。
 
 ## 新电脑安装
+
+### 获取项目（无需 GitHub 账号）
+
+- 不熟悉 Git：打开仓库网页，点击绿色 `Code` → `Download ZIP`，下载后解压。也可[直接下载 main 最新版 ZIP](https://github.com/fbbing1123-afk/amazon-product-research/archive/refs/heads/main.zip)。ZIP 是下载时的快照，以后需要重新下载新版，不能直接执行 `git pull`。
+- 需要继续开发：让 AI 克隆仓库，保留 Git 历史，方便后续拉取更新：
+
+```powershell
+git clone https://github.com/fbbing1123-afk/amazon-product-research.git
+```
+
+本机已经克隆过时，不必再次克隆。先让 AI 检查当前分支和未提交修改，再安全拉取最新版本，不要覆盖已有工作。
+
+可以直接把下面这段发给有本机文件与命令行访问能力的 AI：
+
+```text
+请获取项目 https://github.com/fbbing1123-afk/amazon-product-research 。
+这是公开仓库，下载或克隆不需要 GitHub 账号。
+如果本机没有项目，请克隆；如果已有项目，请先检查分支和未提交修改，再安全更新。
+阅读 README.md、AGENTS.md、开发日志.md 和 CHANGELOG.md，按 README 检查运行环境。
+告诉我当前版本及还需准备的工作簿、软件和登录状态，随后按我指定的功能继续开发或运行。
+修改后先保存本地 Git；功能完成并实际跑通后，询问我是否推送到 GitHub。
+```
+
+公开访问只提供读取权限。要把修改推送回这个仓库，仍需登录有写入权限的 GitHub 账号。
+
+### 准备运行环境
 
 推荐 Windows、Python 3.12、Node.js 22/24 和 Chrome。原生切片器等步骤需要本机 Excel/WPS COM 支持。
 
@@ -59,4 +85,4 @@ powershell -ExecutionPolicy Bypass -File scripts\open_sellersprite_login_browser
 4. 功能完成并跑通后，向用户报告并询问是否同步 GitHub；确认后才推送。
 5. 更换电脑前确认需要同步的提交已推送；另一台电脑开始修改前拉取。
 
-业务数据、检查点和输出文件默认被忽略，更换电脑继续同一个案例时需要另行安全转移。私有仓库的同事需要先获得访问权限；经验证的版本可通过 Release 提供下载。
+业务数据、检查点和输出文件默认被忽略，更换电脑继续同一个案例时需要另行安全转移。下载源码后仍需安装运行依赖、准备自己的业务工作簿，并登录所需业务网站。
