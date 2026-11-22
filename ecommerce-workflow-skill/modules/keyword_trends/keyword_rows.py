@@ -7,6 +7,7 @@ import posixpath
 import re
 import tempfile
 import zipfile
+from datetime import date
 from pathlib import Path
 from xml.dom import minidom
 
@@ -43,6 +44,26 @@ def latest_monthly_bid(points: list[dict]) -> tuple[str | None, float | None]:
     month = max(key for key, _ in monthly)
     values = [bid for key, bid in monthly if key == month and bid is not None and bid > 0]
     return month, max(values) if values else None
+
+
+def latest_weekly_bid(points: list[dict]) -> tuple[str | None, float | None]:
+    """只取时间最新的一周，不取最近多周的最大值，也不回退旧周。"""
+    weekly = []
+    for point in points:
+        try:
+            start = date.fromisoformat(str(point.get("week", "")))
+            end = date.fromisoformat(str(point.get("weekEnd") or point.get("week_end") or start.isoformat()))
+        except ValueError:
+            continue
+        if end < start:
+            continue
+        weekly.append((end, start, numeric_value(point.get("bid"))))
+    if not weekly:
+        return None, None
+    end, start = max((end, start) for end, start, _bid in weekly)
+    values = [bid for finish, begin, bid in weekly if (finish, begin) == (end, start) and bid is not None and bid > 0]
+    label = start.isoformat() if end == start else f"{start.isoformat()}~{end.isoformat()}"
+    return label, max(values) if values else None
 
 
 def _elements(node, namespace: str, name: str):

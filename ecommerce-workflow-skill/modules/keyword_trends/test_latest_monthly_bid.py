@@ -50,11 +50,11 @@ class LatestMonthTests(unittest.TestCase):
         module.apply_trend_data_fields(sheet, [module.KeywordItem("example", "A2", "F2")],
             {label: sheet.cell(1, col) for col, label in enumerate(labels, 1)},
             {"example": {"ppcMonthly": [{"month": "2026-10", "bid": 1.25}],
-                         "ppcWeekly": [{"week": "2026-11-01", "bid": 99}]}}, 2025)
+                         "ppcWeekly": [{"week": "2026-11-01", "bid": 99}]}}, 2025, ppc_bid_mode="latest-month")
         self.assertEqual(sheet["E2"].value, 1.25)
         self.assertEqual(sheet["D2"].value, "/")
 
-    def test_default_uses_latest_month_and_old_mode_remains_selectable(self):
+    def test_monthly_and_old_mode_remain_selectable(self):
         for mode, expected in [("latest-month", 1.25), ("peak-period", 9)]:
             book = Workbook()
             sheet = book.active

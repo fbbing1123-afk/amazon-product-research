@@ -33,7 +33,7 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import sellersprite_playwright_runner as browser_runner
 from wps_cell_images import convert_floating_images_to_wps_cell_images
-from keyword_rows import latest_monthly_bid, update_keyword_rows
+from keyword_rows import latest_monthly_bid, latest_weekly_bid, update_keyword_rows
 
 WORKFLOW_MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(WORKFLOW_MODULES_DIR) not in sys.path:
@@ -680,9 +680,9 @@ def apply_trend_data_fields(
     trend_data: dict[str, dict],
     year: int,
     site: str = "US",
-    ppc_bid_mode: str = "latest-month",
+    ppc_bid_mode: str = "latest-week",
 ) -> int:
-    if ppc_bid_mode not in {"latest-month", "peak-period"}:
+    if ppc_bid_mode not in {"latest-week", "latest-month", "peak-period"}:
         raise ValueError(f"不支持的竞价取数方式：{ppc_bid_mode}")
     written = 0
     for item in items:
@@ -693,9 +693,9 @@ def apply_trend_data_fields(
         seasonality_points, ppc_year, selection_mode = select_seasonality_points(all_points, year)
         if not seasonality_points:
             write_missing_trend_fields(worksheet, item, header_cells)
-            # 最新月竞价独立于搜索量历史，缺少趋势时也可回填。
-            if ppc_bid_mode == "latest-month" and "旺季竞价" in header_cells:
-                _month, bid = latest_monthly_bid(data.get("ppcMonthly", []))
+            # 最新周/月竞价独立于搜索量历史，缺少趋势时也可回填。
+            if ppc_bid_mode in {"latest-week", "latest-month"} and "旺季竞价" in header_cells:
+                _period, bid = latest_weekly_bid(data.get("ppcWeekly", [])) if ppc_bid_mode == "latest-week" else latest_monthly_bid(data.get("ppcMonthly", []))
                 target = worksheet.cell(keyword_item_row(item), header_cells["旺季竞价"].column)
                 target.value = bid if bid is not None else "/"
                 if bid is not None:
@@ -704,12 +704,12 @@ def apply_trend_data_fields(
             print(f"已回填趋势字段占位: {item.keyword} -> /")
             continue
         result = analyze_seasonality(seasonality_points)
-        peak_bid = latest_monthly_bid(data.get("ppcMonthly", []))[1] if ppc_bid_mode == "latest-month" else max_bid_for_peak_period(
-            data.get("ppcWeekly", []),
-            data.get("ppcMonthly", []),
-            ppc_year,
-            result.peak_months,
-        )
+        if ppc_bid_mode == "latest-week":
+            _period, peak_bid = latest_weekly_bid(data.get("ppcWeekly", []))
+        elif ppc_bid_mode == "latest-month":
+            _period, peak_bid = latest_monthly_bid(data.get("ppcMonthly", []))
+        else:
+            peak_bid = max_bid_for_peak_period(data.get("ppcWeekly", []), data.get("ppcMonthly", []), ppc_year, result.peak_months)
         result = SeasonalityResult(
             peak_label=result.peak_label,
             low_search_volume=result.low_search_volume,
@@ -1241,7 +1241,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="只识别关键词，不执行截图或写 Excel")
     parser.add_argument("--skip-screenshot", action="store_true", help="不调用截图脚本，直接使用项目目录中已有 PNG 插入 Excel")
     parser.add_argument("--keep-run-artifacts", action="store_true", help="保留本次运行的 PNG 和调试缓存")
-    parser.add_argument("--ppc-bid-mode", choices=("latest-month", "peak-period"), default="latest-month", help="默认取最新月 PPC；peak-period 保留旧的旺季区间逻辑")
+    parser.add_argument("--ppc-bid-mode", choices=("latest-week", "latest-month", "peak-period"), default="latest-week", help="默认取最新周 PPC；可选最新月或旧旺季区间逻辑")
     parser.add_argument("--site", default="US", help="Marketplace site code, for example US, DE, UK, CA or FR")
     parser.add_argument("--amazon-postal-code", help="Override the marketplace default Amazon postal code")
     parser.add_argument(

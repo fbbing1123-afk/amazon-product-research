@@ -885,9 +885,9 @@ def click_ppc_bid_tab(page) -> None:
     sleep(page, 1000)
 
 
-def click_ppc_monthly_history(page) -> bool:
+def set_ppc_history_mode(page, *, monthly: bool) -> bool:
     clicked = bool(page.evaluate(
-        """() => {
+        """(monthly) => {
           const isVisible = (el) => {
             if (!el) return false;
             const style = window.getComputedStyle(el);
@@ -896,15 +896,16 @@ def click_ppc_monthly_history(page) -> bool:
           };
           const normalize = (text) => String(text || '').replace(/\\s+/g, ' ').trim();
           const drawer = document.querySelector('#search-anlysis-drawer-echarts-trends') || document.querySelector('.el-drawer__wrapper') || document;
-          // 月度开关会跨关键词保留，已勾选时不能再次点击而切回周更。
+          // 开关状态会跨关键词保留，必须设置目标状态而不是盲目切换。
           const monthlyLabel = [...drawer.querySelectorAll('label')]
             .filter(isVisible)
             .find(el => /查看.*历史.*月|历史.*月数据|Monthly|month history/i.test(normalize(el.innerText || el.textContent)));
           const monthlyCheckbox = monthlyLabel && monthlyLabel.querySelector('input[type="checkbox"]');
           if (monthlyCheckbox) {
-            if (!monthlyCheckbox.checked) monthlyLabel.click();
+            if (monthlyCheckbox.checked !== monthly) monthlyLabel.click();
             return true;
           }
+          if (!monthly) return false;
           const candidates = [...drawer.querySelectorAll('button, .el-button, a, span, div, li')]
             .filter(isVisible)
             .filter(el => {
@@ -920,11 +921,15 @@ def click_ppc_monthly_history(page) -> bool:
           target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window }));
           target.click();
           return true;
-        }"""
+        }""", monthly,
     ))
     if clicked:
         sleep(page, 1800)
     return clicked
+
+
+def click_ppc_monthly_history(page) -> bool:
+    return set_ppc_history_mode(page, monthly=True)
 
 
 def merge_ppc_data(primary: dict[str, Any], secondary: dict[str, Any]) -> dict[str, Any]:
@@ -1093,16 +1098,19 @@ def extract_ppc_data(page) -> dict[str, Any]:
           };
           const parseWeekRange = (text) => {
             const raw = String(text || '');
-            const weeklyLabel = raw.match(/(20\\d{2})\\s*(?:\\u7b2c)?\\d{1,2}\\s*\\u5468\\s*[\\(\\uff08]\\s*(\\d{1,2})[\\/.-](\\d{1,2})\\s*[~\\-\\u2013\\u2014\\u81f3]\\s*(\\d{1,2})[\\/.-](\\d{1,2})\\s*[\\)\\uff09]/);
+            const weeklyLabel = raw.match(/(20\\d{2})\\s*(?:\\u7b2c)?(\\d{1,2})\\s*\\u5468\\s*[\\(\\uff08]\\s*(\\d{1,2})[\\/.-](\\d{1,2})\\s*[~\\-\\u2013\\u2014\\u81f3]\\s*(\\d{1,2})[\\/.-](\\d{1,2})\\s*[\\)\\uff09]/);
             if (weeklyLabel) {
               const year = Number(weeklyLabel[1]);
-              const startMonth = Number(weeklyLabel[2]);
-              const startDay = Number(weeklyLabel[3]);
-              const endMonth = Number(weeklyLabel[4]);
-              const endDay = Number(weeklyLabel[5]);
-              const endYear = endMonth < startMonth ? year + 1 : year;
+              const weekNumber = Number(weeklyLabel[2]);
+              const startMonth = Number(weeklyLabel[3]);
+              const startDay = Number(weeklyLabel[4]);
+              const endMonth = Number(weeklyLabel[5]);
+              const endDay = Number(weeklyLabel[6]);
+              // 年初第1周可能从上一年12月开始，不能被当成下一年未来数据。
+              const startYear = endMonth < startMonth && weekNumber <= 2 ? year - 1 : year;
+              const endYear = endMonth < startMonth ? startYear + 1 : startYear;
               return {
-                week: `${year}-${String(startMonth).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
+                week: `${startYear}-${String(startMonth).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`,
                 weekEnd: `${endYear}-${String(endMonth).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`,
               };
             }
@@ -1143,7 +1151,6 @@ def extract_ppc_data(page) -> dict[str, Any]:
                 const cells = [...row.querySelectorAll('td,th')].map(cell => (cell.innerText || cell.textContent || '').trim());
                 const bid = normalizeNumber(cells[bidIndex]);
                 if (mode === 'weekly') {
-                  if (bid === null) continue;
                   const week = parseWeekRange(cells[timeIndex]);
                   if (week) data.push({ ...week, bid });
                 } else {
@@ -1186,7 +1193,6 @@ def extract_ppc_data(page) -> dict[str, Any]:
               const data = labels.map((label, index) => {
                 const bid = normalizeSeriesValue(bidSeries.data[index]);
                 if (mode === 'weekly') {
-                  if (bid === null) return null;
                   const week = parseWeekRange(label);
                   return week ? { ...week, bid } : null;
                 }
@@ -1835,6 +1841,8 @@ def collect_trend_result(page) -> dict[str, Any]:
     base64_png = export_chart_base64(page)
     try:
         click_ppc_bid_tab(page)
+        if not set_ppc_history_mode(page, monthly=False):
+            raise RuntimeError("未能切换到周度 PPC 数据。")
         ppc = extract_ppc_data(page)
         if click_ppc_monthly_history(page):
             ppc = merge_ppc_data(ppc, extract_ppc_data(page))

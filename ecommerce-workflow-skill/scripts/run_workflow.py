@@ -440,7 +440,7 @@ def _main(power_hold_stack: ExitStack) -> int:
     parser.add_argument("--keyword-backfill-site", default=None, help="Compatibility alias for --site")
     parser.add_argument("--keyword-backfill-brand-word", action="append", default=None, help="Temporary brand word to exclude; repeat as needed")
     parser.add_argument("--keyword-trends-prefix", default="excel-trends", help="Keyword trend screenshot file prefix")
-    parser.add_argument("--keyword-ppc-bid-mode", choices=("latest-month", "peak-period"), default="latest-month", help="竞价默认取最新月，可选保留旧旺季区间逻辑")
+    parser.add_argument("--keyword-ppc-bid-mode", choices=("latest-week", "latest-month", "peak-period"), default="latest-week", help="竞价默认取最新周，可选最新月或旧旺季区间逻辑")
     parser.add_argument("--keyword-trends-debug-port", type=int, default=9223, help="Chrome/Edge DevTools port for keyword trend screenshots")
     parser.add_argument(
         "--keyword-trends-use-existing-browser",

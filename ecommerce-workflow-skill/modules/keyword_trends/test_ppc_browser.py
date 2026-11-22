@@ -46,6 +46,27 @@ class PpcBrowserTests(unittest.TestCase):
         self.assertEqual(result["ppcMonthly"], [])
         self.assertEqual(len(result["ppcWeekly"]), 2)
 
+    def test_weekly_mode_unchecks_monthly_and_stays_unchecked(self):
+        self.page.locator('input').check()
+        self.assertTrue(runner.set_ppc_history_mode(self.page, monthly=False))
+        self.assertFalse(self.page.locator('input').is_checked())
+        self.assertTrue(runner.set_ppc_history_mode(self.page, monthly=False))
+        self.assertFalse(self.page.locator('input').is_checked())
+
+    def test_latest_null_week_is_preserved(self):
+        self.set_chart(["2026第45周(11/01~11/06)", "2026第46周(11/08~11/13)"], [4, None])
+        result = runner.extract_ppc_data(self.page)
+        self.assertEqual(result["ppcWeekly"][-1], {"week":"2026-11-08", "weekEnd":"2026-11-13", "bid":None})
+        self.assertEqual(result["ppcMonthly"], [])
+
+    def test_week_year_handles_first_week_and_year_end_week(self):
+        self.set_chart(["2026第01周(12/28~01/02)", "2025第53周(12/28~01/02)", "2026第46周(11/08~11/13)"], [9, 8, 2])
+        result = runner.extract_ppc_data(self.page)
+        self.assertEqual(result["ppcWeekly"][0], {"week":"2025-12-28", "weekEnd":"2026-01-02", "bid":9})
+        self.assertEqual(result["ppcWeekly"][1], {"week":"2025-12-28", "weekEnd":"2026-01-02", "bid":8})
+        from keyword_rows import latest_weekly_bid
+        self.assertEqual(latest_weekly_bid(result["ppcWeekly"]), ("2026-11-08~2026-11-13", 2))
+
     def test_latest_null_month_is_preserved(self):
         self.set_chart(["2026-09", "2026-10"], [4, None])
         result = runner.extract_ppc_data(self.page)
