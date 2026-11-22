@@ -29,8 +29,9 @@ CATEGORY_TEXT_FONT = Font(name="宋体", sz=11, color="000000")
 CATEGORY_LINK_FONT = Font(name="宋体", sz=11, color="0000FF", underline="single")
 CATEGORY_BORDER_SIDE = Side(style="thin", color="000000")
 CATEGORY_PRIMARY_SHARE_THRESHOLD = 0.5
-CATEGORY_PRIMARY_FILL = PatternFill(fill_type="solid", fgColor="D9EAF7")
-CATEGORY_TRANSFER_FILL = PatternFill(fill_type="solid", fgColor="FCE4D6")
+CATEGORY_PRIMARY_COLOR = "D9EAF7"
+CATEGORY_TRANSFER_COLOR = "FCE4D6"
+CATEGORY_SHARE_NOTE = "注：产品占比按有效类目样本计算；蓝色 >50%，粉色 ≤50%"
 CATEGORY_TRANSLATION_CACHE_PATH = Path(__file__).resolve().parents[3] / "resources" / "category_translations.json"
 AMAZON_BESTSELLER_ROOT_SLUGS = {
     "Home & Kitchen": "home-garden",
@@ -626,11 +627,28 @@ def set_category_link(cell, link: str | None) -> None:
     cell.font = copy(CATEGORY_LINK_FONT)
 
 
-def apply_category_share_fill(cell, share: float) -> None:
-    if share > CATEGORY_PRIMARY_SHARE_THRESHOLD:
-        cell.fill = copy(CATEGORY_PRIMARY_FILL)
-    else:
-        cell.fill = copy(CATEGORY_TRANSFER_FILL)
+def category_share_number_format(share: float) -> str:
+    """用第二行显示样本占比，保留月总销量的数值类型。"""
+    if not math.isfinite(share) or not 0 <= share <= 1:
+        raise ValueError("产品占比必须在 0 到 1 之间。")
+    return f'#,##0"\n产品占比：{share:.1%}"'
+
+
+def category_section_title(value) -> str:
+    """补充占比口径与颜色图例，保留标题和其它说明。"""
+    lines = [line for line in str(value).splitlines()
+             if not ("蓝色" in line and ("红色" in line or "粉色" in line))
+             and not line.startswith("注：产品占比按")]
+    return "\n".join([*lines, CATEGORY_SHARE_NOTE])
+
+
+def apply_category_share_display(cell, share: float) -> None:
+    cell.number_format = category_share_number_format(share)
+    color = CATEGORY_PRIMARY_COLOR if share > CATEGORY_PRIMARY_SHARE_THRESHOLD else CATEGORY_TRANSFER_COLOR
+    cell.fill = PatternFill(fill_type="solid", fgColor=color)
+    alignment = copy(cell.alignment)
+    alignment.wrap_text = True
+    cell.alignment = alignment
 
 
 def fill_category_section(template_wb, source_wb) -> None:
@@ -643,6 +661,8 @@ def fill_category_section(template_wb, source_wb) -> None:
     header_row = find_row_containing(research_ws, CATEGORY_HEADER_MARKER)
     if section_row is None or header_row is None:
         return
+
+    research_ws.cell(section_row, 1).value = category_section_title(research_ws.cell(section_row, 1).value)
 
     summaries = collect_category_summaries(src_ws)
     first_data_row = header_row + 1
@@ -678,7 +698,7 @@ def fill_category_section(template_wb, source_wb) -> None:
             leaf_col = col
 
         set_category_link(research_ws.cell(row, leaf_col), summary.final_link)
-        apply_category_share_fill(research_ws.cell(row, CATEGORY_SALES_COL), summary.product_share)
+        apply_category_share_display(research_ws.cell(row, CATEGORY_SALES_COL), summary.product_share)
 
 
 def write_missing_category_translation_report(source_wb, output_path: Path) -> None:
