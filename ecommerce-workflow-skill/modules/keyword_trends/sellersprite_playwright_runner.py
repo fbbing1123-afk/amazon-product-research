@@ -90,7 +90,7 @@ def build_chart_jobs(project_dir: Path, keywords: Sequence[str], prefix: str) ->
 
 
 def connect_cdp(playwright, port: int, storage_state: Path | None = None):
-    browser = playwright.chromium.connect_over_cdp(f"http://127.0.0.1:{port}")
+    browser = playwright.chromium.connect_over_cdp(f"http://127.0.0.1:{port}", timeout=20000)
     if browser.contexts:
         context = browser.contexts[0]
     else:
@@ -896,6 +896,15 @@ def click_ppc_monthly_history(page) -> bool:
           };
           const normalize = (text) => String(text || '').replace(/\\s+/g, ' ').trim();
           const drawer = document.querySelector('#search-anlysis-drawer-echarts-trends') || document.querySelector('.el-drawer__wrapper') || document;
+          // 月度开关会跨关键词保留，已勾选时不能再次点击而切回周更。
+          const monthlyLabel = [...drawer.querySelectorAll('label')]
+            .filter(isVisible)
+            .find(el => /查看.*历史.*月|历史.*月数据|Monthly|month history/i.test(normalize(el.innerText || el.textContent)));
+          const monthlyCheckbox = monthlyLabel && monthlyLabel.querySelector('input[type="checkbox"]');
+          if (monthlyCheckbox) {
+            if (!monthlyCheckbox.checked) monthlyLabel.click();
+            return true;
+          }
           const candidates = [...drawer.querySelectorAll('button, .el-button, a, span, div, li')]
             .filter(isVisible)
             .filter(el => {
@@ -1078,7 +1087,8 @@ def extract_ppc_data(page) -> dict[str, Any]:
             return normalizeNumber(raw);
           };
           const parseMonth = (text) => {
-            const match = String(text || '').match(/(20\\d{2})[-\\/年.](\\d{1,2})/);
+            // 月度必须是完整月份标签，不能从周更日期中截取月份。
+            const match = String(text || '').trim().match(/^(20\\d{2})[-\\/年.](\\d{1,2})月?$/);
             return match ? `${match[1]}-${String(Number(match[2])).padStart(2, '0')}` : null;
           };
           const parseWeekRange = (text) => {
@@ -1132,8 +1142,8 @@ def extract_ppc_data(page) -> dict[str, Any]:
               for (const row of rows.slice(1)) {
                 const cells = [...row.querySelectorAll('td,th')].map(cell => (cell.innerText || cell.textContent || '').trim());
                 const bid = normalizeNumber(cells[bidIndex]);
-                if (bid === null) continue;
                 if (mode === 'weekly') {
+                  if (bid === null) continue;
                   const week = parseWeekRange(cells[timeIndex]);
                   if (week) data.push({ ...week, bid });
                 } else {
@@ -1175,8 +1185,8 @@ def extract_ppc_data(page) -> dict[str, Any]:
               if (!bidSeries) continue;
               const data = labels.map((label, index) => {
                 const bid = normalizeSeriesValue(bidSeries.data[index]);
-                if (bid === null) return null;
                 if (mode === 'weekly') {
+                  if (bid === null) return null;
                   const week = parseWeekRange(label);
                   return week ? { ...week, bid } : null;
                 }

@@ -400,6 +400,7 @@ def run_keyword_research_step(*, current_workbook: Path, name: str, output_dir: 
             output_dir=output_dir,
             python_exe=args.python_exe,
             prefix=args.keyword_trends_prefix,
+            ppc_bid_mode=args.keyword_ppc_bid_mode,
             skip_screenshot=args.keyword_trends_skip_screenshot,
             keep_run_artifacts=args.keyword_trends_keep_artifacts,
             debug_port=args.keyword_trends_debug_port,
@@ -439,6 +440,7 @@ def _main(power_hold_stack: ExitStack) -> int:
     parser.add_argument("--keyword-backfill-site", default=None, help="Compatibility alias for --site")
     parser.add_argument("--keyword-backfill-brand-word", action="append", default=None, help="Temporary brand word to exclude; repeat as needed")
     parser.add_argument("--keyword-trends-prefix", default="excel-trends", help="Keyword trend screenshot file prefix")
+    parser.add_argument("--keyword-ppc-bid-mode", choices=("latest-month", "peak-period"), default="latest-month", help="竞价默认取最新月，可选保留旧旺季区间逻辑")
     parser.add_argument("--keyword-trends-debug-port", type=int, default=9223, help="Chrome/Edge DevTools port for keyword trend screenshots")
     parser.add_argument(
         "--keyword-trends-use-existing-browser",
@@ -584,6 +586,7 @@ def _main(power_hold_stack: ExitStack) -> int:
                     output_dir=output_dir,
                     python_exe=args.python_exe,
                     prefix=args.keyword_trends_prefix,
+                    ppc_bid_mode=args.keyword_ppc_bid_mode,
                     skip_screenshot=args.keyword_trends_skip_screenshot,
                     keep_run_artifacts=args.keyword_trends_keep_artifacts,
                     debug_port=args.keyword_trends_debug_port,

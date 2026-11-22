@@ -33,6 +33,7 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import sellersprite_playwright_runner as browser_runner
 from wps_cell_images import convert_floating_images_to_wps_cell_images
+from keyword_rows import latest_monthly_bid, update_keyword_rows
 
 WORKFLOW_MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(WORKFLOW_MODULES_DIR) not in sys.path:
@@ -679,7 +680,10 @@ def apply_trend_data_fields(
     trend_data: dict[str, dict],
     year: int,
     site: str = "US",
+    ppc_bid_mode: str = "latest-month",
 ) -> int:
+    if ppc_bid_mode not in {"latest-month", "peak-period"}:
+        raise ValueError(f"不支持的竞价取数方式：{ppc_bid_mode}")
     written = 0
     for item in items:
         data = trend_data.get(item.keyword)
@@ -689,11 +693,18 @@ def apply_trend_data_fields(
         seasonality_points, ppc_year, selection_mode = select_seasonality_points(all_points, year)
         if not seasonality_points:
             write_missing_trend_fields(worksheet, item, header_cells)
+            # 最新月竞价独立于搜索量历史，缺少趋势时也可回填。
+            if ppc_bid_mode == "latest-month" and "旺季竞价" in header_cells:
+                _month, bid = latest_monthly_bid(data.get("ppcMonthly", []))
+                target = worksheet.cell(keyword_item_row(item), header_cells["旺季竞价"].column)
+                target.value = bid if bid is not None else "/"
+                if bid is not None:
+                    target.number_format = currency_number_format(site)
             written += 1
             print(f"已回填趋势字段占位: {item.keyword} -> /")
             continue
         result = analyze_seasonality(seasonality_points)
-        peak_bid = max_bid_for_peak_period(
+        peak_bid = latest_monthly_bid(data.get("ppcMonthly", []))[1] if ppc_bid_mode == "latest-month" else max_bid_for_peak_period(
             data.get("ppcWeekly", []),
             data.get("ppcMonthly", []),
             ppc_year,
@@ -1230,6 +1241,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="只识别关键词，不执行截图或写 Excel")
     parser.add_argument("--skip-screenshot", action="store_true", help="不调用截图脚本，直接使用项目目录中已有 PNG 插入 Excel")
     parser.add_argument("--keep-run-artifacts", action="store_true", help="保留本次运行的 PNG 和调试缓存")
+    parser.add_argument("--ppc-bid-mode", choices=("latest-month", "peak-period"), default="latest-month", help="默认取最新月 PPC；peak-period 保留旧的旺季区间逻辑")
     parser.add_argument("--site", default="US", help="Marketplace site code, for example US, DE, UK, CA or FR")
     parser.add_argument("--amazon-postal-code", help="Override the marketplace default Amazon postal code")
     parser.add_argument(
@@ -1362,6 +1374,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             trend_data,
             year,
             site=site,
+            ppc_bid_mode=args.ppc_bid_mode,
         )
         print(f"成功回填趋势字段数量: {written}")
     elif trend_data:
@@ -1392,6 +1405,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"WPS 嵌入单元格趋势截图数量: {wps_result['embedded']}")
     else:
         print("趋势截图已保持为浮动图片，方便后续流程继续保存而不丢图。")
+    if "旺季月搜索量" in trend_headers:
+        # 回填与图片嵌入完成后再整行排序，包括本次未补跑的已有关键词。
+        all_items = extract_keywords(worksheet, header, image_column=image_column)
+        sort_result = update_keyword_rows(
+            args.output, args.output, sheet_name=worksheet.title,
+            rows=[keyword_item_row(item) for item in all_items],
+            peak_column=trend_headers["旺季月搜索量"].column,
+        )
+        print(f"已按旺季月搜索量降序排列：{sort_result['rows']} 个关键词")
     print(f"已保存 Excel 副本: {args.output}")
     print(f"成功插入数量: {len(inserted)}")
     if missing:

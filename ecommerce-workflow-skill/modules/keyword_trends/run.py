@@ -20,6 +20,7 @@ def run_keyword_trends(
     use_existing_browser: bool = True,
     site: str = "US",
     amazon_postal_code: str | None = None,
+    ppc_bid_mode: str = "latest-month",
 ) -> dict[str, Path]:
     print("[keyword_trends] start")
     output_path = output_dir / f"{name}_with_keyword_trends.xlsx"
@@ -39,6 +40,8 @@ def run_keyword_trends(
         prefix,
         "--site",
         site,
+        "--ppc-bid-mode",
+        ppc_bid_mode,
     ]
     if amazon_postal_code:
         command.extend(["--amazon-postal-code", amazon_postal_code])
