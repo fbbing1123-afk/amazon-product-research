@@ -1,0 +1,52 @@
+# 本地环境与依赖
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.codex-python-packages/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# 账号凭据与浏览器状态；必要的资源 JSON 和 package.json 正常跟踪
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.browser-state.json
+.chrome-profile/
+.playwright-cli/
+*profile*/
+*storage-state*.json
+*storage_state*.json
+*cookies*.json
+seller_sprite_config.json
+
+# 本地业务输入、报告与运行缓存
+work/
+outputs/
+data/
+cache/
+downloads/
+.workflow-state/
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.tsv
+*.png
+*.log
+*.jsonl
+*.tmp
+*.bak
+~$*
+.excel-trends-data.json
+.excel-seasonality-review.json
+
+# 系统与编辑器临时文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/

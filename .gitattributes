@@ -1,0 +1,6 @@
+# 保留原始文件字节，避免首次导入时批量转换换行符。
+* -text
+*.docx binary
+*.png binary
+*.xlsx binary
+*.xlsm binary

@@ -1,0 +1,7 @@
+interface:
+  display_name: "亚马逊选品自动化"
+  short_description: "从 Excel 连续完成亚马逊选品调研、评论与竞品分析"
+  default_prompt: "请使用 $ecommerce-workflow-skill 处理我提供的亚马逊选品 Excel；先检查环境、站点、登录态和已有结果，再从第一个未完成步骤执行并持续监控到最终验收。"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,5304 @@
+{
+  "groups": {
+    "its cool": {
+      "group_en": "misleading pricing and promotion",
+      "group_zh": "定价与促销误导"
+    },
+    "bueno": {
+      "group_en": "mediocre performance",
+      "group_zh": "使用效果一般"
+    },
+    "no vinegar": {
+      "group_en": "usage safety risk",
+      "group_zh": "耳道操作安全风险"
+    },
+    "no cotton": {
+      "group_en": "usage safety risk",
+      "group_zh": "耳道操作安全风险"
+    },
+    "not to stick": {
+      "group_en": "usage safety risk",
+      "group_zh": "耳道操作安全风险"
+    },
+    "wouldn't work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "scratched my ear canal": {
+      "group_en": "ear canal injury risk",
+      "group_zh": "耳道划伤风险"
+    },
+    "disappointed": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "wouldn't connect": {
+      "group_en": "phone connection failure",
+      "group_zh": "手机连接失败"
+    },
+    "lacks a speculum": {
+      "group_en": "unstable positioning",
+      "group_zh": "缺少定位支撑"
+    },
+    "making it difficult": {
+      "group_en": "unstable positioning",
+      "group_zh": "缺少定位支撑"
+    },
+    "difficult to hold": {
+      "group_en": "unstable positioning",
+      "group_zh": "缺少定位支撑"
+    },
+    "it's ok": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "doesn't hold a charge": {
+      "group_en": "battery failure",
+      "group_zh": "续航与充电故障"
+    },
+    "not sitting": {
+      "group_en": "battery failure",
+      "group_zh": "续航与充电故障"
+    },
+    "will not hold": {
+      "group_en": "battery failure",
+      "group_zh": "续航与充电故障"
+    },
+    "late to return": {
+      "group_en": "return difficulty",
+      "group_zh": "退换货困难"
+    },
+    "quality bad": {
+      "group_en": "poor build quality",
+      "group_zh": "产品质量差"
+    },
+    "bad quality": {
+      "group_en": "poor build quality",
+      "group_zh": "产品质量差"
+    },
+    "can't return": {
+      "group_en": "return difficulty",
+      "group_zh": "退换货困难"
+    },
+    "not crystal": {
+      "group_en": "camera clarity degradation",
+      "group_zh": "镜头清晰度下降"
+    },
+    "return it anymore": {
+      "group_en": "return difficulty",
+      "group_zh": "退换货困难"
+    },
+    "ok": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "can't figure": {
+      "group_en": "return difficulty",
+      "group_zh": "退换货困难"
+    },
+    "it works": {
+      "group_en": "mediocre performance",
+      "group_zh": "使用效果一般"
+    },
+    "not compatible": {
+      "group_en": "machine incompatibility",
+      "group_zh": "清洗机兼容性差"
+    },
+    "not work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "won't recommend": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't connect": {
+      "group_en": "phone connection failure",
+      "group_zh": "手机连接失败"
+    },
+    "no longer": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not recommend": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "waste of money": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not easy to work junk": {
+      "group_en": "poor usability",
+      "group_zh": "操作体验差"
+    },
+    "what a disappointment": {
+      "group_en": "general dissatisfaction",
+      "group_zh": "整体体验失望"
+    },
+    "not pair": {
+      "group_en": "phone connection failure",
+      "group_zh": "手机连接失败"
+    },
+    "not engage": {
+      "group_en": "camera startup failure",
+      "group_zh": "摄像头无法启动"
+    },
+    "iphone very disappointed": {
+      "group_en": "phone connection failure",
+      "group_zh": "手机连接失败"
+    },
+    "decent but will fade": {
+      "group_en": "sun fading",
+      "group_zh": "日晒褪色"
+    },
+    "crap quality": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "propellers need work": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "it's hard": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "isn't this propeller": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "hard to see": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "rocket review": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "didn't come": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not excepting": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "couldn't find": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not so good": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not sure": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "cool concept": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "poor": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "didn't think": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "problem": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "hard": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "meh": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "isn't very stable": {
+      "group_en": "unstable launch base",
+      "group_zh": "发射底座不稳"
+    },
+    "expensive": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "no extra": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "fast shipping": {
+      "group_en": "insufficient flight height",
+      "group_zh": "飞行高度不足"
+    },
+    "doesn't shoot": {
+      "group_en": "insufficient flight height",
+      "group_zh": "飞行高度不足"
+    },
+    "wasn't indicated": {
+      "group_en": "unstable launch base",
+      "group_zh": "发射底座不稳"
+    },
+    "no holes": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "didn't mention": {
+      "group_en": "instructions unclear",
+      "group_zh": "说明不清"
+    },
+    "false advertising": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "sadly it's junk": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "requested a refund": {
+      "group_en": "overpriced or poor value",
+      "group_zh": "价格过高或性价比低"
+    },
+    "kids roxket": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "no control": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "5 10": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "not the best": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "maybe should have directives": {
+      "group_en": "instructions unclear",
+      "group_zh": "说明不清"
+    },
+    "not the next": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "need better durability": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "won't hold": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "not go": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "cheaply made": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not order": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "no seller": {
+      "group_en": "poor customer service",
+      "group_zh": "客服响应差"
+    },
+    "rocket": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "not worth": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "piece of foam": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "haven't charged": {
+      "group_en": "overpriced or poor value",
+      "group_zh": "价格过高或性价比低"
+    },
+    "not for ages": {
+      "group_en": "age labeling mismatch",
+      "group_zh": "适龄标识不一致"
+    },
+    "not ages": {
+      "group_en": "age labeling mismatch",
+      "group_zh": "适龄标识不一致"
+    },
+    "junk": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "sad": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "wouldn't of held": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "wasn't made well": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "overpriced": {
+      "group_en": "overpriced or poor value",
+      "group_zh": "价格过高或性价比低"
+    },
+    "rocket launcher": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "amazing heights": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "not be loaded": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "wasn't overly": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "not last": {
+      "group_en": "capacity too small or quickly consumed",
+      "group_zh": "容量小或消耗过快"
+    },
+    "looks junky": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not look": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "buyer beware": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "not located": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "no option": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "bad": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not high quality": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "no body": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not as advertised": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "dangerous": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "it was trash": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "not get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "problems": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not my computer": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "didn't last": {
+      "group_en": "capacity too small or quickly consumed",
+      "group_zh": "容量小或消耗过快"
+    },
+    "not be showing": {
+      "group_en": "age labeling mismatch",
+      "group_zh": "适龄标识不一致"
+    },
+    "very fragile": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not reccomend": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "cheaply made and overpriced": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "falls apart quickly": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "never got off the ground": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "very cheaply made": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "don't match": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "great product but": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "no where near": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "no trees": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "never found": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "lost in first flight": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "no enjoyment": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "not all bad": {
+      "group_en": "overpriced or poor value",
+      "group_zh": "价格过高或性价比低"
+    },
+    "bad lasted": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "parachute attachments need improvement": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "propeller gets lost easily": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "hard to find": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "propeller detaches": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "not designed": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "useless": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't fly": {
+      "group_en": "overpriced or poor value",
+      "group_zh": "价格过高或性价比低"
+    },
+    "don't think": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "didn't live": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "difficult to keep": {
+      "group_en": "unstable launch base",
+      "group_zh": "发射底座不稳"
+    },
+    "can not be recharged": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "not charge": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "size": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "not recommended": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "caught in trees": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "not fly": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "can't get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "won't open": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "1 time fun": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "worst product": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "not buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "didn't open": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "useless rocket": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "wouldn't fly": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "doesn't charge": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "suddenly stopped": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "doesn't look": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "bad purchase": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "issues from day one": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "stopped": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "not as pictured": {
+      "group_en": "unstable launch base",
+      "group_zh": "发射底座不稳"
+    },
+    "not launch": {
+      "group_en": "unstable launch base",
+      "group_zh": "发射底座不稳"
+    },
+    "crap": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性差"
+    },
+    "didn't get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "replacement propeller needed": {
+      "group_en": "propeller detachment or loss",
+      "group_zh": "螺旋桨脱落或丢失"
+    },
+    "couture to liu": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "don't waste": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "waste your money": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "doesn't last": {
+      "group_en": "capacity too small or quickly consumed",
+      "group_zh": "容量小或消耗过快"
+    },
+    "not well": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "doesn't hold": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "no lo recomiendo": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "good item": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't need": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "it's trash": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "won't recharge": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "no hard": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "hard hits": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "no wind": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "shoot to the stars": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "no not sure": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "not rotate": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "worked for one day": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "defective": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not purchase": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not available": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "works": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "decent enough toy": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not straight": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "not too sturdy": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "doesn't open": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "not as fun": {
+      "group_en": "parachute failure",
+      "group_zh": "降落伞故障"
+    },
+    "don't launch": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "no good": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "never able": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "not line": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "didn't see": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "battery defect": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "cheaply made poor": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not around trees": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "couldn't retrieve": {
+      "group_en": "flight drift or loss",
+      "group_zh": "飞行偏移或容易丢失"
+    },
+    "won't charge": {
+      "group_en": "battery or charging failure",
+      "group_zh": "电池或充电故障"
+    },
+    "don't buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "missing": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "china scam": {
+      "group_en": "overpriced or poor value",
+      "group_zh": "价格过高或性价比低"
+    },
+    "very small": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "box damaged": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "damaged box": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "cheap": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "small": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "wouldn't recommend": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "fins cracked": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "cracked all": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "return": {
+      "group_en": "return or refund requested",
+      "group_zh": "退货或退款"
+    },
+    "returning": {
+      "group_en": "return or refund requested",
+      "group_zh": "退货或退款"
+    },
+    "missing piece": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "missing propeller": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "returned": {
+      "group_en": "return or refund requested",
+      "group_zh": "退货或退款"
+    },
+    "poor quality": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "missing pieces": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "missing the propeller": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "so small": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "don't recommend": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "disappointing": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not large": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "loose": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "no water": {
+      "group_en": "abnormal water output",
+      "group_zh": "出水异常"
+    },
+    "not quality": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "never dropped": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "not even sure": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "won't steam": {
+      "group_en": "No Steam Output",
+      "group_zh": "不出蒸汽"
+    },
+    "doesn't seem": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't hurt": {
+      "group_en": "low steam temperature",
+      "group_zh": "蒸汽温度不足"
+    },
+    "attachment is useless": {
+      "group_en": "Useless Attachment",
+      "group_zh": "配件无效"
+    },
+    "simple steam solution": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "not quite what i expected": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "didn't clean": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "didn't actually clean": {
+      "group_en": "Poor Cleaning Performance",
+      "group_zh": "清洁效果差"
+    },
+    "two that stop": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "it's meh": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "it's expensive": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "cable short": {
+      "group_en": "Power Cord Too Short",
+      "group_zh": "电源线过短"
+    },
+    "wasn't to impressed": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "questionable durability": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "ehhh": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "wouldn't spend": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "isn't fully": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "steamer": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "functional for the price": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "isn't too long": {
+      "group_en": "Power Cord Too Short",
+      "group_zh": "电源线过短"
+    },
+    "no hot steam": {
+      "group_en": "low steam temperature",
+      "group_zh": "蒸汽温度不足"
+    },
+    "wasn't hot": {
+      "group_en": "low steam temperature",
+      "group_zh": "蒸汽温度不足"
+    },
+    "difficult": {
+      "group_en": "application inconvenient or messy",
+      "group_zh": "使用不便或易洒漏"
+    },
+    "not what i expected sadly": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "no such": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "mid": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "great steamer": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "not spray": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "not near": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "ehhhh": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "not easy": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "short cable overheats": {
+      "group_en": "Short Cord and Overheating",
+      "group_zh": "电源线过短且机身过热"
+    },
+    "not super": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "isn't because": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "doesn't even reach": {
+      "group_en": "Power Cord Too Short",
+      "group_zh": "电源线过短"
+    },
+    "not as expected": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "not perform": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "don't click": {
+      "group_en": "loose attachments",
+      "group_zh": "配件连接不牢"
+    },
+    "it's not the best": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "don't want": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not heat": {
+      "group_en": "Heating Failure",
+      "group_zh": "无法加热"
+    },
+    "good but": {
+      "group_en": "Other Experience Issue",
+      "group_zh": "其他体验问题"
+    },
+    "not heard": {
+      "group_en": "poor customer support",
+      "group_zh": "客服响应差"
+    },
+    "not strong": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't really work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "less than i expected": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "don't care": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "bigger water tank": {
+      "group_en": "Water Tank Too Small",
+      "group_zh": "水箱容量小"
+    },
+    "doesn't matter": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "absolutely wretched": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not producing": {
+      "group_en": "no steam output",
+      "group_zh": "不出蒸汽"
+    },
+    "it's defective": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not a good product": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "not steaming": {
+      "group_en": "no steam output",
+      "group_zh": "不出蒸汽"
+    },
+    "good for little things": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "not loosen": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "hate this machine": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not attach": {
+      "group_en": "Loose attachments",
+      "group_zh": "配件连接不牢"
+    },
+    "not what i expected": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "steamer is useless": {
+      "group_en": "Poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "interesting product": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no instructions": {
+      "group_en": "Incomplete instructions",
+      "group_zh": "说明书信息不足"
+    },
+    "takes too long": {
+      "group_en": "Slow heating",
+      "group_zh": "加热时间过长"
+    },
+    "not safe": {
+      "group_en": "safety risk",
+      "group_zh": "安全隐患"
+    },
+    "didn't even get": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "steam output pathetic": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "on off switch": {
+      "group_en": "inconvenient controls",
+      "group_zh": "控制操作不便"
+    },
+    "no on off": {
+      "group_en": "inconvenient controls",
+      "group_zh": "控制操作不便"
+    },
+    "hate it": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "didn't really thinks": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "only two uses": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "doesn't clear": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "avoid at all costs": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "no pressure": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "no idea": {
+      "group_en": "instructions unclear or unreadable",
+      "group_zh": "使用说明不清"
+    },
+    "it's alright": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not very powerful": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "l efficacité": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no need": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "needs improvement": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "don't fit": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "shorting": {
+      "group_en": "safety risk",
+      "group_zh": "安全隐患"
+    },
+    "don't bother purchasing": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not fit": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't even heat": {
+      "group_en": "Insufficient steam temperature",
+      "group_zh": "蒸汽温度不足"
+    },
+    "leaky mcleakerson": {
+      "group_en": "water leakage",
+      "group_zh": "漏水"
+    },
+    "no good for removing marks": {
+      "group_en": "poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "not electrically safe": {
+      "group_en": "safety risk",
+      "group_zh": "安全隐患"
+    },
+    "poubelle": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "steam cleaner": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "will stop": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "do not be mislead": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "great": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "ne fonctionne déjà pu": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "lack of quality": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "didn't like": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "not very strong steam cleaner": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "waste": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "didn't produce": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not feel": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "too much water": {
+      "group_en": "water leakage",
+      "group_zh": "漏水"
+    },
+    "issues": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no trigger": {
+      "group_en": "inconvenient controls",
+      "group_zh": "控制操作不便"
+    },
+    "pas si": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no steam": {
+      "group_en": "no steam output",
+      "group_zh": "不出蒸汽"
+    },
+    "no customer": {
+      "group_en": "Poor customer service",
+      "group_zh": "客服响应差"
+    },
+    "ðéçu": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "ne fonctionne pas": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not good": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "ça pousse pas fort": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "defective device": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not turn": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "défectueux": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not happy": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "déception": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not so great": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "decent gadget": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not set": {
+      "group_en": "Poor design",
+      "group_zh": "设计不合理"
+    },
+    "attachments": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "don't like": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "eh is alright": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "steam mop": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "low key": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not as strong": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "it's o k": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "refund": {
+      "group_en": "return or refund requested",
+      "group_zh": "退货或退款"
+    },
+    "doesn't clean": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "it's okay": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "not clean": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "doesn't heat": {
+      "group_en": "Heating failure",
+      "group_zh": "无法加热"
+    },
+    "expensive one": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "getting the expensive": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "no lo recommend": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no funcionaba": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "can't find replacement attachments": {
+      "group_en": "Replacement attachments unavailable",
+      "group_zh": "替换配件难购买"
+    },
+    "doesn't sell": {
+      "group_en": "Replacement attachments unavailable",
+      "group_zh": "替换配件难购买"
+    },
+    "i like it": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not for vigorous cleaning": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "don't feel": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "did not see any improvement": {
+      "group_en": "Poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "not want": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not happen": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "my take": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not thrilled": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "good enough": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "good for the price": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not a lot": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not a fan": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "can't do much": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "mapiador de vapor defectuoso": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "no todos": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no recomiendo": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no recibo": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not very good": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no attachments": {
+      "group_en": "Missing accessories",
+      "group_zh": "配件缺失"
+    },
+    "not hot": {
+      "group_en": "Insufficient steam temperature",
+      "group_zh": "蒸汽温度不足"
+    },
+    "wrong move": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no replacement": {
+      "group_en": "replacement parts unavailable",
+      "group_zh": "替换配件难购买"
+    },
+    "not ergonomically sound": {
+      "group_en": "Poor ergonomics",
+      "group_zh": "人体工学设计不佳"
+    },
+    "just meh": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not burn": {
+      "group_en": "Insufficient steam temperature",
+      "group_zh": "蒸汽温度不足"
+    },
+    "not enough": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "sufficient": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "splinters": {
+      "group_en": "Rough handle surface",
+      "group_zh": "手柄表面有木刺"
+    },
+    "can't seem": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "issue": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not impressed": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "isn't powerful": {
+      "group_en": "Weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "water tank splits apart": {
+      "group_en": "water leakage",
+      "group_zh": "漏水"
+    },
+    "a clean house": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "doesn't glide": {
+      "group_en": "Poor floor glide",
+      "group_zh": "地面滑动不顺畅"
+    },
+    "not as handheld": {
+      "group_en": "loose attachments",
+      "group_zh": "配件连接不牢"
+    },
+    "isn't strong": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't really wipe": {
+      "group_en": "Poor cleaning performance",
+      "group_zh": "清洁效果差"
+    },
+    "doesn't really come": {
+      "group_en": "Weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "cleans the floors well": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no funciona bien": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "no tengo": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "está malo": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not like": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "not very comfortable": {
+      "group_en": "Uncomfortable grip",
+      "group_zh": "握持不舒适"
+    },
+    "don't waist your money": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not powerful": {
+      "group_en": "Weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "no": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "fire hazard": {
+      "group_en": "safety risk",
+      "group_zh": "安全隐患"
+    },
+    "can't pause": {
+      "group_en": "inconvenient controls",
+      "group_zh": "控制操作不便"
+    },
+    "excessive water": {
+      "group_en": "abnormal water output",
+      "group_zh": "出水异常"
+    },
+    "didn't try": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not an issue": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not the handle": {
+      "group_en": "inconvenient controls",
+      "group_zh": "控制操作不便"
+    },
+    "not top": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "wasn't showing": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "mediocre": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "no problem": {
+      "group_en": "Other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "worthless": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not steam": {
+      "group_en": "no steam output",
+      "group_zh": "不出蒸汽"
+    },
+    "no matter": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not as powerful": {
+      "group_en": "Weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "not meet": {
+      "group_en": "Not as advertised",
+      "group_zh": "与宣传不符"
+    },
+    "not careful": {
+      "group_en": "safety risk",
+      "group_zh": "安全隐患"
+    },
+    "i should know that": {
+      "group_en": "inconvenient controls",
+      "group_zh": "控制操作不便"
+    },
+    "leaks": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "don't purchase": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "water is flimsy": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "bucksdon't buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "weak steam flimsy": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "weak": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "weak steam": {
+      "group_en": "weak steam pressure",
+      "group_zh": "蒸汽压力不足"
+    },
+    "leaking": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "leak": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "waste money": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "wouldn't buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "flimsy reservoir": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "can't buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "flimsy build": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "isn't worth": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "flimsy construction": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "not waste": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "returns": {
+      "group_en": "return or refund requested",
+      "group_zh": "退货或退款"
+    },
+    "leaked": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "no instruction": {
+      "group_en": "insufficient installation guidance",
+      "group_zh": "安装指导不足"
+    },
+    "not for travel": {
+      "group_en": "poor portability",
+      "group_zh": "便携性不足"
+    },
+    "no bed": {
+      "group_en": "bed compatibility issue",
+      "group_zh": "床架适配问题"
+    },
+    "no balance": {
+      "group_en": "user stability limitation",
+      "group_zh": "使用者稳定性限制"
+    },
+    "thin frame": {
+      "group_en": "insufficient structural strength",
+      "group_zh": "结构强度不足"
+    },
+    "not as sturdy": {
+      "group_en": "insufficient structural strength",
+      "group_zh": "结构强度不足"
+    },
+    "no go": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装困难"
+    },
+    "good bed rails": {
+      "group_en": "non-specific feedback",
+      "group_zh": "非特定反馈"
+    },
+    "directions aren't clear enough": {
+      "group_en": "insufficient installation guidance",
+      "group_zh": "安装指导不足"
+    },
+    "aren't great": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "better think about it": {
+      "group_en": "insufficient installation guidance",
+      "group_zh": "安装指导不足"
+    },
+    "strap not long enough": {
+      "group_en": "insecure attachment",
+      "group_zh": "固定不牢"
+    },
+    "dissatisfied": {
+      "group_en": "overall product dissatisfaction",
+      "group_zh": "整体产品不满"
+    },
+    "not right": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not really sturdy": {
+      "group_en": "insufficient structural strength",
+      "group_zh": "结构强度不足"
+    },
+    "bed rail": {
+      "group_en": "non-specific feedback",
+      "group_zh": "非特定反馈"
+    },
+    "check your bed frame": {
+      "group_en": "bed compatibility issue",
+      "group_zh": "床架适配问题"
+    },
+    "not move": {
+      "group_en": "insecure attachment",
+      "group_zh": "固定不牢"
+    },
+    "not a safe": {
+      "group_en": "safety risk",
+      "group_zh": "安全风险"
+    },
+    "not stable": {
+      "group_en": "insufficient stability",
+      "group_zh": "稳定性不足"
+    },
+    "needed for still ability": {
+      "group_en": "support and stability",
+      "group_zh": "支撑与稳定性"
+    },
+    "total loss for customer": {
+      "group_en": "overall product dissatisfaction",
+      "group_zh": "整体产品不满"
+    },
+    "not valid": {
+      "group_en": "service and refund issue",
+      "group_zh": "售后与退款问题"
+    },
+    "terrible product": {
+      "group_en": "overall product dissatisfaction",
+      "group_zh": "整体产品不满"
+    },
+    "unable to assemble": {
+      "group_en": "assembly difficulty",
+      "group_zh": "组装困难"
+    },
+    "couldn't assemble": {
+      "group_en": "assembly difficulty",
+      "group_zh": "组装困难"
+    },
+    "regret this purchase": {
+      "group_en": "overall product dissatisfaction",
+      "group_zh": "整体产品不满"
+    },
+    "can't stop": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "stop the delivery": {
+      "group_en": "order and return issue",
+      "group_zh": "订单与退货问题"
+    },
+    "doesn't secure": {
+      "group_en": "insecure attachment",
+      "group_zh": "固定不牢"
+    },
+    "ok but": {
+      "group_en": "mixed product experience",
+      "group_zh": "使用体验褒贬不一"
+    },
+    "unsafe bed rail": {
+      "group_en": "safety risk",
+      "group_zh": "安全风险"
+    },
+    "not secure": {
+      "group_en": "insecure attachment",
+      "group_zh": "固定不牢"
+    },
+    "sizing is off": {
+      "group_en": "bed compatibility issue",
+      "group_zh": "床架适配问题"
+    },
+    "don't the feet": {
+      "group_en": "bed compatibility issue",
+      "group_zh": "床架适配问题"
+    },
+    "decent but": {
+      "group_en": "mixed product experience",
+      "group_zh": "使用体验褒贬不一"
+    },
+    "it's useless": {
+      "group_en": "limited usefulness",
+      "group_zh": "实用性有限"
+    },
+    "not replaceable": {
+      "group_en": "replacement parts unavailable",
+      "group_zh": "替换部件缺失"
+    },
+    "bad because": {
+      "group_en": "overall product dissatisfaction",
+      "group_zh": "整体产品不满"
+    },
+    "no videos": {
+      "group_en": "insufficient installation guidance",
+      "group_zh": "安装指导不足"
+    },
+    "having hard": {
+      "group_en": "assembly difficulty",
+      "group_zh": "组装困难"
+    },
+    "not steady": {
+      "group_en": "insufficient stability",
+      "group_zh": "稳定性不足"
+    },
+    "overpromised and poor": {
+      "group_en": "quality below expectations",
+      "group_zh": "质量低于预期"
+    },
+    "not worth the price": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "major issue": {
+      "group_en": "major product issue",
+      "group_zh": "产品重大问题"
+    },
+    "terrible": {
+      "group_en": "overall product dissatisfaction",
+      "group_zh": "整体产品不满"
+    },
+    "dont waste your money": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "couldn't take": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not at all": {
+      "group_en": "ineffective product",
+      "group_zh": "产品效果不佳"
+    },
+    "definitely a little screwy": {
+      "group_en": "design and assembly issue",
+      "group_zh": "设计与组装问题"
+    },
+    "too short": {
+      "group_en": "insufficient size range",
+      "group_zh": "尺寸范围不足"
+    },
+    "not suitable": {
+      "group_en": "user suitability limitation",
+      "group_zh": "适用人群受限"
+    },
+    "useless otherwise": {
+      "group_en": "limited usefulness",
+      "group_zh": "实用性有限"
+    },
+    "patients useless": {
+      "group_en": "limited usefulness",
+      "group_zh": "实用性有限"
+    },
+    "not helpful": {
+      "group_en": "limited usefulness",
+      "group_zh": "实用性有限"
+    },
+    "no way": {
+      "group_en": "bed compatibility issue",
+      "group_zh": "床架适配问题"
+    },
+    "makes bed matress not level": {
+      "group_en": "bed compatibility issue",
+      "group_zh": "床架适配问题"
+    },
+    "couldn't position": {
+      "group_en": "positioning difficulty",
+      "group_zh": "位置调整困难"
+    },
+    "no guidelines": {
+      "group_en": "insufficient installation guidance",
+      "group_zh": "安装指导不足"
+    },
+    "not give": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "doesn't help": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not clear": {
+      "group_en": "unclear assembly instructions",
+      "group_zh": "装配说明不清"
+    },
+    "not provided": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "steps": {
+      "group_en": "step size issue",
+      "group_zh": "踏步尺寸问题"
+    },
+    "not tall at all": {
+      "group_en": "insufficient height",
+      "group_zh": "高度不足"
+    },
+    "not much": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "not sturdy": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "not be put": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "no support": {
+      "group_en": "insufficient support",
+      "group_zh": "支撑不足"
+    },
+    "don't risk": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "didn't notice": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "didn't fix": {
+      "group_en": "assembly fastening issue",
+      "group_zh": "装配固定问题"
+    },
+    "unsafe to walk down": {
+      "group_en": "tipping and fall risk",
+      "group_zh": "倾倒与跌倒风险"
+    },
+    "poor design": {
+      "group_en": "structural design issue",
+      "group_zh": "结构设计问题"
+    },
+    "weren't on each": {
+      "group_en": "rubber foot fit issue",
+      "group_zh": "脚垫贴合问题"
+    },
+    "safety concern": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "assembled it wrong": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "not entirely safe": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "not something": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "be very careful": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "not came": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "instructions are not helpful": {
+      "group_en": "unclear assembly instructions",
+      "group_zh": "装配说明不清"
+    },
+    "not as it appears": {
+      "group_en": "description mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "don't be deceived": {
+      "group_en": "description mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "not very stable": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "not very sturdy": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "great customer service": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "not fall": {
+      "group_en": "tipping and fall risk",
+      "group_zh": "倾倒与跌倒风险"
+    },
+    "wobbly fall risk not advised": {
+      "group_en": "tipping and fall risk",
+      "group_zh": "倾倒与跌倒风险"
+    },
+    "great step stool but": {
+      "group_en": "rubber foot durability issue",
+      "group_zh": "脚垫耐用性差"
+    },
+    "gone bad": {
+      "group_en": "rubber foot durability issue",
+      "group_zh": "脚垫耐用性差"
+    },
+    "bad plus": {
+      "group_en": "rubber foot durability issue",
+      "group_zh": "脚垫耐用性差"
+    },
+    "potential for tipping": {
+      "group_en": "tipping and fall risk",
+      "group_zh": "倾倒与跌倒风险"
+    },
+    "not sit": {
+      "group_en": "floor stability issue",
+      "group_zh": "落地稳定性问题"
+    },
+    "no tools": {
+      "group_en": "assembly requirement issue",
+      "group_zh": "装配要求问题"
+    },
+    "defect part": {
+      "group_en": "defective component",
+      "group_zh": "零件缺陷"
+    },
+    "no threaded": {
+      "group_en": "defective component",
+      "group_zh": "零件缺陷"
+    },
+    "defective because": {
+      "group_en": "defective component",
+      "group_zh": "零件缺陷"
+    },
+    "seems unstable on carpet": {
+      "group_en": "floor stability issue",
+      "group_zh": "落地稳定性问题"
+    },
+    "not flush": {
+      "group_en": "component fit issue",
+      "group_zh": "零件贴合问题"
+    },
+    "not wide": {
+      "group_en": "narrow step platform",
+      "group_zh": "踏步偏窄"
+    },
+    "it's tiny": {
+      "group_en": "undersized product",
+      "group_zh": "产品尺寸偏小"
+    },
+    "not high": {
+      "group_en": "insufficient height",
+      "group_zh": "高度不足"
+    },
+    "can't reach": {
+      "group_en": "insufficient height",
+      "group_zh": "高度不足"
+    },
+    "it works fairly well": {
+      "group_en": "mediocre usability",
+      "group_zh": "使用效果一般"
+    },
+    "isn't as firm": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "unstable product": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "not that wide": {
+      "group_en": "narrow step platform",
+      "group_zh": "踏步偏窄"
+    },
+    "not a big": {
+      "group_en": "undersized product",
+      "group_zh": "产品尺寸偏小"
+    },
+    "stool": {
+      "group_en": "general dissatisfaction",
+      "group_zh": "整体体验失望"
+    },
+    "not assembled": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "could not assemble": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "couldn't put": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "beware of complicated instructions": {
+      "group_en": "unclear assembly instructions",
+      "group_zh": "装配说明不清"
+    },
+    "defective parts": {
+      "group_en": "defective component",
+      "group_zh": "零件缺陷"
+    },
+    "arrived with defective": {
+      "group_en": "defective component",
+      "group_zh": "零件缺陷"
+    },
+    "how hard": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "be carefull": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "not very fafe": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "no screws": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "danger slippery surface": {
+      "group_en": "poor floor grip",
+      "group_zh": "地面抓地力不足"
+    },
+    "isn't thick": {
+      "group_en": "insufficient material strength",
+      "group_zh": "材质强度不足"
+    },
+    "fine": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "stove stopped": {
+      "group_en": "phrase extraction noise",
+      "group_zh": "语义噪声"
+    },
+    "not useful": {
+      "group_en": "poor usability",
+      "group_zh": "操作体验差"
+    },
+    "can't be assembled": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "not the best quality control": {
+      "group_en": "quality control issue",
+      "group_zh": "质量控制问题"
+    },
+    "drilled wrong": {
+      "group_en": "manufacturing defect",
+      "group_zh": "加工缺陷"
+    },
+    "wasn't bored": {
+      "group_en": "manufacturing defect",
+      "group_zh": "加工缺陷"
+    },
+    "not exactly": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not all": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not be able": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "don't the legs": {
+      "group_en": "rubber foot fit issue",
+      "group_zh": "脚垫贴合问题"
+    },
+    "not that sturdy": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "didn't even try": {
+      "group_en": "general dissatisfaction",
+      "group_zh": "整体体验失望"
+    },
+    "stepstool": {
+      "group_en": "general dissatisfaction",
+      "group_zh": "整体体验失望"
+    },
+    "never recommend": {
+      "group_en": "general dissatisfaction",
+      "group_zh": "整体体验失望"
+    },
+    "frustrating so far": {
+      "group_en": "assembly or parts issue",
+      "group_zh": "装配或零件问题"
+    },
+    "defective part": {
+      "group_en": "defective component",
+      "group_zh": "零件缺陷"
+    },
+    "does not fold": {
+      "group_en": "not foldable",
+      "group_zh": "无法折叠收纳"
+    },
+    "not fold away": {
+      "group_en": "not foldable",
+      "group_zh": "无法折叠收纳"
+    },
+    "heavy": {
+      "group_en": "excessive weight",
+      "group_zh": "重量过大"
+    },
+    "no lo ouedo usar": {
+      "group_en": "poor usability",
+      "group_zh": "无法正常使用"
+    },
+    "no es": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no matter how": {
+      "group_en": "fastener loosening",
+      "group_zh": "螺丝易松动"
+    },
+    "not thw": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "most expensive": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not foldable": {
+      "group_en": "not foldable",
+      "group_zh": "无法折叠收纳"
+    },
+    "hard to put together": {
+      "group_en": "assembly difficulty",
+      "group_zh": "装配困难"
+    },
+    "unsafe": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "not trust": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "poor product": {
+      "group_en": "poor product quality",
+      "group_zh": "产品质量差"
+    },
+    "don't fall": {
+      "group_en": "tipping and fall risk",
+      "group_zh": "倾倒与跌倒风险"
+    },
+    "not stable enough": {
+      "group_en": "stability and safety",
+      "group_zh": "稳定性与安全"
+    },
+    "its not sturdy enough": {
+      "group_en": "stability and safety",
+      "group_zh": "稳定性与安全"
+    },
+    "up returning": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "didn't have all": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "missed the return": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "defective item": {
+      "group_en": "Product failure",
+      "group_zh": "产品失效"
+    },
+    "no response": {
+      "group_en": "Seller unresponsive",
+      "group_zh": "卖家未回应"
+    },
+    "overnight it stopped": {
+      "group_en": "Stopped working overnight",
+      "group_zh": "夜间停止工作"
+    },
+    "not that bad": {
+      "group_en": "general performance",
+      "group_zh": "整体表现一般"
+    },
+    "pretty bad": {
+      "group_en": "battery charging issue",
+      "group_zh": "充电与续航问题"
+    },
+    "no stars": {
+      "group_en": "severe disappointment",
+      "group_zh": "严重失望"
+    },
+    "it was ok": {
+      "group_en": "limited compatibility",
+      "group_zh": "使用场景适配有限"
+    },
+    "not a total": {
+      "group_en": "limited compatibility",
+      "group_zh": "使用场景适配有限"
+    },
+    "doesn't run long enough": {
+      "group_en": "battery runtime issue",
+      "group_zh": "续航时间不足"
+    },
+    "it quit on me": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "suddenly it stopped": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "possible bad": {
+      "group_en": "suspected unit failure",
+      "group_zh": "疑似个体故障"
+    },
+    "no other": {
+      "group_en": "suspected unit failure",
+      "group_zh": "疑似个体故障"
+    },
+    "not for the hearing impaired": {
+      "group_en": "muffled audio",
+      "group_zh": "声音闷且不清晰"
+    },
+    "am hard": {
+      "group_en": "muffled audio",
+      "group_zh": "声音闷且不清晰"
+    },
+    "hard of hearing": {
+      "group_en": "muffled audio",
+      "group_zh": "声音闷且不清晰"
+    },
+    "don't buy bad": {
+      "group_en": "design and material weakness",
+      "group_zh": "设计与材料强度不足"
+    },
+    "bad design poor": {
+      "group_en": "design and material weakness",
+      "group_zh": "设计与材料强度不足"
+    },
+    "poor materials": {
+      "group_en": "design and material weakness",
+      "group_zh": "设计与材料强度不足"
+    },
+    "buy bad design": {
+      "group_en": "design and material weakness",
+      "group_zh": "设计与材料强度不足"
+    },
+    "plastic threads are not ideal": {
+      "group_en": "plastic thread connection weakness",
+      "group_zh": "塑料螺纹连接不可靠"
+    },
+    "not securely": {
+      "group_en": "connection fit and security issue",
+      "group_zh": "接口匹配与连接牢固性问题"
+    },
+    "not a good": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "quiet": {
+      "group_en": "low volume",
+      "group_zh": "音量过低"
+    },
+    "not as described at all": {
+      "group_en": "description mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "no luck": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "too quiet on bt": {
+      "group_en": "low volume",
+      "group_zh": "蓝牙音量过低"
+    },
+    "sound can't travel through pillow": {
+      "group_en": "pillow sound penetration",
+      "group_zh": "枕下传声效果差"
+    },
+    "night mare": {
+      "group_en": "limited sound options",
+      "group_zh": "音效选择少"
+    },
+    "false economy": {
+      "group_en": "charging and lifespan",
+      "group_zh": "充电故障与寿命短"
+    },
+    "no volume": {
+      "group_en": "no sound",
+      "group_zh": "无声音"
+    },
+    "not a bone": {
+      "group_en": "not bone conduction",
+      "group_zh": "并非骨传导"
+    },
+    "not ideal": {
+      "group_en": "positioning and comfort",
+      "group_zh": "摆位与舒适性问题"
+    },
+    "no hearing issues": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "not true": {
+      "group_en": "misleading bone conduction claim",
+      "group_zh": "骨传导宣传不实"
+    },
+    "no sound": {
+      "group_en": "no sound",
+      "group_zh": "无声音"
+    },
+    "surprisingly useful": {
+      "group_en": "not bone conduction",
+      "group_zh": "并非骨传导"
+    },
+    "not bone": {
+      "group_en": "not bone conduction",
+      "group_zh": "并非骨传导"
+    },
+    "not conducive to sleep": {
+      "group_en": "unexpected noise",
+      "group_zh": "夜间异常噪音"
+    },
+    "can't hear": {
+      "group_en": "low volume",
+      "group_zh": "音量过低"
+    },
+    "never seen": {
+      "group_en": "usage management",
+      "group_zh": "使用管理问题"
+    },
+    "not properly thought out": {
+      "group_en": "button usability",
+      "group_zh": "按键操作不便"
+    },
+    "pillow speaker": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "too bulky": {
+      "group_en": "positioning and comfort",
+      "group_zh": "体积与佩戴舒适性问题"
+    },
+    "full refund": {
+      "group_en": "after-sales service",
+      "group_zh": "售后退款"
+    },
+    "quality of sound": {
+      "group_en": "sound quality",
+      "group_zh": "音质问题"
+    },
+    "not up": {
+      "group_en": "sound quality",
+      "group_zh": "音质不达标"
+    },
+    "complete waste": {
+      "group_en": "poor value",
+      "group_zh": "性价比低"
+    },
+    "won't even connect": {
+      "group_en": "connection failure",
+      "group_zh": "连接失败"
+    },
+    "wasn't personal": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "quality poor": {
+      "group_en": "poor quality",
+      "group_zh": "质量差"
+    },
+    "not hear": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "stopped responding": {
+      "group_en": "button failure",
+      "group_zh": "按键失灵"
+    },
+    "button stopped": {
+      "group_en": "button failure",
+      "group_zh": "按键失灵"
+    },
+    "not believe": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not alone": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "no return": {
+      "group_en": "after-sales service",
+      "group_zh": "售后退换问题"
+    },
+    "return or repair": {
+      "group_en": "after-sales service",
+      "group_zh": "售后退换问题"
+    },
+    "don't bother stopped": {
+      "group_en": "short lifespan",
+      "group_zh": "使用寿命短"
+    },
+    "return wasn't accepted": {
+      "group_en": "after-sales service",
+      "group_zh": "售后退换问题"
+    },
+    "dissapointing": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "can't quite": {
+      "group_en": "sound clarity",
+      "group_zh": "声音清晰度问题"
+    },
+    "not to here": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "not to hear": {
+      "group_en": "sound leakage",
+      "group_zh": "漏音"
+    },
+    "speaker": {
+      "group_en": "pillow sound penetration",
+      "group_zh": "枕下传声效果差"
+    },
+    "total waste": {
+      "group_en": "poor value",
+      "group_zh": "性价比低"
+    },
+    "not pillow": {
+      "group_en": "positioning and comfort",
+      "group_zh": "摆位与舒适性问题"
+    },
+    "couldn't otherwise": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not open": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not the quality": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not usable": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not regret": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "heavy but good quality": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "didn't receive": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "cobb duster failure": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not have caps": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "no aluminum false description": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "web cleaner": {
+      "group_en": "smaller than expected",
+      "group_zh": "尺寸小于预期"
+    },
+    "avoid this junk": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "pivot attachment snapped": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "wrong": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not eligible": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not know how": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "not fluff": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "not reliable": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not that reliable": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not two": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "duster is horrible": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not send": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not flexible": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not expired": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "stay away": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "inspect packaging": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not receive": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "plastic junk": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "don't bother": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not refund": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "shouldn't advertise": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not be advertised": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "works fine": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no fewer": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not 20": {
+      "group_en": "insufficient height",
+      "group_zh": "高度不足"
+    },
+    "won't use because": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "it's pretty good": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "the bristles are flat": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not flattened": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "sturdy enough": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "most attachments not sold separately": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "accessories are poor": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "don't prefer": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "not light": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "too floppy for me": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not properly": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "good": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not collapse": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "don't have doors": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "update unsure": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "not why": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not lock": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not effective": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "hoped it worked better": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not as well": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "fragile parts": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "no update": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "it's just to heavy": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no squeegee": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not the squeegee": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not able": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "skip this brand": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "never buy this product": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no one": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not gotten": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "worked fine until": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "can't even hold": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not the case": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "scratched my window": {
+      "group_en": "damaged or missing parts",
+      "group_zh": "破损或缺件"
+    },
+    "bent": {
+      "group_en": "damaged or missing parts",
+      "group_zh": "破损或缺件"
+    },
+    "very unsatisfied": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no action": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "no pole": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "incomplete package": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "pole came bent": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "longer but not better": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "part": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "too heavy": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not a great": {
+      "group_en": "safety hazard",
+      "group_zh": "安全隐患"
+    },
+    "can't imagine": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "can't handle": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "buyers beware 2": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "won't be misled": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "not strenght": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "can't extend": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "not use because": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "screw tip is not universal": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "doesn't always": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "too much flex": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not close": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not again": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "not arrive": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "bends": {
+      "group_en": "other experience issue",
+      "group_zh": "装配困难"
+    },
+    "wouldn't send": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not as described": {
+      "group_en": "listing or included items mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "not closed": {
+      "group_en": "missing parts",
+      "group_zh": "缺少零件"
+    },
+    "not withstand": {
+      "group_en": "poor material quality",
+      "group_zh": "材料质量差"
+    },
+    "no archive": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "wrong color": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not very expensive": {
+      "group_en": "insufficient installation guidance",
+      "group_zh": "安装指导不足"
+    },
+    "no issue": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "isn't rigid": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "looks can be deceiving": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "didn't realize": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "very very heavy": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "quality": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "doesn't extend": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "couldn't even hold": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "sucks": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "too heavy for me": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "absolute garbage": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not too difficult": {
+      "group_en": "other experience issue",
+      "group_zh": "蒸汽压力不足"
+    },
+    "time consuming": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "soft bristles on brushes": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not so happy": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not a negative": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not user friendly": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "did not meet expectations": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "5 stars except that": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "good product": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not expect": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "good starting pole": {
+      "group_en": "advertising mismatch",
+      "group_zh": "描述或宣传不符"
+    },
+    "doesn't pull": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "water pressure very low": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "no existent": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "waist of money": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "no brush": {
+      "group_en": "returns and refunds",
+      "group_zh": "退货与退款"
+    },
+    "no ziplocs": {
+      "group_en": "size and fit",
+      "group_zh": "尺寸或适配问题"
+    },
+    "awful": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "wouldn't lock": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "find something else": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "not friendly": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not through": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "didn't extend": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "dont buy product": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "no clamps": {
+      "group_en": "water leakage",
+      "group_zh": "漏水"
+    },
+    "to much plastic parts": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "didn't use until": {
+      "group_en": "water leakage",
+      "group_zh": "漏水"
+    },
+    "extension pole fell apart": {
+      "group_en": "other experience issue",
+      "group_zh": "其他体验问题"
+    },
+    "not user": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "shouldn't either": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "nope pass": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "no skunks": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "didn't react": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "any issues": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "issues with animals": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "haven't had any": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "motion sensor light": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "something wrong": {
+      "group_en": "Product malfunction",
+      "group_zh": "产品运行异常"
+    },
+    "stopped being": {
+      "group_en": "Short-lived effectiveness",
+      "group_zh": "效果不持久"
+    },
+    "racoon and possum": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "didn't fase": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "one i returned": {
+      "group_en": "Return request",
+      "group_zh": "退货诉求"
+    },
+    "doesn't make sound": {
+      "group_en": "No sound output",
+      "group_zh": "没有声音输出"
+    },
+    "does not repel anything": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "completely useless": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "doesn't worj": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "doesn't deter": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "did not keep cats away": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "not deterred": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "not worth it": {
+      "group_en": "Poor value",
+      "group_zh": "性价比低"
+    },
+    "not a good quality": {
+      "group_en": "Poor durability",
+      "group_zh": "耐用性差"
+    },
+    "not a difference": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "not mind": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "disappointed canada": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "solar owls": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "not deter": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "zero stars": {
+      "group_en": "General dissatisfaction",
+      "group_zh": "总体不满意"
+    },
+    "did not phase raccoons": {
+      "group_en": "Ineffective deterrence",
+      "group_zh": "驱赶无效"
+    },
+    "racoons": {
+      "group_en": "Other feedback",
+      "group_zh": "其他反馈"
+    },
+    "didn't work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "biggest problem": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "little difficult": {
+      "group_en": "Ease of use",
+      "group_zh": "使用不便"
+    },
+    "big issue": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "another issue": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "it works but": {
+      "group_en": "Restricted swing motion",
+      "group_zh": "限制挥杆动作"
+    },
+    "returning it though": {
+      "group_en": "Limited effectiveness",
+      "group_zh": "效果有限"
+    },
+    "i'll be returning": {
+      "group_en": "Limited effectiveness",
+      "group_zh": "效果有限"
+    },
+    "don't really feel": {
+      "group_en": "Limited effectiveness",
+      "group_zh": "效果有限"
+    },
+    "i think it is useless": {
+      "group_en": "Limited effectiveness",
+      "group_zh": "效果有限"
+    },
+    "golf swing helper": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "not for petite women": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "didn't let": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "swing away": {
+      "group_en": "Ease of use",
+      "group_zh": "使用不便"
+    },
+    "great product cheaper options": {
+      "group_en": "Value for money",
+      "group_zh": "性价比"
+    },
+    "not for your full swing": {
+      "group_en": "Limited training scenarios",
+      "group_zh": "适用场景受限"
+    },
+    "device not as advertised": {
+      "group_en": "Limited effectiveness",
+      "group_zh": "效果有限"
+    },
+    "check the sizing": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "bad fit": {
+      "group_en": "Sizing and fit",
+      "group_zh": "尺寸与贴合"
+    },
+    "pretty lame": {
+      "group_en": "Limited effectiveness",
+      "group_zh": "效果有限"
+    },
+    "how to use it": {
+      "group_en": "Missing instructions",
+      "group_zh": "缺少使用说明"
+    },
+    "no paper": {
+      "group_en": "Missing instructions",
+      "group_zh": "缺少使用说明"
+    },
+    "shipped the wrong size": {
+      "group_en": "Wrong size shipped",
+      "group_zh": "发错尺寸"
+    },
+    "disappointing and frustrating": {
+      "group_en": "Wrong size shipped",
+      "group_zh": "发错尺寸"
+    },
+    "smell": {
+      "group_en": "odor issue",
+      "group_zh": "气味问题"
+    },
+    "odor": {
+      "group_en": "odor issue",
+      "group_zh": "气味问题"
+    },
+    "smells": {
+      "group_en": "odor issue",
+      "group_zh": "气味问题"
+    },
+    "no sprayer": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not come": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not remove": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "broken": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "doesn't remove": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not as good": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "smelled": {
+      "group_en": "odor issue",
+      "group_zh": "气味问题"
+    },
+    "didn't help": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't come": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not eliminate": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "didn't remove": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "never buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not as effective": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not great": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not included": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "smelling": {
+      "group_en": "odor issue",
+      "group_zh": "气味问题"
+    },
+    "didn't seem": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not so much": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not the same": {
+      "group_en": "formula change reduced performance",
+      "group_zh": "配方变更后效果下降"
+    },
+    "not working": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "as described": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "broke": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "can't stand": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "carpet cleaner": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't catch": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't eliminate": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "didn't take": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "doesn't leave": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "don't get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "don't know why": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "don't understand": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "made it worse": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "missing spray nozzle": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "missing sprayer": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "no spray": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not bad": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not do much": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not going": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not include": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not perfect": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "not very effective": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "okay": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "won't be buying": {
+      "group_en": "residue or excessive foam",
+      "group_zh": "残留或泡沫难清理"
+    },
+    "won't buy": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "won't spray": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "works okay": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "accushot": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "amazon delivery packaging terrible": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "aren't compatible": {
+      "group_en": "machine incompatibility",
+      "group_zh": "清洗机兼容性差"
+    },
+    "arrived half empty": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "as advertised": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "as expected": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "ayuda pero no 100": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "break": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "breaks": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "can't even go": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "can't find": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "can't give": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "can't go": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "can't pour": {
+      "group_en": "application inconvenient or messy",
+      "group_zh": "使用不便或易洒漏"
+    },
+    "can't read": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "can't see": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "can't speak": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "cannot tell": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "cleans off flat surfaces": {
+      "group_en": "insufficient deep-clean performance",
+      "group_zh": "深层清洁不足"
+    },
+    "container leaked": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "couldn't breathe": {
+      "group_en": "odor-related health irritation",
+      "group_zh": "刺激性气味引发不适"
+    },
+    "couldn't get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "crack": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "cracked": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "damaged": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "dawn works better": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "did not have scent": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "did nothing": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "didj't work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't believe": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't care": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't do much": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't even lighten": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "didn't linger": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't meet my expectations": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't peel": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't permanently": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "didn't put": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "didn't soak": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "didn't stay": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "didn't want": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "discolored my carpets": {
+      "group_en": "surface discoloration or damage",
+      "group_zh": "导致褪色或表面损伤"
+    },
+    "do y": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "doesn't actually come": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "doesn't appear": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "doesn't darken": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "doesn't do much": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't eliminate": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "doesn't foam": {
+      "group_en": "formula strength insufficient",
+      "group_zh": "配方浓度不足"
+    },
+    "doesn't get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "doesn't keep": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "doesn't neutralize": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "doesn't perform": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "doesn't really work": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "doesn't rove": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "doesn't say": {
+      "group_en": "machine incompatibility",
+      "group_zh": "清洗机兼容性差"
+    },
+    "doesn't spray": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "doesn't stop": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "doesn't take": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "don't expect": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "don't mind": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "don't spray": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "efectiveness": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "effective": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "for upright cleaners": {
+      "group_en": "machine incompatibility",
+      "group_zh": "清洗机兼容性差"
+    },
+    "formula has changed": {
+      "group_en": "formula change reduced performance",
+      "group_zh": "配方变更后效果下降"
+    },
+    "fragrance is overwhelming": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "frustrated with instructions": {
+      "group_en": "instructions unclear or unreadable",
+      "group_zh": "使用说明不清"
+    },
+    "good for clean ups": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "good reputation": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "good value": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "great f": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "great quality": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "halfway useful": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "handle with care": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "hasn't been completely": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "hasn't given": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "hasn't gotten": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "haven't ever": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "haven't tried": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "i can not use it": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "i would buy again": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "i wouldn't call it pro": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "i'm so conflicted": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "if it worked": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "if you have carpet stop": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "isn't bad": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "isn't good": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "isn't one": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "it cleans": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "it doesn't": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "it works kinda": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "it's decent": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "just ok results": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "leakage": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "leaky packaging": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "leaves a film": {
+      "group_en": "residue or excessive foam",
+      "group_zh": "残留或泡沫难清理"
+    },
+    "leaves awful scent": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "maybe": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "medium soil removal": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "nature's miracle": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "never came": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "never come": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "never got": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "never near": {
+      "group_en": "odor-related health irritation",
+      "group_zh": "刺激性气味引发不适"
+    },
+    "never train": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "never waste": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "nice": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no affect": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "no applicator": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "no assembly": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no avail": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "no dampness": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "no heavy": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no help": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "no kids": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no liquid": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no power sprayer": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "no reply": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "no residue": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "no sticker label": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "no sticker on the front": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "no tape": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "no unscented": {
+      "group_en": "formula change reduced performance",
+      "group_zh": "配方变更后效果下降"
+    },
+    "no well": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not 100": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not a refill": {
+      "group_en": "listing or included items mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "not accompany": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not accushot": {
+      "group_en": "listing or included items mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "not as affective as advertised": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not as efficient": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not as seen": {
+      "group_en": "listing or included items mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "not bags": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "not be buying": {
+      "group_en": "residue or excessive foam",
+      "group_zh": "残留或泡沫难清理"
+    },
+    "not block": {
+      "group_en": "pet re-marking persists",
+      "group_zh": "宠物重复标记"
+    },
+    "not break": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not carpet useful": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not completely": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not convinced": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not correct": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not discolor": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not enter": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not finding": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not fond": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not for all": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not for carpet stains": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not for me": {
+      "group_en": "application inconvenient or messy",
+      "group_zh": "使用不便或易洒漏"
+    },
+    "not for old carpet stains": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not for pets": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not hardwood floor friendly": {
+      "group_en": "surface discoloration or damage",
+      "group_zh": "导致褪色或表面损伤"
+    },
+    "not have one": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not includef": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "not keen": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not kill": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not let": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not nearly": {
+      "group_en": "formula change reduced performance",
+      "group_zh": "配方变更后效果下降"
+    },
+    "not noticed": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not others": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not produce": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not really get": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not really like": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not really sure": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "not reduce": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "not repurchase": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "not revert": {
+      "group_en": "surface discoloration or damage",
+      "group_zh": "导致褪色或表面损伤"
+    },
+    "not satisfied": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not surprised": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not take": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not that impressed": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not the 3": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "not the actual": {
+      "group_en": "listing or included items mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "not the easy": {
+      "group_en": "residue or excessive foam",
+      "group_zh": "残留或泡沫难清理"
+    },
+    "not the usual": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not the worst": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not too strong": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "not totally": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not try": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not using aggressive": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "not very affordable": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "not worked": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "not wrapped": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "noxious": {
+      "group_en": "odor-related health irritation",
+      "group_zh": "刺激性气味引发不适"
+    },
+    "ok product": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "overrated": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "overwhelming fragrance": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "overwhelming scent": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "overwhelmingly strong fragrance": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "pass": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "phone the professionals": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "please refund my purchase price": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "pluses and minuses": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "product was just ok": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "product was not new": {
+      "group_en": "used or opened product received",
+      "group_zh": "收到疑似开封或二手品"
+    },
+    "questionable effectiveness": {
+      "group_en": "effectiveness uncertain",
+      "group_zh": "效果不确定"
+    },
+    "refill only": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "removes odors": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "resolve stain remover": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "ridiculous price increase": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "rocco roxie": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "seller shipping fine product not": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "sent a defective": {
+      "group_en": "package leakage or damage",
+      "group_zh": "包装破损渗漏"
+    },
+    "so let down": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "so let's resolve this": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "so so results": {
+      "group_en": "stain or odor returns",
+      "group_zh": "污渍或异味反复"
+    },
+    "soapy requires rinsing": {
+      "group_en": "residue or excessive foam",
+      "group_zh": "残留或泡沫难清理"
+    },
+    "spray it": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "sprayer included": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "stain": {
+      "group_en": "surface discoloration or damage",
+      "group_zh": "导致褪色或表面损伤"
+    },
+    "stain temoval": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "strong scent": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "the new product stinks": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "the result is fair": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "think twice": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "third time a charm": {
+      "group_en": "repeated treatment required",
+      "group_zh": "需反复处理"
+    },
+    "too much color change": {
+      "group_en": "surface discoloration or damage",
+      "group_zh": "导致褪色或表面损伤"
+    },
+    "tries and fails": {
+      "group_en": "residue or excessive foam",
+      "group_zh": "残留或泡沫难清理"
+    },
+    "unreadable instructions on label": {
+      "group_en": "instructions unclear or unreadable",
+      "group_zh": "使用说明不清"
+    },
+    "update the description": {
+      "group_en": "listing or included items mismatch",
+      "group_zh": "描述与实物不符"
+    },
+    "urine elimator": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "use vinegar and water": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "wanted to like it": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "warnig physical toxic effects": {
+      "group_en": "odor-related health irritation",
+      "group_zh": "刺激性气味引发不适"
+    },
+    "warning contains febreeze": {
+      "group_en": "odor-related health irritation",
+      "group_zh": "刺激性气味引发不适"
+    },
+    "warning warning warning": {
+      "group_en": "surface discoloration or damage",
+      "group_zh": "导致褪色或表面损伤"
+    },
+    "wasn't a fan": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "wasn't awful": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "wasn't exactly": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "wasn't included": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "wasn't so high": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "wasn't well": {
+      "group_en": "overall experience disappointing",
+      "group_zh": "整体体验失望"
+    },
+    "wasn't working": {
+      "group_en": "overall effectiveness poor",
+      "group_zh": "整体清洁效果不佳"
+    },
+    "wasn't worth": {
+      "group_en": "poor value for money",
+      "group_zh": "性价比低"
+    },
+    "weren't visibly": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "won't be repurchasing": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "won't cause": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "won't ever": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "won't get": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "won't let": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "wont spray": {
+      "group_en": "sprayer malfunction",
+      "group_zh": "喷头故障"
+    },
+    "worked well": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "works good": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "works just ok": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "works on light stains": {
+      "group_en": "repeated treatment required",
+      "group_zh": "需反复处理"
+    },
+    "works well": {
+      "group_en": "not an actionable pain point",
+      "group_zh": "非有效痛点"
+    },
+    "wouldn't come": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "wouldn't go": {
+      "group_en": "stain removal ineffective",
+      "group_zh": "去渍效果差"
+    },
+    "wouldn't it come": {
+      "group_en": "sprayer or applicator missing",
+      "group_zh": "缺少喷头或涂抹器"
+    },
+    "wouldn't suggest": {
+      "group_en": "overpowering or unpleasant scent",
+      "group_zh": "气味过于刺鼻"
+    },
+    "wouldn't take": {
+      "group_en": "odor removal ineffective",
+      "group_zh": "除味效果差"
+    },
+    "not a huge": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not support": {
+      "group_en": "instructions or support issue",
+      "group_zh": "说明或售后支持不足"
+    },
+    "isn't that great": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "functionable but not stable": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "thinner than expected": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "full size": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "stop warning": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "dangerous product stop": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "waste of time and money": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "second hand": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "very light weight": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "is not a great mount": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "light weight": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "antenna mounting": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not big": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "can't screw": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "don't likefirst": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "awkward to use": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "it was a disappointment": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "its a good option": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "useless who": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "sways like hell": {
+      "group_en": "insufficient sturdiness",
+      "group_zh": "结构不稳"
+    },
+    "good luck reaching wavlink": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not in service": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "starlink router mount": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no fue": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no le": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no estorbe": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no entra": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "some hard": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not wild": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "ordered new received used": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not new": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "refund of price": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "just okay": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not battery compartment": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no place": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "hard enough": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "hand hard": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not solid cheaply made": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "not as shown": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not that great": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "directions hard": {
+      "group_en": "instructions or support issue",
+      "group_zh": "说明或售后支持不足"
+    },
+    "hard to read": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "difficult directions": {
+      "group_en": "instructions or support issue",
+      "group_zh": "说明或售后支持不足"
+    },
+    "not long": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "decent for 30": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "added": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not too bad": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "can't ask": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not have pre": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "assembly could be better": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "shouldn't exist": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "important for your starlink": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "wrong length": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "buy something else": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not the sturdiest": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "versatile wall mount": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "was not compatible": {
+      "group_en": "fit and compatibility issue",
+      "group_zh": "尺寸或适配问题"
+    },
+    "stripped threads or wrong screws": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "wrong size": {
+      "group_en": "fit and compatibility issue",
+      "group_zh": "尺寸或适配问题"
+    },
+    "does work": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "wrong fit": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "fits under eve fascia": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not too sure": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not tapped": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "cheaply welded": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "junk welds": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "doesn't have screw": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "no trouble": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "doesnt fit gen 4": {
+      "group_en": "fit and compatibility issue",
+      "group_zh": "尺寸或适配问题"
+    },
+    "not gen": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no mounting": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "design flaw on upright": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "muy bien": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "producti malo": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "malo pero": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "find a different one": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "wasn't attached": {
+      "group_en": "connection or magnet weakness",
+      "group_zh": "连接不牢或磁力不足"
+    },
+    "piece of trash": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "doesn't even fit": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "bent product": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no black": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "don't mess": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "fits and does pivot": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not use allen": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "not easily": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not drill": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not screws": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "high quality stainless steel": {
+      "group_en": "quality and durability",
+      "group_zh": "质量与耐用性差"
+    },
+    "not stuck": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "really think about it": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not the problem": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "need stronger magnets": {
+      "group_en": "connection or magnet weakness",
+      "group_zh": "连接不牢或磁力不足"
+    },
+    "allen head cross threaded": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "not peakdo": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "won't mar": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "design needs improvements": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "isn't accessible": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "bad design": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "design flaw": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "no product support": {
+      "group_en": "instructions or support issue",
+      "group_zh": "说明或售后支持不足"
+    },
+    "fragile acrylic": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    },
+    "won't stick": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "don't pay": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "producto dañado": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not stick": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not very strong": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not drive": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "magnets": {
+      "group_en": "connection or magnet weakness",
+      "group_zh": "连接不牢或磁力不足"
+    },
+    "won't install": {
+      "group_en": "installation difficulty",
+      "group_zh": "安装或装配困难"
+    },
+    "blocks signal": {
+      "group_en": "signal or alignment issue",
+      "group_zh": "信号或定位受影响"
+    },
+    "wasn't even moving": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "ok so far but": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "not field": {
+      "group_en": "other experience issue",
+      "group_zh": "整体体验不佳"
+    },
+    "never remove": {
+      "group_en": "difficult to remove",
+      "group_zh": "难以拆卸"
+    },
+    "pretty disappointing product": {
+      "group_en": "disappointing quality",
+      "group_zh": "产品质量令人失望"
+    },
+    "suction cups didn't really work": {
+      "group_en": "weak suction cups",
+      "group_zh": "吸盘吸力弱"
+    },
+    "never really stuck": {
+      "group_en": "fails to adhere",
+      "group_zh": "无法粘附"
+    },
+    "not robust": {
+      "group_en": "poor durability",
+      "group_zh": "耐用性不足"
+    },
+    "not outside": {
+      "group_en": "not for exterior use",
+      "group_zh": "不适合外部安装"
+    },
+    "no biggie": {
+      "group_en": "minor usability issue",
+      "group_zh": "使用不便但影响较小"
+    },
+    "meh could be better": {
+      "group_en": "mediocre performance",
+      "group_zh": "性能一般"
+    },
+    "super expensive": {
+      "group_en": "poor value",
+      "group_zh": "性价比低"
+    },
+    "solid meh": {
+      "group_en": "poor adhesion",
+      "group_zh": "粘附性差"
+    },
+    "severe service degradation": {
+      "group_en": "signal degradation",
+      "group_zh": "信号服务下降"
+    },
+    "bends to easy": {
+      "group_en": "bends easily",
+      "group_zh": "易弯曲变形"
+    },
+    "wasn't defective": {
+      "group_en": "defective unit",
+      "group_zh": "产品存在缺陷"
+    },
+    "not no matter": {
+      "group_en": "suction failure",
+      "group_zh": "吸盘失效"
+    },
+    "very little suction": {
+      "group_en": "weak suction",
+      "group_zh": "吸力很弱"
+    },
+    "find another product": {
+      "group_en": "poor overall performance",
+      "group_zh": "整体表现差"
+    },
+    "close but not quite": {
+      "group_en": "pivot cannot lock",
+      "group_zh": "转轴无法锁定"
+    },
+    "not very supportive": {
+      "group_en": "insufficient support",
+      "group_zh": "支撑不足"
+    },
+    "sometimes it just happens": {
+      "group_en": "inconsistent adhesion",
+      "group_zh": "粘附不稳定"
+    },
+    "defective one": {
+      "group_en": "defective product",
+      "group_zh": "产品缺陷"
+    },
+    "not sticking": {
+      "group_en": "does not adhere",
+      "group_zh": "无法粘住"
+    },
+    "not function": {
+      "group_en": "does not work",
+      "group_zh": "无法正常工作"
+    },
+    "stopped suctioning": {
+      "group_en": "suction degrades over time",
+      "group_zh": "吸力随时间衰减"
+    },
+    "unsatisfied": {
+      "group_en": "unmet expectations",
+      "group_zh": "未达到预期"
+    },
+    "no suction": {
+      "group_en": "no suction",
+      "group_zh": "无吸力"
+    },
+    "cups were useless": {
+      "group_en": "suction cups unusable",
+      "group_zh": "吸盘不可用"
+    },
+    "doesn't mount well": {
+      "group_en": "poor mounting fit",
+      "group_zh": "安装贴合差"
+    },
+    "suction cup": {
+      "group_en": "suction cup defect",
+      "group_zh": "吸盘故障"
+    },
+    "incredibly hard": {
+      "group_en": "difficult removal",
+      "group_zh": "拆卸困难"
+    },
+    "hard to pull": {
+      "group_en": "difficult removal",
+      "group_zh": "拆卸困难"
+    },
+    "not very useful": {
+      "group_en": "limited usefulness",
+      "group_zh": "实用性有限"
+    },
+    "not grip": {
+      "group_en": "weak grip",
+      "group_zh": "夹持不牢"
+    },
+    "not for my needs": {
+      "group_en": "limited usefulness",
+      "group_zh": "实用性有限"
+    },
+    "trashhhh": {
+      "group_en": "not suitable for use case",
+      "group_zh": "不适合使用场景"
+    },
+    "oggetto pericoloso": {
+      "group_en": "very poor quality",
+      "group_zh": "质量极差"
+    },
+    "no caben": {
+      "group_en": "dangerous detachment",
+      "group_zh": "危险脱落"
+    },
+    "wouldn't tighten": {
+      "group_en": "insufficient fit",
+      "group_zh": "尺寸不合"
+    },
+    "no sirvió": {
+      "group_en": "cannot tighten",
+      "group_zh": "无法拧紧"
+    },
+    "no fasteners": {
+      "group_en": "missing fasteners",
+      "group_zh": "缺少紧固件"
+    },
+    "terrible fit": {
+      "group_en": "poor fit",
+      "group_zh": "贴合不良"
+    },
+    "good mount wrong hardware": {
+      "group_en": "wrong hardware",
+      "group_zh": "配件不匹配"
+    },
+    "almost was good": {
+      "group_en": "needs modification",
+      "group_zh": "需要改装"
+    },
+    "return it because": {
+      "group_en": "return due to quality",
+      "group_zh": "因质量问题退货"
+    },
+    "wrong way": {
+      "group_en": "incorrect installation orientation",
+      "group_zh": "安装方向错误"
+    },
+    "pressure the wrong": {
+      "group_en": "improper removal force",
+      "group_zh": "拆卸施力不当"
+    },
+    "never the less": {
+      "group_en": "still has issue",
+      "group_zh": "仍存在问题"
+    },
+    "returned both": {
+      "group_en": "product failure",
+      "group_zh": "产品失效"
+    }
+  }
+}
