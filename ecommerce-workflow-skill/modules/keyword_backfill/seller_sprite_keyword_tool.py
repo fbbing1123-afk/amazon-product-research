@@ -19,13 +19,13 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.cell.cell import MergedCell
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles import Alignment
-from openpyxl.worksheet.cell_range import CellRange
 from openpyxl.worksheet.worksheet import Worksheet
 
 MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(MODULES_DIR))
 
+from shared.worksheet_rows import insert_rows_preserving_merges
 from shared.marketplaces import ensure_sellersprite_site, get_marketplace, normalize_site_code
 
 
@@ -457,116 +457,6 @@ def find_next_section_row(ws: Worksheet, start_row: int) -> int:
         if re.match(r"^\d+\.", value):
             return row
     return ws.max_row + 1
-
-
-def insert_rows_preserving_merges(ws: Worksheet, insert_at: int, amount: int, template_row: int) -> None:
-    merged_ranges = [CellRange(str(merged_range)) for merged_range in ws.merged_cells.ranges]
-    row_heights = {
-        row_index: dimension.height
-        for row_index, dimension in ws.row_dimensions.items()
-    }
-    template_row_merges = [
-        CellRange(str(merged_range))
-        for merged_range in merged_ranges
-        if merged_range.min_row == template_row and merged_range.max_row == template_row
-    ]
-
-    for merged_range in list(ws.merged_cells.ranges):
-        ws.unmerge_cells(str(merged_range))
-
-    # 插入关键词行时同步平移浮动图片和图表，避免后续类目截图仍停留在旧行。
-    shift_floating_objects_for_insert(ws, insert_at, amount)
-    ws.insert_rows(insert_at, amount)
-    restore_row_heights_after_insert(ws, row_heights, insert_at, amount, template_row)
-
-    for merged_range in merged_ranges:
-        merge_range_if_free(ws, shift_range_for_insert(merged_range, insert_at, amount))
-
-    for row_offset in range(amount):
-        target_row = insert_at + row_offset
-        for merged_range in template_row_merges:
-            merge_range_if_free(
-                ws,
-                CellRange(
-                    min_col=merged_range.min_col,
-                    min_row=target_row,
-                    max_col=merged_range.max_col,
-                    max_row=target_row,
-                ),
-            )
-
-
-def shift_floating_objects_for_insert(ws: Worksheet, insert_at: int, amount: int) -> None:
-    """把插入行下方的浮动图片和图表锚点向下平移。"""
-    for drawing in list(getattr(ws, "_images", [])) + list(getattr(ws, "_charts", [])):
-        shift_anchor_for_insert(getattr(drawing, "anchor", None), insert_at, amount)
-
-
-def shift_anchor_for_insert(anchor: Any, insert_at: int, amount: int) -> None:
-    """平移 oneCellAnchor/twoCellAnchor 的起止行。"""
-    if anchor is None or isinstance(anchor, str):
-        return
-    for marker_name in ("_from", "_to"):
-        marker = getattr(anchor, marker_name, None)
-        if marker is not None and marker.row + 1 >= insert_at:
-            marker.row += amount
-
-
-def restore_row_heights_after_insert(
-    ws: Worksheet,
-    row_heights: dict[int, float | None],
-    insert_at: int,
-    amount: int,
-    template_row: int,
-) -> None:
-    template_height = row_heights.get(template_row)
-    max_row = ws.max_row
-    for row in range(max_row, insert_at + amount - 1, -1):
-        source_row = row - amount
-        ws.row_dimensions[row].height = row_heights.get(source_row)
-    for row in range(insert_at, insert_at + amount):
-        ws.row_dimensions[row].height = template_height
-
-
-def shift_range_for_insert(merged_range: CellRange, insert_at: int, amount: int) -> CellRange:
-    min_row = merged_range.min_row
-    max_row = merged_range.max_row
-    if merged_range.min_row >= insert_at:
-        min_row += amount
-        max_row += amount
-    elif merged_range.max_row >= insert_at:
-        max_row += amount
-    return CellRange(
-        min_col=merged_range.min_col,
-        min_row=min_row,
-        max_col=merged_range.max_col,
-        max_row=max_row,
-    )
-
-
-def merge_range_if_free(ws: Worksheet, candidate: CellRange) -> None:
-    if candidate.min_row == candidate.max_row and candidate.min_col == candidate.max_col:
-        return
-    for existing in ws.merged_cells.ranges:
-        if str(existing) == candidate.coord:
-            return
-        if ranges_overlap(existing, candidate):
-            return
-    ws.merge_cells(
-        start_row=candidate.min_row,
-        start_column=candidate.min_col,
-        end_row=candidate.max_row,
-        end_column=candidate.max_col,
-    )
-
-
-def ranges_overlap(left: CellRange, right: CellRange) -> bool:
-    return not (
-        left.max_row < right.min_row
-        or left.min_row > right.max_row
-        or left.max_col < right.min_col
-        or left.min_col > right.max_col
-    )
 
 
 def copy_row_format(ws: Worksheet, source_row: int, target_start_row: int, row_count: int) -> None:

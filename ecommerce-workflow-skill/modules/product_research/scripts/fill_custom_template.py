@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 import re
+import sys
 from copy import copy
 from dataclasses import dataclass
 from datetime import datetime
@@ -13,7 +14,13 @@ from urllib.parse import parse_qs, urlparse
 from openpyxl.cell.cell import MergedCell
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Font, PatternFill, Side
-from openpyxl.worksheet.cell_range import CellRange
+
+
+MODULES_DIR = Path(__file__).resolve().parents[2]
+if str(MODULES_DIR) not in sys.path:
+    sys.path.insert(0, str(MODULES_DIR))
+
+from shared.worksheet_rows import insert_rows_preserving_merges
 
 
 CATEGORY_SECTION_MARKER = "所属平台分类及常用分类节点"
@@ -370,106 +377,6 @@ def copy_cell_format(src, dst) -> None:
         dst.fill = copy(src.fill)
     if src.border:
         dst.border = copy(src.border)
-
-
-def shift_range_for_insert(merged_range: CellRange, insert_at: int, amount: int) -> CellRange:
-    min_row = merged_range.min_row
-    max_row = merged_range.max_row
-    if merged_range.min_row >= insert_at:
-        min_row += amount
-        max_row += amount
-    elif merged_range.max_row >= insert_at:
-        max_row += amount
-    return CellRange(
-        min_col=merged_range.min_col,
-        min_row=min_row,
-        max_col=merged_range.max_col,
-        max_row=max_row,
-    )
-
-
-def ranges_overlap(left: CellRange, right: CellRange) -> bool:
-    return not (
-        left.max_row < right.min_row
-        or left.min_row > right.max_row
-        or left.max_col < right.min_col
-        or left.min_col > right.max_col
-    )
-
-
-def merge_range_if_free(ws, candidate: CellRange) -> None:
-    if candidate.min_row == candidate.max_row and candidate.min_col == candidate.max_col:
-        return
-    for existing in ws.merged_cells.ranges:
-        if str(existing) == candidate.coord:
-            return
-        if ranges_overlap(existing, candidate):
-            return
-    ws.merge_cells(
-        start_row=candidate.min_row,
-        start_column=candidate.min_col,
-        end_row=candidate.max_row,
-        end_column=candidate.max_col,
-    )
-
-
-def insert_rows_preserving_merges(ws, insert_at: int, amount: int, template_row: int) -> None:
-    if amount <= 0:
-        return
-    merged_ranges = [CellRange(str(merged_range)) for merged_range in ws.merged_cells.ranges]
-    row_heights = {
-        row_index: dimension.height
-        for row_index, dimension in ws.row_dimensions.items()
-    }
-    template_row_merges = [
-        CellRange(str(merged_range))
-        for merged_range in merged_ranges
-        if merged_range.min_row == template_row and merged_range.max_row == template_row
-    ]
-
-    for merged_range in list(ws.merged_cells.ranges):
-        ws.unmerge_cells(str(merged_range))
-
-    ws.insert_rows(insert_at, amount)
-    shift_floating_objects_for_insert(ws, insert_at, amount)
-
-    max_row = ws.max_row
-    for row in range(max_row, insert_at + amount - 1, -1):
-        source_row = row - amount
-        ws.row_dimensions[row].height = row_heights.get(source_row)
-    template_height = row_heights.get(template_row)
-    for row in range(insert_at, insert_at + amount):
-        ws.row_dimensions[row].height = template_height
-
-    for merged_range in merged_ranges:
-        merge_range_if_free(ws, shift_range_for_insert(merged_range, insert_at, amount))
-
-    for row_offset in range(amount):
-        target_row = insert_at + row_offset
-        for merged_range in template_row_merges:
-            merge_range_if_free(
-                ws,
-                CellRange(
-                    min_col=merged_range.min_col,
-                    min_row=target_row,
-                    max_col=merged_range.max_col,
-                    max_row=target_row,
-                ),
-            )
-
-
-def shift_floating_objects_for_insert(ws, insert_at: int, amount: int) -> None:
-    for drawing in list(getattr(ws, "_images", [])) + list(getattr(ws, "_charts", [])):
-        shift_anchor_for_insert(getattr(drawing, "anchor", None), insert_at, amount)
-
-
-def shift_anchor_for_insert(anchor, insert_at: int, amount: int) -> None:
-    if anchor is None or isinstance(anchor, str):
-        return
-    for marker_name in ("_from", "_to"):
-        marker = getattr(anchor, marker_name, None)
-        if marker is not None and marker.row + 1 >= insert_at:
-            marker.row += amount
 
 
 def find_research_sheet(wb):
