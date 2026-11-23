@@ -9,6 +9,7 @@ from openpyxl import Workbook
 
 from modules.competitor_analysis.collect_basic_facts import (
     FIELDS, asin_from_input, normalize_value, parse_plugin_panel, read_source, resolve_product,
+    normalize_selling_points,
 )
 
 
@@ -115,6 +116,50 @@ class BasicFactsTests(unittest.TestCase):
             self.assertEqual([0, 35.99, "2025-07-25"], [result["fields"][f]["value"] for f in FIELDS])
             self.assertEqual(2, result["fields"]["price"]["row"])
             self.assertEqual("incomplete", resolve_product("B000TEST03", values["B000TEST03"])["status"])
+
+    def test_selling_points_missing_cell_and_missing_asin_both_fetch(self):
+        fields = {"selling_points": "产品卖点"}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.xlsx"
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "数据源"
+            ws.append(["ASIN", "产品卖点"])
+            ws.append([ASIN, " / "])
+            ws.append(["B000TEST02", "已有卖点"])
+            wb.save(path)
+            targets = [ASIN, "B000TEST02", "B000TEST03"]
+            source = read_source(path, targets, fields=fields)
+            calls = []
+            def fetch(asin, needed):
+                calls.append(asin)
+                return {"url": "https://www.amazon.com/dp/" + asin, "observed_at": "测试",
+                        "fields": {"selling_points": {"value": "页面原文", "source": "amazon_product_page"}}}
+            results = [resolve_product(asin, source[asin], fetch, fields) for asin in targets]
+            self.assertEqual([ASIN, "B000TEST03"], calls)
+            self.assertEqual("已有卖点", results[1]["fields"]["selling_points"]["value"])
+            self.assertEqual("workbook", results[1]["fields"]["selling_points"]["source"])
+            self.assertEqual("amazon_product_page", results[0]["fields"]["selling_points"]["source"])
+            self.assertTrue(all(result["status"] == "complete" for result in results))
+
+    def test_missing_selling_points_column_uses_fallback(self):
+        fields = {"selling_points": "产品卖点"}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.xlsx"
+            wb = Workbook()
+            wb.active.title = "数据源"
+            wb.active.append(["ASIN"])
+            wb.active.append([ASIN])
+            wb.save(path)
+            result = read_source(path, [ASIN], fields=fields)
+            self.assertEqual([], result[ASIN]["selling_points"])
+
+    def test_selling_points_preserve_six_items_without_truncation(self):
+        items = [f"Point {number}: original text" for number in range(6)]
+        value = normalize_selling_points(["About this item", "", *items, items[0], "See more product details"])
+        self.assertEqual(items, value.splitlines())
+        for value in (None, " \n /\n--", 0, False):
+            self.assertIsNone(normalize_selling_points(value))
 
 
 if __name__ == "__main__":
