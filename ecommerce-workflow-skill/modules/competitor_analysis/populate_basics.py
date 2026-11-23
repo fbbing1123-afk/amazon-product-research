@@ -21,9 +21,11 @@ if str(MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(MODULES_DIR))
 
 from shared.quality_gates import validate_competitor_basics  # noqa: E402
+from shared.worksheet_rows import insert_rows_preserving_merges
 
 
 ASIN_PATTERN = re.compile(r"(?<![A-Z0-9])([A-Z0-9]{10})(?![A-Z0-9])", re.I)
+MAX_COMPARISON_DIMENSIONS = 5
 COMPARABLE_NUMBER_PATTERN = re.compile(
     r"(?<![A-Z0-9.])"
     r"\d+(?:\.\d+)?"
@@ -263,6 +265,35 @@ def prepare_competitor_layout(
     replace_horizontal_merge(worksheet, summary_row, first_column, last_column)
 
 
+def ensure_comparison_rows(worksheet, count: int) -> None:
+    """按实际维度数补足行，保持下方评价、总结的内容和格式。"""
+    if not 1 <= count <= MAX_COMPARISON_DIMENSIONS:
+        raise ValueError(f"对比维度要求 1 到 {MAX_COMPARISON_DIMENSIONS} 个。")
+    start = find_label_row(worksheet, "对比维度")
+    following = find_label_row(worksheet, "评价分析")
+    available = following - start
+    if available < 1:
+        raise ValueError("对比维度与评价分析区域顺序异常")
+    if count <= available:
+        return
+    label_area = next((area for area in worksheet.merged_cells.ranges
+                       if worksheet.cell(start, 1).coordinate in area), None)
+    if (normalize_text(worksheet.cell(start, 1).value) != "对比维度"
+            or (label_area is not None and
+                (label_area.min_col != 1 or label_area.max_col != 1
+                 or label_area.min_row != start or label_area.max_row != following - 1))):
+        raise ValueError("对比维度标题合并范围异常，不能自动增行")
+    if any(worksheet.cell(row, 1).value not in (None, "") for row in range(start + 1, following)):
+        raise ValueError("对比维度标题列含其它内容，不能自动合并")
+    extra = count - available
+    previous_label_area = str(label_area) if label_area is not None else None
+    insert_rows_preserving_merges(worksheet, following, extra, following - 1)
+    # 在原区域末端插行不会自动延长标题合并区域，因此单独扩展此纵向标题。
+    if previous_label_area is not None:
+        worksheet.unmerge_cells(previous_label_area)
+    worksheet.merge_cells(start_row=start, end_row=start + count - 1, start_column=1, end_column=1)
+
+
 def populate(
     workbook_path: Path,
     content_path: Path,
@@ -282,8 +313,8 @@ def populate(
         comparisons = content.get("comparisons") or []
         if set(asins) - set(products):
             raise ValueError("内容 JSON 没有覆盖全部竞品 ASIN。")
-        if not 1 <= len(comparisons) <= 3:
-            raise ValueError("当前模板要求 1 到 3 个组合对比维度。")
+        if not 1 <= len(comparisons) <= MAX_COMPARISON_DIMENSIONS:
+            raise ValueError(f"对比维度要求 1 到 {MAX_COMPARISON_DIMENSIONS} 个。")
 
         records = source_records(datasource, asins)
         main_images = source_main_images(datasource, asins)
@@ -293,6 +324,7 @@ def populate(
         if product_columns[-1] > 16384:
             raise ValueError("竞品数量超过 Excel 可用列数。")
 
+        ensure_comparison_rows(competitor, len(comparisons))
         image_row = find_label_row(competitor, "产品图")
         link_row = find_label_row(competitor, "详情页链接")
         rating_row = find_label_row(competitor, "评分/评论数")
@@ -301,8 +333,6 @@ def populate(
         evaluation_row = find_label_row(competitor, "评价分析")
         summary_row = find_label_row(competitor, "总结及改进方式")
         available_comparison_rows = list(range(comparison_start, evaluation_row))
-        if len(comparisons) > len(available_comparison_rows):
-            raise ValueError("组合对比维度超过模板现有行数。")
 
         prepare_competitor_layout(
             competitor,
@@ -352,9 +382,9 @@ def populate(
 
         for offset, row in enumerate(available_comparison_rows):
             if offset >= len(comparisons):
-                competitor.cell(row, 2, None)
+                competitor.cell(row, 2).value = None
                 for column in product_columns:
-                    competitor.cell(row, column, None)
+                    competitor.cell(row, column).value = None
                 continue
             comparison = comparisons[offset]
             competitor.cell(row, 2, normalize_text(comparison.get("label")))

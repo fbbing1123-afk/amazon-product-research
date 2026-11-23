@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from copy import copy
 from io import BytesIO
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -21,10 +22,58 @@ from competitor_analysis.populate_basics import (
     populate,
     prepare_competitor_layout,
     row_height_to_pixels,
+    ensure_comparison_rows,
 )
 
 
 class PopulateCompetitorBasicsTests(unittest.TestCase):
+    def test_comparison_capacity_moves_review_and_summary_with_styles(self):
+        for count in (4, 5):
+            with self.subTest(count=count):
+                ws = Workbook().active
+                ws["A9"] = "对比维度"
+                ws.merge_cells("A9:A11")
+                ws["A12"] = "评价分析"
+                ws.merge_cells("A12:A13")
+                ws["B12"], ws["B13"] = "优点", "缺点"
+                ws["C12"] = "已有优点"
+                ws["A14"] = "总结及改进方式"
+                ws.merge_cells("A14:B14")
+                ws.merge_cells("C14:G14")
+                ws["C14"] = "已有总结"
+                ws.row_dimensions[11].height = 108
+                ws.row_dimensions[12].height = 267
+                ws.row_dimensions[14].height = 198
+                ws["C12"].fill = PatternFill("solid", fgColor="FFFF0000")
+                ws["C14"].alignment = Alignment(wrap_text=True, vertical="center")
+                before = {coord: copy(ws[coord]._style) for coord in ("C12", "C14")}
+                ensure_comparison_rows(ws, count)
+                extra = count - 3
+                self.assertEqual("已有优点", ws.cell(12 + extra, 3).value)
+                self.assertEqual("已有总结", ws.cell(14 + extra, 3).value)
+                self.assertEqual(before["C12"], ws.cell(12 + extra, 3)._style)
+                self.assertEqual(before["C14"], ws.cell(14 + extra, 3)._style)
+                self.assertEqual(267, ws.row_dimensions[12 + extra].height)
+                self.assertEqual(198, ws.row_dimensions[14 + extra].height)
+                self.assertEqual(108, ws.row_dimensions[12].height)
+                self.assertIn(f"A9:A{8 + count}", ws.merged_cells)
+                self.assertIn(f"A{12 + extra}:A{13 + extra}", ws.merged_cells)
+                self.assertIn(f"C{14 + extra}:G{14 + extra}", ws.merged_cells)
+                before_rows = ws.max_row
+                ensure_comparison_rows(ws, count)
+                ensure_comparison_rows(ws, 2)
+                self.assertEqual(before_rows, ws.max_row)
+
+    def test_comparison_limit_rejects_six_and_does_not_expand_three(self):
+        ws = Workbook().active
+        ws["A6"], ws["A9"] = "对比维度", "评价分析"
+        ensure_comparison_rows(ws, 3)
+        self.assertEqual("评价分析", ws["A9"].value)
+        for count in (0, 6):
+            with self.assertRaisesRegex(ValueError, "1 到 5"):
+                ensure_comparison_rows(ws, count)
+        self.assertEqual("评价分析", ws["A9"].value)
+
     def test_comparison_values_are_red_without_highlighting_explanations(self):
         value = comparison_rich_text("219Wh/60000mAh；最长约 10 小时；支持直通供电")
         self.assertIsInstance(value, CellRichText)
@@ -101,6 +150,7 @@ class PopulateCompetitorBasicsTests(unittest.TestCase):
             competitor["A4"] = "评分/评论数"
             competitor["A5"] = "产品卖点"
             competitor["A6"] = "对比维度"
+            competitor.merge_cells("A6:A8")
             competitor["A9"] = "评价分析"
             competitor["A11"] = "总结及改进方式"
             competitor.merge_cells("A1:G1")
@@ -150,7 +200,7 @@ class PopulateCompetitorBasicsTests(unittest.TestCase):
                                 "label": "容量与续航",
                                 "values": {asin: "200Wh；最长约 10 小时" for asin in asins},
                             }
-                        ],
+                        ] * 5,
                     },
                     ensure_ascii=False,
                 ),
@@ -171,12 +221,15 @@ class PopulateCompetitorBasicsTests(unittest.TestCase):
                     )
                 )
                 self.assertEqual(
-                    {row: worksheet.row_dimensions[row].height for row in expected_heights},
+                    {row: worksheet.row_dimensions[row + 2 if row >= 9 else row].height for row in expected_heights},
                     expected_heights,
                 )
                 merges = {str(item) for item in worksheet.merged_cells.ranges}
                 self.assertIn("A1:H1", merges)
-                self.assertIn("C11:H11", merges)
+                self.assertIn("C13:H13", merges)
+                self.assertIn("A6:A10", merges)
+                self.assertEqual("评价分析", worksheet["A11"].value)
+                self.assertEqual("容量与续航", worksheet["B10"].value)
                 self.assertEqual(len(worksheet._images), 6)
                 self.assertEqual(
                     {(image.width, image.height) for image in worksheet._images},
