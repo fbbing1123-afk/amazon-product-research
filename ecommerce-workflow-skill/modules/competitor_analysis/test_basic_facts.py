@@ -10,6 +10,7 @@ from openpyxl import Workbook
 from modules.competitor_analysis.collect_basic_facts import (
     FIELDS, asin_from_input, normalize_value, parse_plugin_panel, read_source, resolve_product,
     normalize_selling_points,
+    normalize_alexa_questions, aggregate_question_evidence,
 )
 
 
@@ -28,6 +29,22 @@ URL = "https://www.amazon.com/dp/" + ASIN
 
 
 class BasicFactsTests(unittest.TestCase):
+    def test_alexa_keeps_questions_only_and_deduplicates(self):
+        self.assertEqual("Can it seal liquids?\nIs it portable?", normalize_alexa_questions([
+            "Submit", "", " Can it seal liquids? ", "CAN IT SEAL LIQUIDS?", "Is it portable?", "Looking for specific info"
+        ]))
+        self.assertIsNone(normalize_alexa_questions("暂无"))
+
+    def test_question_evidence_counts_product_pages_not_repeated_buttons(self):
+        products = [
+            {"asin": "B000TEST01", "fields": {"alexa_questions": {"value": "Is it portable?\nIs it portable?"}}},
+            {"asin": "B000TEST02", "fields": {"alexa_questions": {"value": "Is it portable?\nCan it seal liquids?"}}},
+            {"asin": "B000TEST03", "fields": {"alexa_questions": {"value": None}}},
+        ]
+        groups = aggregate_question_evidence(products)
+        self.assertEqual([2, 1], [group["product_page_count"] for group in groups])
+        self.assertEqual(["B000TEST01", "B000TEST02"], groups[0]["asins"])
+
     def observation(self):
         return parse_plugin_panel(PANEL, ASIN, URL)
 

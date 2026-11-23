@@ -17,6 +17,7 @@ from openpyxl import load_workbook
 
 FIELDS = {"monthly_sales": "月销量", "price": "价格($)", "listed_at": "上架时间"}
 ALL_FIELDS = {**FIELDS, "selling_points": "产品卖点"}
+AVAILABLE_FIELDS = {**ALL_FIELDS, "alexa_questions": "Alexa推荐问题"}
 PANEL = "#seller-sprite-extension-quick-view-listing"
 SCHEMA = "competitor-basic-facts.v1"
 MISSING = {"", "/", "-", "--", "n/a", "none", "null", "暂无", "无数据"}
@@ -57,6 +58,53 @@ def read_page_selling_points(page, asin: str) -> dict:
     return {"value": value, "raw": value, "label": "About this item", "source": "amazon_product_page"}
 
 
+def normalize_alexa_questions(value) -> str | None:
+    """只保留问题按钮文案；这些是推荐问题，不能解释为真实买家提问频次。"""
+    if not isinstance(value, (str, list, tuple)):
+        return None
+    items = value.splitlines() if isinstance(value, str) else value
+    questions, seen = [], set()
+    for item in items:
+        if not isinstance(item, str):
+            continue
+        question = re.sub(r"\s+", " ", item).strip()
+        if not question.endswith(("?", "？")) or question.casefold() in seen:
+            continue
+        questions.append(question)
+        seen.add(question.casefold())
+    return "\n".join(questions) or None
+
+
+def read_page_alexa_questions(page, asin: str) -> dict:
+    """读取商品页 Looking for specific info 区域的现有推荐按钮，不向 Alexa 发送提问。"""
+    if asin_from_input(page.url) != asin:
+        raise ValueError("页面已跳转到其它 ASIN，拒绝串商品读取推荐问题")
+    root = page.locator("#dpx-rex-nice-widget-container")
+    value = None
+    if root.count() == 1 and root.is_visible():
+        if re.search(r"Looking for specific info", root.inner_text(timeout=3000), re.I):
+            # Amazon用 input+span 渲染问题按钮，读取推荐列表文案而非仅匹配button标签。
+            pills = root.locator("#dpx-rex-nile-inline-default-pills-container li")
+            value = normalize_alexa_questions(pills.all_inner_texts())
+    if asin_from_input(page.url) != asin:
+        raise ValueError("读取推荐问题时商品发生变化，请重试")
+    return {"value": value, "raw": value, "label": "Looking for specific info / Alexa推荐问题",
+            "source": "amazon_alexa_suggestions"}
+
+
+def aggregate_question_evidence(products: list[dict]) -> list[dict]:
+    """按原问题归并展示过它的商品；近义归并留给有上下文的分析阶段。"""
+    groups = {}
+    for product in products:
+        value = product.get("fields", {}).get("alexa_questions", {}).get("value")
+        for question in (normalize_alexa_questions(value) or "").splitlines():
+            key = question.casefold()
+            entry = groups.setdefault(key, {"question": question, "asins": []})
+            if product["asin"] not in entry["asins"]:
+                entry["asins"].append(product["asin"])
+    return [{**entry, "product_page_count": len(entry["asins"])} for entry in groups.values()]
+
+
 def asin_from_input(value: str) -> str:
     """接受一个 ASIN 或美国站商品链接，拒绝其它站点和非商品地址。"""
     value = value.strip()
@@ -75,6 +123,8 @@ def normalize_value(field: str, value):
     """零销量是有效值；范围销量、无效价格和缺失标记不能当作精确数值。"""
     if field == "selling_points":
         return normalize_selling_points(value)
+    if field == "alexa_questions":
+        return normalize_alexa_questions(value)
     if value is None or isinstance(value, bool) or str(value).strip().lower() in MISSING:
         return None
     if field == "listed_at":
@@ -216,7 +266,7 @@ class PluginCollector:
         page = self.page
         page.goto(f"https://www.amazon.com/dp/{asin}", wait_until="domcontentloaded", timeout=40_000)
         deadline = time.monotonic() + self.timeout
-        last_error = "请检查商品是否提供 About this item，以及所需插件是否启用并登录"
+        last_error = "请检查所选商品字段/推荐问题是否展示，以及所需插件是否启用并登录"
         latest = None
         previous = None
         while time.monotonic() < deadline:
@@ -226,7 +276,7 @@ class PluginCollector:
                 if asin_from_input(page.url) != asin:
                     raise ValueError("页面已跳转到其它 ASIN")
                 latest = {"asin": asin, "url": page.url, "observed_at": datetime.now(timezone.utc).isoformat(),
-                          "fields": {field: {"value": None, "label": ALL_FIELDS[field], "raw": None} for field in needed}}
+                          "fields": {field: {"value": None, "label": AVAILABLE_FIELDS[field], "raw": None} for field in needed}}
                 if any(field in FIELDS for field in needed):
                     panel = page.locator(PANEL)
                     if panel.count() == 1 and panel.is_visible():
@@ -238,6 +288,8 @@ class PluginCollector:
                 # 卖点直接来自 Amazon，不依赖卖家精灵插件是否就绪。
                 if "selling_points" in needed:
                     latest["fields"]["selling_points"] = read_page_selling_points(page, asin)
+                if "alexa_questions" in needed:
+                    latest["fields"]["alexa_questions"] = read_page_alexa_questions(page, asin)
                 signature = [latest["fields"][field]["value"] for field in needed]
                 # 两次连续读取一致且所需字段齐全后返回，避免页面刚出现时仍是占位值。
                 if all(value is not None for value in signature) and signature == previous:
@@ -263,15 +315,15 @@ def main():
     parser.add_argument("--cdp", default="http://127.0.0.1:9223")
     parser.add_argument("--timeout", type=float, default=25)
     parser.add_argument("--source-only", action="store_true", help="仅检查 Excel，不打开网页")
-    parser.add_argument("--fields", nargs="+", choices=list(ALL_FIELDS), default=list(ALL_FIELDS),
-                        help="仅处理指定字段；默认基础三项及产品卖点，卖点单独处理可选 selling_points")
+    parser.add_argument("--fields", nargs="+", choices=list(AVAILABLE_FIELDS), default=list(ALL_FIELDS),
+                        help="默认基础三项及卖点；可单选 selling_points 或 alexa_questions")
     args = parser.parse_args()
     if not 1 <= args.timeout <= 60:
         parser.error("--timeout 必须在 1～60 秒之间")
     if args.output.resolve() == args.workbook.resolve() or args.output.suffix.lower() != ".json":
         parser.error("--output 必须是独立的 .json 文件，不能覆盖工作簿")
     asins = list(dict.fromkeys(asin_from_input(item) for item in args.items))
-    fields = {field: ALL_FIELDS[field] for field in args.fields}
+    fields = {field: AVAILABLE_FIELDS[field] for field in args.fields}
     source = read_source(args.workbook, asins, args.source_sheet, fields)
     report = {"schema_version": SCHEMA, "site": "US", "currency": "USD", "requested_fields": list(fields), "products": []}
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -280,6 +332,8 @@ def main():
             print(f"正在处理 {asin}", flush=True)
             result = resolve_product(asin, source[asin], None if args.source_only else collector, fields)
             report["products"].append(result)
+            if "alexa_questions" in fields:
+                report["question_evidence"] = aggregate_question_evidence(report["products"])
             # 每完成一个商品即保存检查点；部分失败不丢失其它商品的取数结果。
             temporary = args.output.with_suffix(".json.tmp")
             temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

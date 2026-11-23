@@ -32,6 +32,14 @@ python modules/competitor_analysis/collect_basic_facts.py B000TEST01 B000TEST02 
 - 只补产品卖点时追加 `--fields selling_points`；只取原基础三项时追加 `--fields monthly_sales price listed_at`。
 - `--timeout` 指定等待插件数据的秒数，默认25秒，可设1～60秒。
 
+## Alexa推荐问题与对比维度
+
+使用 `--fields alexa_questions` 读取当前商品页“Looking for specific info?”区域的推荐问题按钮，不发送问题给Alexa，也不改变原默认四字段选择。可与 `selling_points` 等字段同次采集。网页原文、ASIN、来源和时间按字段保留；未展示时返回缺失。
+
+结果中的 `question_evidence` 对相同问题归并并列出来源ASIN，`product_page_count` 仅表示该问题出现在多少个采集商品页，不能当作真实买家提问次数。分析阶段跨同类竞品归并近义问题，结合商品资料筛选最多5个对比维度；问题只用于发现关注点，具体产品答案必须另找证据。默认不将推荐问题直接写入Excel。
+
+2026-11-23项目浏览器实测3个商品，分别取得5条、合计15条推荐问题；采集相关测试累计15项通过。推荐问题列表使用input和span组成的问题按钮，脚本读取列表项可见文案，避免漏掉非button标签。
+
 ## 定位与保底规则
 
 1. 在数据源中精确匹配 ASIN，再按字段读取；有效的 0 销量保留。
