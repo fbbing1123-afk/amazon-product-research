@@ -265,6 +265,17 @@ def prepare_competitor_layout(
     replace_horizontal_merge(worksheet, summary_row, first_column, last_column)
 
 
+def comparison_display_value(value, label: str) -> str:
+    """未知不等于不支持；保留有证据的答案，缺值改为明确的未说明提示。"""
+    text = "" if value is None else str(value).strip()
+    if text.casefold() not in {"", "/", "-", "--", "n/a", "暂无", "未知", "未说明"}:
+        return text
+    label = normalize_text(label).rstrip("?？：:")
+    if label.startswith("支持"):
+        label = "是否" + label
+    return f"页面未明确说明{label}" if label else "页面未明确说明该项信息"
+
+
 def ensure_comparison_rows(worksheet, count: int) -> None:
     """按实际维度数补足行，保持下方评价、总结的内容和格式。"""
     if not 1 <= count <= MAX_COMPARISON_DIMENSIONS:
@@ -393,7 +404,7 @@ def populate(
                 competitor.cell(
                     row,
                     column,
-                    comparison_rich_text(normalize_text(values.get(asin)) or "/"),
+                    comparison_rich_text(comparison_display_value(values.get(asin), comparison.get("label"))),
                 )
 
         for row in range(image_row, evaluation_row + 2):

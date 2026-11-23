@@ -23,10 +23,20 @@ from competitor_analysis.populate_basics import (
     prepare_competitor_layout,
     row_height_to_pixels,
     ensure_comparison_rows,
+    comparison_display_value,
 )
 
 
 class PopulateCompetitorBasicsTests(unittest.TestCase):
+    def test_unknown_comparison_is_distinct_from_explicit_negative(self):
+        for value in (None, "", " / ", "--", "N/A"):
+            self.assertEqual("页面未明确说明是否支持湿食", comparison_display_value(value, "是否支持湿食"))
+        self.assertEqual("页面未明确说明是否支持湿食", comparison_display_value("/", "支持湿食"))
+        self.assertEqual("页面未明确说明电池容量", comparison_display_value(None, "电池容量"))
+        for value in ("支持湿食", "不支持湿食", "页面未明确说明是否支持湿食", "80/250英尺"):
+            self.assertEqual(value, comparison_display_value(value, "适用性"))
+        self.assertEqual("0", comparison_display_value(0, "数量"))
+
     def test_comparison_capacity_moves_review_and_summary_with_styles(self):
         for count in (4, 5):
             with self.subTest(count=count):
@@ -198,7 +208,7 @@ class PopulateCompetitorBasicsTests(unittest.TestCase):
                         "comparisons": [
                             {
                                 "label": "容量与续航",
-                                "values": {asin: "200Wh；最长约 10 小时" for asin in asins},
+                                "values": {asin: "200Wh；最长约 10 小时" for asin in asins[:-1]},
                             }
                         ] * 5,
                     },
@@ -230,6 +240,7 @@ class PopulateCompetitorBasicsTests(unittest.TestCase):
                 self.assertIn("A6:A10", merges)
                 self.assertEqual("评价分析", worksheet["A11"].value)
                 self.assertEqual("容量与续航", worksheet["B10"].value)
+                self.assertEqual("页面未明确说明容量与续航", str(worksheet["H10"].value))
                 self.assertEqual(len(worksheet._images), 6)
                 self.assertEqual(
                     {(image.width, image.height) for image in worksheet._images},
