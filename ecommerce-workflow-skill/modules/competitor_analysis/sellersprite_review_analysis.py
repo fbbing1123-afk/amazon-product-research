@@ -22,6 +22,7 @@ if str(MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(MODULES_DIR))
 
 from review_research.download_sellersprite_reviews import asin_from_input, read_export, write_json
+from competitor_analysis.annotate_review_export import annotate_export
 
 
 SCHEMA = "sellersprite-review-analysis.v1"
@@ -284,7 +285,7 @@ def main() -> int:
     prep.add_argument("--export", type=Path, required=True)
     prep.add_argument("--asin", required=True)
     prep.add_argument("--output-dir", type=Path, required=True)
-    for command in ("check", "fill"):
+    for command in ("check", "fill", "annotate"):
         sub = commands.add_parser(command)
         sub.add_argument("--packet", type=Path, required=True)
         sub.add_argument("--advantages", type=Path, required=True)
@@ -302,8 +303,14 @@ def main() -> int:
             if args.output.exists() or args.output.resolve() in protected:
                 raise ValueError("校验结果必须写到新的独立文件")
             args.output.parent.mkdir(parents=True, exist_ok=True)
+            annotated = args.output.with_name(Path(analysis["source_file"]).stem + "_含分析.xlsx")
+            annotation = annotate_export(load_packet(args.packet), analysis, annotated)
+            analysis["annotated_export"] = annotation["output"]
             write_json(args.output, analysis)
             print(args.output)
+            print(annotated)
+        elif args.command == "annotate":
+            print(json.dumps(annotate_export(load_packet(args.packet), analysis, args.output), ensure_ascii=False))
         else:
             print(json.dumps(fill_workbook(args.workbook, args.output, analysis), ensure_ascii=False))
     return 0

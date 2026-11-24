@@ -149,6 +149,7 @@ def read_export(path: Path, asin: str) -> dict:
             warnings.append("翻译列缺失或部分翻译为空，原文件已保留，尚不能作为翻译完整的数据源")
         return {
             "schema": "sellersprite-reviews.v1", "asin": asin, "site": "US",
+            "source_sheet": sheet.title,
             "source": "sellersprite_plugin_export", "source_file": str(path.resolve()),
             "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "read_at": now_iso(), "review_count": len(reviews),
