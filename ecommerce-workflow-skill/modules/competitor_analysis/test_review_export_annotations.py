@@ -12,6 +12,7 @@ from openpyxl.styles import Alignment, PatternFill
 
 from competitor_analysis.annotate_review_export import HEADERS, annotate_export
 from competitor_analysis.sellersprite_review_analysis import SCHEMA, combine, make_packet
+from competitor_analysis.review_mentions import MENTION_SCOPE
 from review_research.download_sellersprite_reviews import read_export
 
 
@@ -52,7 +53,7 @@ class ReviewExportAnnotationTests(unittest.TestCase):
         for kind, points in (("advantages", good or []), ("disadvantages", bad or [])):
             result = {"schema": SCHEMA, "asin": self.asin, "packet_digest": packet["packet_digest"], "kind": kind,
                       "reviewed_numbers": [r["number"] for r in packet["samples"][kind]], "points": points,
-                      "no_supported_points_reason": "没有明确结论"}
+                      "no_supported_points_reason": "没有明确结论", "evidence_scope": MENTION_SCOPE}
             path = self.root / f"{kind}.json"
             path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
             paths.append(path)
@@ -71,8 +72,8 @@ class ReviewExportAnnotationTests(unittest.TestCase):
         self.assertEqual(annotated["headers"], self.headers + HEADERS)
         self.assertNotIn("分析入选", annotated["headers"])
         self.assertNotIn("分析编号", annotated["headers"])
-        self.assertEqual(annotated["reviews"][0]["raw"]["差评原因"], "配件缺失\n螺母无法拧紧")
-        self.assertEqual(annotated["reviews"][1]["raw"]["差评原因"], "配件缺失")
+        self.assertEqual(annotated["reviews"][0]["raw"]["差评原因"], "配件缺失（100%，2/2条）\n螺母无法拧紧（50%，1/2条）")
+        self.assertEqual(annotated["reviews"][1]["raw"]["差评原因"], "配件缺失（100%，2/2条）")
         self.assertEqual(annotated["reviews"][2]["raw"]["优点归纳"], "使用方便")
         self.assertTrue(all(not annotated["reviews"][3]["raw"][key] for key in HEADERS))
         self.assertEqual(self.export.read_bytes(), before)

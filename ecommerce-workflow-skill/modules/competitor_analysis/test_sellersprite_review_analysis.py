@@ -14,6 +14,7 @@ from competitor_analysis.sellersprite_review_analysis import (
     SCHEMA, agent_prompt, combine, fill_workbook, load_packet, make_packet, prepare, validate_result,
 )
 from review_research.download_sellersprite_reviews import helpful_count
+from competitor_analysis.review_mentions import MENTION_SCOPE, format_point, mention_stats
 
 
 class SellerSpriteAnalysisTests(unittest.TestCase):
@@ -44,7 +45,8 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
     def result(self, packet, kind, points=None):
         return {"schema": SCHEMA, "asin": packet["asin"], "packet_digest": packet["packet_digest"],
                 "kind": kind, "reviewed_numbers": [r["number"] for r in packet["samples"][kind]],
-                "points": points or [], "no_supported_points_reason": "样本没有明确支持的结论"}
+                "points": points or [], "no_supported_points_reason": "样本没有明确支持的结论",
+                "evidence_scope": MENTION_SCOPE}
 
     def save(self, name, payload):
         path = self.root / name
@@ -69,6 +71,9 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
         self.assertEqual([r["review_id"] for r in packet["samples"]["advantages"]], [f"R{i}" for i in range(40, 10, -1)])
         self.assertEqual([r["review_id"] for r in packet["samples"]["disadvantages"]], [f"R{i}" for i in range(150, 50, -1)])
         self.assertEqual([r["number"] for r in packet["samples"]["disadvantages"]], list(range(1, 101)))
+        points = validate_result(packet, "disadvantages", self.result(
+            packet, "disadvantages", [{"text": "配件缺失", "review_numbers": [1]}]))
+        self.assertEqual(format_point(points[0], "disadvantages"), "配件缺失（1%，1/100条）")
 
     def test_ties_keep_source_order_and_empty_asin_remains_empty(self):
         packet = self.source([self.row(1, helpful=None), self.row(2, helpful="0"), self.row(3, helpful="1,200")])
@@ -107,6 +112,8 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
         self.assertIn('"序号": 1', prompt)
         self.assertIn("本商品独有差评", prompt)
         self.assertNotIn("只属于好评", prompt)
+        self.assertIn("列全明确提及该问题的所有评论序号", prompt)
+        self.assertIn(MENTION_SCOPE, prompt)
 
     def test_wrong_asin_digest_kind_and_incomplete_reviewing_are_rejected(self):
         packet = self.source([self.row(1, rating=1)])
@@ -124,6 +131,8 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
                        [{"text": "配件缺失", "review_numbers": [2]}],
                        [{"text": "配件缺失", "review_numbers": [True]}],
                        [{"text": "配件缺失", "review_numbers": []}],
+                       [{"text": "配件缺失", "review_numbers": [1, 1]}],
+                       [{"text": "配件缺失50%", "review_numbers": [1]}],
                        [{"text": "1. 配件缺失", "review_numbers": [1]}],
                        [{"text": "配件缺失", "review_numbers": [1]}] * 2):
             with self.subTest(points=points), self.assertRaises(ValueError):
@@ -138,6 +147,40 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
         points = [{"text": "字" * 15, "review_numbers": [1]}]
         result = validate_result(packet, "disadvantages", self.result(packet, "disadvantages", points))
         self.assertEqual(result[0]["review_ids"], ["R1"])
+        self.assertEqual(format_point(result[0], "disadvantages"), "字" * 15 + "（100%，1/1条）")
+
+    def test_negative_mentions_use_selected_denominator_including_blank_and_allow_multiple_issues(self):
+        packet = self.source([self.row(1, rating=1), self.row(2, rating=2),
+                              self.row(3, rating=3, title="", body=""), self.row(4, rating=5),
+                              self.row(5, rating=1, vp="", vine="")])
+        points = validate_result(packet, "disadvantages", self.result(packet, "disadvantages", [
+            {"text": "配件缺失", "review_numbers": [1, 2]},
+            {"text": "没有说明书", "review_numbers": [1, 2]},
+        ]))
+        self.assertEqual([(p["mention_count"], p["sample_count"], p["mention_percent"]) for p in points],
+                         [(2, 3, 66.7), (2, 3, 66.7)])
+        self.assertEqual(format_point(points[0], "disadvantages"), "配件缺失（66.7%，2/3条）")
+        good = validate_result(packet, "advantages", self.result(packet, "advantages", [
+            {"text": "容易使用", "review_numbers": [1]}]))
+        self.assertNotIn("mention_percent", good[0])
+        self.assertEqual(format_point(good[0], "advantages"), "容易使用")
+
+    def test_legacy_representative_evidence_must_be_reanalysed_before_counting(self):
+        packet = self.source([self.row(1, rating=1)])
+        result = self.result(packet, "disadvantages", [{"text": "配件缺失", "review_numbers": [1]}])
+        result.pop("evidence_scope")
+        with self.assertRaisesRegex(ValueError, "未确认全部提及"):
+            validate_result(packet, "disadvantages", result)
+
+    def test_mention_rounding_invalid_counts_and_tampered_statistics(self):
+        self.assertEqual(mention_stats([1], 16)["mention_percent"], 6.3)
+        for evidence, count in (([], 0), ([1, 1], 2), ([3], 2), ([True], 2)):
+            with self.subTest(evidence=evidence, count=count), self.assertRaises(ValueError):
+                mention_stats(evidence, count)
+        point = {"text": "配件缺失", "review_numbers": [1], **mention_stats([1], 2)}
+        point["mention_percent"] = 100
+        with self.assertRaisesRegex(ValueError, "有效提及统计"):
+            format_point(point, "disadvantages")
 
     def test_changed_source_or_packet_is_rejected(self):
         packet = self.source([self.row(1, rating=2)])
@@ -209,7 +252,7 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
         try:
             sheet = filled["产品竞品分析"]
             self.assertEqual(sheet["C13"].value, "容易使用")
-            self.assertEqual(sheet["C14"].value, "配件缺失")
+            self.assertEqual(sheet["C14"].value, "配件缺失（100%，1/1条）")
             self.assertEqual(sheet["D14"].value, "原有内容")
             self.assertEqual(sheet["C13"]._style, original["产品竞品分析"]["C13"]._style)
             self.assertEqual(sheet.row_dimensions[13].height, 105)

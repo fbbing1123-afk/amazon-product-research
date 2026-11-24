@@ -11,10 +11,11 @@ from zipfile import ZipFile
 from openpyxl.utils import get_column_letter
 
 from review_research.download_sellersprite_reviews import read_export
+from competitor_analysis.review_mentions import format_point
 
 
 HEADERS = ["优点归纳", "差评原因", "分析说明"]
-WIDTHS = [34, 34, 46]
+WIDTHS = [34, 56, 46]
 MAIN_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
@@ -68,7 +69,7 @@ def annotation_rows(packet, analysis, source):
         points = analysis[kind]
         samples = packet["samples"][kind]
         for review in samples:
-            conclusions = [point["text"] for point in points if review["number"] in point["review_numbers"]]
+            conclusions = [format_point(point, kind) for point in points if review["number"] in point["review_numbers"]]
             note = "已分析" if conclusions else "已分析，未被结论引用"
             if not (review["title"] or review["body"]):
                 note = "原文为空，未作为结论证据"
