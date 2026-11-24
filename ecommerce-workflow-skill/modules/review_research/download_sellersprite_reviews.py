@@ -7,6 +7,7 @@ from collections import Counter
 from datetime import date, datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import tempfile
@@ -50,6 +51,22 @@ def source_flag(value) -> bool:
     if marker not in {"", "Y", "N"}:
         raise ValueError(f"未知的 VP/Vine 标记：{marker}")
     return marker == "Y"
+
+
+def helpful_count(value) -> int:
+    """赞同数空白按零处理；拒绝负数、缩写和非整数，避免错误排序。"""
+    if value is None or text(value) == "":
+        return 0
+    if isinstance(value, bool):
+        raise ValueError("赞同数不能是布尔值")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("赞同数必须是有限的非负整数")
+    if isinstance(value, (int, float)):
+        if value >= 0 and value == int(value):
+            return int(value)
+    elif re.fullmatch(r"(?:\d+|\d{1,3}(?:,\d{3})+)", text(value)):
+        return int(text(value).replace(",", ""))
+    raise ValueError(f"赞同数必须是非负整数：{value}")
 
 
 def json_value(value):
@@ -99,6 +116,7 @@ def read_export(path: Path, asin: str) -> dict:
                 "body_translated": text(raw.get("内容(翻译)")),
                 "verified": source_flag(raw.get("VP评论")),
                 "vine": source_flag(raw.get("Vine Voice评论")),
+                "helpful_count": helpful_count(raw.get("赞同数")) if "赞同数" in headers else None,
                 "date_text": text(raw.get("评论时间")), "variant": text(raw.get("型号")),
                 "country": text(raw.get("所属国家")), "review_url": url,
                 "source_sheet": sheet.title, "source_row": row_number, "raw": raw,
@@ -134,6 +152,7 @@ def read_export(path: Path, asin: str) -> dict:
             "source": "sellersprite_plugin_export", "source_file": str(path.resolve()),
             "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "read_at": now_iso(), "review_count": len(reviews),
+            "headers": headers,
             "blank_source_asin_count": missing_asin,
             "rating_counts": dict(sorted(Counter(str(r["rating"]) for r in reviews).items())),
             "verified_count": sum(r["verified"] for r in reviews),

@@ -48,7 +48,7 @@ python modules/review_research/download_sellersprite_reviews.py B0DT8TCBNG --imp
 - 用户已确认原表 ASIN 列允许为空。保持为空，不删除该评论、不报错、不擅自补成子体 ASIN。
 - JSON 的 `asin` 是本次下载目标；`source_row_asin` 是导出行的原始 ASIN，可以为 null。两者不能混为一谈。`blank_source_asin_count` 只用于核对。
 - 原文为空时也保留原记录并提示待核对，不编造正文。实际翻译的质量仍由后续分析阶段判断，非空校验不是翻译准确性保证。
-- 完整保留导出的星级、VP/Vine 记录和变体信息，本次不替用户决定筛选、抽样或分析规则。
+- 下载层完整保留导出的星级、VP/Vine 记录和变体信息，并解析赞同数。筛选和分析交给独立的[新版评价分析](sellersprite_review_analysis.md)：VP或Vine，赞同数降序，好评4–5星前30条、差评1–3星前100条。
 - 评分数与文字评论条数口径不同，不能用商品页评分数要求导出同等条数的文字评论。
 
 ## 验证和异常续跑
