@@ -1,4 +1,4 @@
-"""按当前商品入选差评中的完整提及序号计算占比，统一两处写表显示。"""
+"""按入选差评的完整提及序号计算占比，仅供竞品分析表显示。"""
 
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -18,12 +18,11 @@ def mention_stats(review_numbers, sample_count):
     return {"mention_count": count, "sample_count": sample_count, "mention_percent": float(percent)}
 
 
-def format_point(point, kind):
-    """原因正文仍受15字约束；百分比与样本条数由脚本另行附加。"""
+def format_report_point(point, kind):
+    """仅在竞品分析表的缺点后附加百分比，不显示提及条数或样本数。"""
     if kind != "disadvantages":
         return point["text"]
     stats = mention_stats(point.get("review_numbers"), point.get("sample_count"))
     if any(point.get(key) != value for key, value in stats.items()):
         raise ValueError("缺少有效提及统计，请按新提示重新分析并校验")
-    return (f"{point['text']}（{stats['mention_percent']:g}%，"
-            f"{stats['mention_count']}/{stats['sample_count']}条）")
+    return f"{point['text']}（{stats['mention_percent']:g}%）"

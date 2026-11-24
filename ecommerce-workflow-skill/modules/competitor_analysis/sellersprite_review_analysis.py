@@ -23,7 +23,7 @@ if str(MODULES_DIR) not in sys.path:
 
 from review_research.download_sellersprite_reviews import asin_from_input, read_export, write_json
 from competitor_analysis.annotate_review_export import annotate_export
-from competitor_analysis.review_mentions import MENTION_SCOPE, format_point, mention_stats
+from competitor_analysis.review_mentions import MENTION_SCOPE, format_report_point, mention_stats
 
 
 SCHEMA = "sellersprite-review-analysis.v1"
@@ -269,7 +269,7 @@ def fill_workbook(workbook: Path, output: Path, analysis: dict) -> dict:
                       if r.get("Id") == relation_id)
         part = target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join("xl", target))
         xml = source.read(part).decode("utf-8")
-        values = {kind: "\n".join(format_point(point, kind) for point in analysis[kind]) or "/" for kind in cells}
+        values = {kind: "\n".join(format_report_point(point, kind) for point in analysis[kind]) or "/" for kind in cells}
         for kind, coordinate in cells.items():
             xml = patch_cell(xml, coordinate, values[kind])
         ET.fromstring(xml)
