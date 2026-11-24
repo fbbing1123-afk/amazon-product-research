@@ -14,7 +14,7 @@ from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Border, Font, Side
-from openpyxl.utils import get_column_letter
+from openpyxl.utils import get_column_letter, column_index_from_string
 
 MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(MODULES_DIR) not in sys.path:
@@ -22,6 +22,7 @@ if str(MODULES_DIR) not in sys.path:
 
 from shared.quality_gates import validate_competitor_basics  # noqa: E402
 from shared.worksheet_rows import insert_rows_preserving_merges
+from competitor_analysis.collect_basic_facts import normalize_value
 
 
 ASIN_PATTERN = re.compile(r"(?<![A-Z0-9])([A-Z0-9]{10})(?![A-Z0-9])", re.I)
@@ -34,9 +35,8 @@ COMPARABLE_NUMBER_PATTERN = re.compile(
     r"|\s*(?:-|–|—|~|至)\s*\d+(?:\.\d+)?)?"
     r"\s*(?:-|\s)?\s*"
     r"(?:(?i:KWH|WH|MAH|AH|LBS?|LB|FEET|FT|INCH(?:ES)?|CM|MM|ML|KG|HZ|"
-    r"D|K|M|L|OZ|G|W|V|A)|磅|英尺|英寸|%|"
+    r"D|K|M|L|OZ|G|W|V|A)(?![A-Za-z])|磅|英尺|英寸|%|"
     r"个|件|层|档|种|片|枚|张|包|套|次|小时|分钟|秒|度|年|月|天|岁)"
-    r"(?![A-Z])",
 )
 
 
@@ -99,6 +99,31 @@ def source_records(worksheet, asins: list[str]) -> dict[str, dict[str, Any]]:
     if missing := targets - records.keys():
         raise ValueError(f"数据源缺少竞品：{', '.join(sorted(missing))}")
     return records
+
+
+def fill_basic_fact_rows(worksheet, column, record, fallback=None):
+    """按模板标签定位新增三项，优先数据源，缺项才用已核验网页结果。"""
+    definitions = (
+        ("monthly_sales", "月销量", ("销量", "月销量")),
+        ("price", "价格($)", ("价格", "价格()", "价格($)")),
+        ("listed_at", "上架时间", ("上架时间",)),
+    )
+    for field, header, labels in definitions:
+        matches = [cell for row in worksheet.iter_rows(min_col=1, max_col=2)
+                   for cell in row if normalize_text(cell.value) in labels]
+        if not matches:
+            continue
+        if len(matches) != 1:
+            raise ValueError(f"基础字段标签不唯一：{header}")
+        value = normalize_value(field, record.get(header))
+        if value is None:
+            item = (fallback or {}).get(field)
+            value = normalize_value(field, item.get("value") if isinstance(item, dict) else item)
+        if value is None:
+            raise ValueError(f"{record.get('ASIN', '')} 缺少{header}，请先完成网页补取")
+        label = matches[0]
+        label.value = header
+        worksheet.cell(label.row, column).value = value
 
 
 def source_main_images(worksheet, asins: list[str]) -> dict[str, bytes]:
@@ -251,8 +276,32 @@ def prepare_competitor_layout(
         worksheet.column_dimensions[get_column_letter(first_column)].width
         or 30.625
     )
+    # 拆开模板的分组列宽，只扩展产品列，避免把 H:P 整组一起变宽或产生重叠 cols。
+    dimensions = list(worksheet.column_dimensions.items())
+    worksheet.column_dimensions.clear()
+    for key, dimension in dimensions:
+        start = dimension.min or column_index_from_string(key)
+        end = dimension.max or start
+        segments = ([(start, end)] if end < first_column or start > last_column else
+                    [(start, first_column - 1), (last_column + 1, end)])
+        for left, right in segments:
+            if left > right:
+                continue
+            cloned = copy(dimension)
+            cloned.min, cloned.max = left, right
+            cloned.index = get_column_letter(left)
+            worksheet.column_dimensions[cloned.index] = cloned
     for column in range(first_column, last_column + 1):
-        worksheet.column_dimensions[get_column_letter(column)].width = product_width
+        original = next((dimension for key, dimension in dimensions
+                         if (dimension.min or column_index_from_string(key)) <= column
+                         <= (dimension.max or dimension.min or column_index_from_string(key))), None)
+        key = get_column_letter(column)
+        if original is not None:
+            worksheet.column_dimensions[key] = copy(original)
+        dimension = worksheet.column_dimensions[key]
+        dimension.index = key
+        dimension.min = dimension.max = column
+        dimension.width = product_width
 
     # 模板保留 C:G 五个产品栏位；第 6 个起复制 G 列格式，不继承 H:P 的窄列样式。
     style_source_column = min(7, last_column)
@@ -355,6 +404,7 @@ def populate(
         for asin, column in zip(asins, product_columns):
             record = records[asin]
             product = products[asin]
+            fill_basic_fact_rows(competitor, column, record, product.get("basic_facts"))
             link = normalize_text(record.get("商品详情页链接")) or f"https://www.amazon.com/dp/{asin}"
             link_cell = competitor.cell(link_row, column, link)
             link_cell.hyperlink = link

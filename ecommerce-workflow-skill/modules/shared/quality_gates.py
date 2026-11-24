@@ -449,9 +449,13 @@ def validate_category_research(
             failures.append("缺少市场调研工作表")
             raise QualityGateError("category_research", failures)
         header_row = find_row(sheet, "一级类目")
-        next_section = find_row_containing(sheet, "数据分析概览")
+        # 新模板把整体销售数据放在市场调研页，类目表以新旧两种标题为边界。
+        boundaries = [find_row_containing(sheet, label)
+                      for label in ("数据分析概览", "市场数据分析")]
+        next_section = min((row for row in boundaries if row is not None
+                            and header_row is not None and row > header_row), default=None)
         if header_row is None or next_section is None:
-            failures.append("找不到类目表头或数据分析概览起点")
+            failures.append("找不到类目表头或市场数据分析/数据分析概览起点")
             raise QualityGateError("category_research", failures)
         rows = [
             row

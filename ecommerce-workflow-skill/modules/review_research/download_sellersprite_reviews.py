@@ -103,8 +103,11 @@ def read_export(path: Path, asin: str) -> dict:
             url = text(raw.get("评论链接"))
             parsed = urlparse(url)
             match = re.search(r"/(?:customer-reviews|srp/-)/([A-Z0-9]+)(?:/|$)", parsed.path)
-            if parsed.scheme != "https" or parsed.hostname not in {"www.amazon.com", "amazon.com"} or not match:
-                raise ValueError(f"第 {row_number} 行缺少有效的美国站评论链接")
+            # 美国站的插件导出会包含“其它国家/地区”评论，保留真实原链接与所属国家。
+            review_domains = {"amazon.com", "amazon.de", "amazon.co.uk", "amazon.ca", "amazon.fr", "amazon.in"}
+            hostname = (parsed.hostname or "").removeprefix("www.")
+            if parsed.scheme != "https" or hostname not in review_domains or not match:
+                raise ValueError(f"第 {row_number} 行缺少有效的Amazon评论链接")
             row_asin = text(raw.get("ASIN")).upper()
             if row_asin and not re.fullmatch(r"[A-Z0-9]{10}", row_asin):
                 raise ValueError(f"第 {row_number} 行原始 ASIN 无效")

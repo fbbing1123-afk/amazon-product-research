@@ -11,10 +11,28 @@ from PIL import Image as PillowImage, ImageDraw
 from shared.quality_gates import (
     QualityGateError,
     validate_keyword_research,
+    validate_category_research,
 )
 
 
 class QualityGateTests(unittest.TestCase):
+    def test_category_boundary_supports_both_templates_and_still_checks_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'category.xlsx'
+            for title in ('3.数据分析概览', '3.市场数据分析'):
+                book = Workbook()
+                sheet = book.active
+                sheet.title = '示例-市场调研'
+                sheet['A2'], sheet['A3'], sheet['A4'] = '一级类目', '手工', title
+                sheet['A3'].hyperlink = 'https://www.amazon.com/gp/bestsellers/arts-crafts/1'
+                book.save(path)
+                self.assertEqual(1, validate_category_research(path, screenshot_limit=0).metrics['rows'])
+                sheet['A3'].hyperlink = 'https://www.amazon.com/b?node=1'
+                book.save(path)
+                with self.assertRaisesRegex(QualityGateError, 'BSR'):
+                    validate_category_research(path, screenshot_limit=0)
+                book.close()
+
     def make_keyword_workbook(self, root: Path, include_link: bool) -> Path:
         image_path = root / "trend.png"
         picture = PillowImage.new("RGB", (800, 300), "white")

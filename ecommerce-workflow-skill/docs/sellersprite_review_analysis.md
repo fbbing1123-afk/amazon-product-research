@@ -46,10 +46,10 @@ python modules/competitor_analysis/sellersprite_review_analysis.py prepare --asi
 ## 主智能体编排
 
 1. 主智能体阅读本次 `advantages.prompt.txt`，按其格式保存 `advantages.result.json`。
-2. 为当前商品创建专门的差评子智能体，**不继承主对话历史**（支持时使用 `fork_turns="none"`）。把本次 `disadvantages.prompt.txt` 的全文作为消息发给它。不得传旧角色 `agent_prompt.md`、旧痛点分组、历史总结或多个商品混合的评论。
+2. 为本批创建一个差评子智能体，**不继承主对话历史**（支持时使用 `fork_turns="none"`）。单商品传本次 `disadvantages.prompt.txt`；多商品按ASIN分组，每组独立编号并携带自己的 `packet_digest`，不得合并为同一个商品。不得传旧角色 `agent_prompt.md`、旧痛点分组或历史总结。
 3. 子智能体只读这批按序号排列的原文和译文，不联网、不搜索、不读项目文件、不改代码，不创建其它子智能体；返回 JSON。主智能体原样保存到 `disadvantages.result.json`。
 4. 逐点核对结论与所引评论是否吻合，近义点是否重复、是否把“担心会损坏”写成“已经损坏”；还须回查全部样本，核对各原因的提及序号是否完整。有问题时让该子智能体只按本次证据修正，不用旧词库纠正它。
-5. 每个商品使用独立子智能体上下文和结果文件。Python 只负责准备、校验、写表，不能把生成提示文件说成已经实际调用了子智能体。环境没有子智能体能力时，应明确说明尚未完成缺点分析，不静默走回旧版。
+5. 同一批允许一个子智能体分析多个商品并汇总改进建议，每个商品返回独立结果文件，证据只能引用该ASIN的评论。下一批重新创建上下文；临时指定的单商品单独建批。Python只负责准备、校验、写表，不能把生成提示文件说成已经调用子智能体。环境没有子智能体能力时明确说明尚未完成缺点分析，不静默走回旧版。
 
 结果需包含本次 `asin`、`packet_digest`、`kind`、`reviewed_numbers` 和 `points`。每条 point 包含 `text` 及 `review_numbers`。来源或样本发生变化后必须重新分析，不能改哈希来复用旧结果。校验能证明序号、长度和批次匹配，不能自动证明语义正确，主智能体必须核对原文。
 
@@ -91,8 +91,18 @@ python modules/competitor_analysis/sellersprite_review_analysis.py fill --packet
 python modules/competitor_analysis/sellersprite_review_analysis.py annotate --packet "本次目录/packet.json" --advantages "本次目录/advantages.result.json" --disadvantages "本次目录/disadvantages.result.json" --output "评论_含分析.xlsx"
 ```
 
-当前三个验收/写表命令均接收优点和缺点两份结果文件；多商品统一调度、跨商品总结改进及单独缺点入口尚未接入。
+## 多商品整表回填与长评价
 
-本入口只负责本次约定的优缺点，不生成品类总结、改进建议或差评透视，也未改总调度默认版本。不得随后运行旧 `competitor_analysis/run.py` 将旧缓存结果覆盖回来。整份业务报告交付仍需相应模块门禁和视觉验收；这里的两格回填测试不能代替完整工作流验收。
+2026-11-24完整试跑新增 `fill_review_batch.py`。完成各商品 `check` 后，传入本批全部校验结果和基于本批差评生成的总结：
+
+```powershell
+python modules/competitor_analysis/fill_review_batch.py --workbook "竞品基础完成.xlsx" --output "评价完成.xlsx" --analyses "商品一/checked.json" "商品二/checked.json" --summary "本批总结.txt"
+```
+
+回填前重读评论源文件，核对SHA-256、样本摘要与ASIN，再根据证据重新计算百分比。竞品集合须与模板一一对应。内容超过原行高时复制同格式续行，不截断结论、不缩小字体；合并标签、总结及后方浮动图片随之下移。没有可填写的缺点时只写 `/`，不在表格里添加解释。已验证真实6商品，32条原因扩为4行。
+
+输入应为评价区尚未填写的浮动图片检查点；本入口用openpyxl保存，不适用于已创建切片器或须保留WPS原生嵌入对象的工作簿。三张市场报告截图最后用ZIP入口插入。单商品旧 `fill` 仍只写两个目标单元格且保留其它ZIP部件；长评价或整批报告使用上述入口。独立“只分析缺点”CLI、浏览器下载与智能体分析的自动并行调度尚未实现。
+
+多商品改进建议由本批差评生成，经主智能体核对后提供给批量回填入口；不生成旧差评透视，也未改总调度默认版本。不得随后运行旧 `competitor_analysis/run.py` 将旧缓存结果覆盖回来。完整试跑范围及尚未自动化的部分见 [新版全流程试跑](new_workflow_trial.md)。
 
 源码、测试和规则说明纳入 Git；真实评论表、编号材料、智能体结果和回填工作簿仅保存在本地输出目录，不提交到公开仓库。

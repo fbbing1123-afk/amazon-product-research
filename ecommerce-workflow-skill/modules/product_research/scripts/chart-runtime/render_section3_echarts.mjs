@@ -192,7 +192,7 @@ function niceAxis(value, floor = null) {
 }
 
 function pieOption({ title, value, rows, compact = false, width }) {
-  const maxName = width <= 190 ? 12 : 16;
+  const maxName = compact && rows.length > 8 ? 9 : width <= 190 ? 12 : 16;
   const total = rows.reduce((sum, [, itemValue]) => sum + itemValue, 0) || 1;
   const data = rows
     .filter(([, itemValue]) => itemValue > 0)
@@ -200,6 +200,8 @@ function pieOption({ title, value, rows, compact = false, width }) {
       name: `${truncateLabel(name, maxName)} ${Math.round((itemValue / total) * 100)}%`,
       value: itemValue,
     }));
+  // 品牌较多时为图例预留独立下半区，避免圆环与首行图例重叠。
+  const denseLegend = compact && data.length > 8;
   return {
     backgroundColor: "#FFFFFF",
     color: COLORS,
@@ -229,22 +231,23 @@ function pieOption({ title, value, rows, compact = false, width }) {
       type: "plain",
       left: 4,
       right: 4,
-      bottom: compact ? 3 : 8,
-      itemWidth: 9,
-      itemHeight: 9,
-      itemGap: compact ? 7 : 8,
+      top: denseLegend ? 151 : undefined,
+      bottom: denseLegend ? undefined : compact ? 3 : 8,
+      itemWidth: denseLegend ? 7 : 9,
+      itemHeight: denseLegend ? 7 : 9,
+      itemGap: denseLegend ? 5 : compact ? 7 : 8,
       textStyle: {
         color: TEXT,
         fontFamily: FONT,
-        fontSize: compact ? 10 : 11,
-        lineHeight: compact ? 14 : 16,
+        fontSize: denseLegend ? 9 : compact ? 10 : 11,
+        lineHeight: denseLegend ? 13 : compact ? 14 : 16,
       },
     },
     series: [
       {
         type: "pie",
-        radius: compact ? ["31%", "48%"] : ["43%", "68%"],
-        center: ["50%", compact ? "44%" : "45%"],
+        radius: denseLegend ? [28, 43] : compact ? ["31%", "48%"] : ["43%", "68%"],
+        center: ["50%", denseLegend ? 95 : compact ? "44%" : "45%"],
         avoidLabelOverlap: true,
         percentPrecision: 0,
         stillShowZeroSum: false,

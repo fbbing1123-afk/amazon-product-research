@@ -60,6 +60,16 @@ class SellerSpriteExportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "错商品"):
             read_export(self.path, self.asin)
 
+    def test_us_export_preserves_international_review_links(self):
+        url = "https://www.amazon.de/gp/customer-reviews/R123456?ASIN=" + self.asin
+        self.make_export([self.row(url=url)])
+        result = read_export(self.path, self.asin)
+        self.assertEqual(url, result["reviews"][0]["review_url"])
+        self.assertEqual(self.asin, result["reviews"][0]["asin"])
+        self.make_export([self.row(url=url.replace("amazon.de", "amazon.de.example.com"))])
+        with self.assertRaises(ValueError):
+            read_export(self.path, self.asin)
+
     def test_missing_columns_rejected(self):
         self.make_export([], headers=["标题", "内容"])
         with self.assertRaisesRegex(ValueError, "表头"):

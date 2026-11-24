@@ -24,10 +24,49 @@ from competitor_analysis.populate_basics import (
     row_height_to_pixels,
     ensure_comparison_rows,
     comparison_display_value,
+    fill_basic_fact_rows,
 )
 
 
 class PopulateCompetitorBasicsTests(unittest.TestCase):
+    def test_chinese_count_before_english_material_is_highlighted(self):
+        value = comparison_rich_text('3个PET框，20W功率，型号20Widget')
+        red = [run.text for run in value if isinstance(run, TextBlock)]
+        self.assertEqual(['3个', '20W'], red)
+
+    def test_grouped_widths_split_without_widening_unused_tail(self):
+        ws = Workbook().active
+        ws.column_dimensions.group('C', 'G')
+        ws.column_dimensions['C'].width = 30.625
+        ws.column_dimensions.group('H', 'P')
+        ws.column_dimensions['H'].width = 9
+        ws.merge_cells('A1:G1')
+        ws.merge_cells('C14:G14')
+        prepare_competitor_layout(ws, list(range(3, 9)), summary_row=14)
+        self.assertEqual(9, ws.column_dimensions['I'].width)
+        self.assertEqual((9,16), (ws.column_dimensions['I'].min,ws.column_dimensions['I'].max))
+        seen = set()
+        for dim in ws.column_dimensions.values():
+            columns = set(range(dim.min, dim.max + 1))
+            self.assertFalse(seen & columns)
+            seen.update(columns)
+        for column in 'CDEFGH':
+            self.assertEqual(30.625, ws.column_dimensions[column].width)
+
+    def test_new_basic_rows_follow_labels_and_prefer_source_including_zero(self):
+        ws = Workbook().active
+        ws["A10"], ws["A11"], ws["A12"] = "销量", "价格", "上架时间"
+        ws["C10"].fill = PatternFill("solid", fgColor="FFFF0000")
+        before = copy(ws["C10"]._style)
+        fill_basic_fact_rows(ws, 3, {"月销量": 0, "价格($)": None, "上架时间": "2026-03-20"},
+                             {"monthly_sales": {"value": 999}, "price": {"value": 29.99}})
+        self.assertEqual([0, 29.99, "2026-03-20"], [ws.cell(r, 3).value for r in (10, 11, 12)])
+        self.assertEqual("月销量", ws["A10"].value)
+        self.assertEqual("价格($)", ws["A11"].value)
+        self.assertEqual(before, ws["C10"]._style)
+        with self.assertRaisesRegex(ValueError, "缺少月销量"):
+            fill_basic_fact_rows(ws, 4, {"ASIN": "B0AAAAAAAA"})
+
     def test_unknown_comparison_is_distinct_from_explicit_negative(self):
         for value in (None, "", " / ", "--", "N/A"):
             self.assertEqual("页面未明确说明是否支持湿食", comparison_display_value(value, "是否支持湿食"))
