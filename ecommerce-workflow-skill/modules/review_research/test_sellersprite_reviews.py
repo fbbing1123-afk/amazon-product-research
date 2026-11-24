@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 from openpyxl import Workbook
 
-from .download_sellersprite_reviews import asin_from_input, continue_after_user_check, export_status, read_export
+from .download_sellersprite_reviews import NamedDownload, asin_from_input, continue_after_user_check, export_status, read_export
 
 
 class SellerSpriteExportTests(unittest.TestCase):
@@ -120,6 +120,44 @@ class SellerSpriteExportTests(unittest.TestCase):
                 self.assertEqual(button.click.call_count, int(expected))
                 checkbox.click.assert_not_called()
                 checkbox.check.assert_not_called()
+
+    def test_download_ignores_other_tabs_and_requires_completion(self):
+        download = NamedDownload(Mock(), Path(self.directory.name))
+        download.frame_id = "target-frame"
+        download.on_begin({"frameId": "another-frame", "guid": "other", "suggestedFilename": "other.xlsx"})
+        self.assertIsNone(download.guid)
+        download.on_begin({"frameId": "target-frame", "guid": "target", "suggestedFilename": "reviews.xlsx"})
+        download.on_progress({"guid": "other", "state": "completed"})
+        with self.assertRaisesRegex(RuntimeError, "尚未完成"):
+            download.completed_path()
+        self.path.write_bytes(b"test")
+        download.on_progress({"guid": "target", "state": "completed"})
+        self.assertEqual(download.completed_path(), self.path.resolve())
+
+    def test_download_rejects_bad_name_and_wrong_directory(self):
+        download = NamedDownload(Mock(), Path(self.directory.name))
+        download.frame_id = "target-frame"
+        download.on_begin({"frameId": "target-frame", "guid": "target", "suggestedFilename": "../wrong.xlsx"})
+        with self.assertRaisesRegex(ValueError, "文件名"):
+            download.completed_path()
+        download.error = None
+        download.filename = "reviews.xlsx"
+        download.on_progress({"guid": "target", "state": "completed", "filePath": str(self.path.parent.parent / "wrong.xlsx")})
+        with self.assertRaisesRegex(ValueError, "输出目录"):
+            download.completed_path()
+
+    def test_download_restores_browser_defaults_when_work_fails(self):
+        page = Mock()
+        page.context.new_cdp_session.return_value.send.return_value = {"frameTree": {"frame": {"id": "target-frame"}}}
+        session = page.context.browser.new_browser_cdp_session.return_value
+        with self.assertRaisesRegex(RuntimeError, "下载中断"):
+            with NamedDownload(page, Path(self.directory.name)):
+                raise RuntimeError("下载中断")
+        session.send.assert_any_call("Browser.setDownloadBehavior", {
+            "behavior": "allow", "downloadPath": str(Path(self.directory.name).resolve()), "eventsEnabled": True,
+        })
+        session.send.assert_called_with("Browser.setDownloadBehavior", {"behavior": "default", "eventsEnabled": False})
+        session.detach.assert_called_once()
 
 
 if __name__ == "__main__":

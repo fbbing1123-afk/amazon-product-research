@@ -189,6 +189,78 @@ def export_status(payload: dict, success: str) -> str:
     return success if payload["translation"]["complete"] else "incomplete_translation"
 
 
+class NamedDownload:
+    """使用 Chrome 原始文件名落盘，避免 Playwright 的随机编号出现在下载列表。"""
+
+    def __init__(self, page, destination: Path):
+        self.page = page
+        self.destination = destination.resolve()
+        self.session = None
+        self.guid = None
+        self.filename = None
+        self.state = None
+        self.file_path = None
+        self.error = None
+
+    def __enter__(self):
+        frame_session = self.page.context.new_cdp_session(self.page)
+        try:
+            self.frame_id = frame_session.send("Page.getFrameTree")["frameTree"]["frame"]["id"]
+        finally:
+            frame_session.detach()
+        self.session = self.page.context.browser.new_browser_cdp_session()
+        self.session.on("Browser.downloadWillBegin", self.on_begin)
+        self.session.on("Browser.downloadProgress", self.on_progress)
+        try:
+            self.session.send("Browser.setDownloadBehavior", {
+                "behavior": "allow", "downloadPath": str(self.destination), "eventsEnabled": True,
+            })
+        except Exception:
+            self.session.detach()
+            raise
+        return self
+
+    def on_begin(self, event: dict) -> None:
+        # 只接收本商品页发起的下载；其它标签页的下载事件不能冒充本次结果。
+        if event.get("frameId") != self.frame_id or self.guid is not None:
+            return
+        filename = event.get("suggestedFilename", "")
+        self.guid = event.get("guid")
+        if (not filename or Path(filename).name != filename or "\\" in filename
+                or ":" in filename or not filename.lower().endswith(".xlsx")):
+            self.error = "收到的文件名不是预期的评论 Excel"
+            return
+        self.filename = filename
+
+    def on_progress(self, event: dict) -> None:
+        if self.guid is None or event.get("guid") != self.guid:
+            return
+        self.state = event.get("state")
+        if event.get("filePath"):
+            self.file_path = event["filePath"]
+
+    def completed_path(self) -> Path:
+        if self.error:
+            raise ValueError(self.error)
+        if self.state != "completed" or not self.filename:
+            raise RuntimeError("浏览器下载尚未完成")
+        # 新建的独立目录没有同名旧文件；有实际路径时仍核对目录，避免读错其它下载。
+        path = Path(self.file_path).resolve() if self.file_path else self.destination / self.filename
+        if path.parent != self.destination or not path.name.lower().endswith(".xlsx"):
+            raise ValueError("下载文件路径不在当前商品输出目录")
+        if not path.is_file():
+            raise RuntimeError("浏览器报告完成，但评论文件尚未落盘")
+        return path
+
+    def __exit__(self, *args):
+        if self.session is not None:
+            try:
+                # 退出后恢复 Chrome 默认下载方式，后续手动下载不继续落入项目目录。
+                self.session.send("Browser.setDownloadBehavior", {"behavior": "default", "eventsEnabled": False})
+            finally:
+                self.session.detach()
+
+
 def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
     """按实测页面流程点一次按钮；以真实下载事件和文件校验为完成依据。"""
     started = time.monotonic()
@@ -220,18 +292,16 @@ def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
     if not translate.is_checked():
         raise RuntimeError("翻译标题和内容未勾选，停止下载")
     print(f"[{asin}] 已勾选翻译标题和内容", flush=True)
-    downloads = []
-
-    def record_download(download):
-        downloads.append(download)
-
-    page.on("download", record_download)
     last_progress = ""
-    try:
+    with NamedDownload(page, destination) as download:
         download_started = time.monotonic()
         button.click(timeout=10_000)
         deadline = time.monotonic() + timeout
-        while not downloads and time.monotonic() < deadline:
+        while download.state != "completed" and time.monotonic() < deadline:
+            if download.error:
+                raise ValueError(download.error)
+            if download.state == "canceled":
+                raise RuntimeError("浏览器已取消评论下载，未生成完整数据源")
             if page.is_closed():
                 raise RuntimeError("下载页面已关闭")
             progress = re.search(r"下载中\s*\.{0,3}\s*\d+%", panel.inner_text(timeout=3000))
@@ -239,16 +309,9 @@ def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
                 last_progress = progress[0]
                 print(f"[{asin}] {last_progress}", flush=True)
             page.wait_for_timeout(500)
-        if not downloads:
+        if download.state != "completed":
             raise TimeoutError(f"{timeout:g} 秒内未收到下载文件；最后进度：{last_progress or '未出现'}。请检查插件登录或提示；不自动重复点击")
-        download = downloads[0]
-        filename = download.suggested_filename
-        if Path(filename).name != filename or "\\" in filename or not filename.lower().endswith(".xlsx"):
-            raise ValueError("收到的文件名不是预期的评论 Excel")
-        path = destination / filename
-        download.save_as(str(path))
-        if download.failure():
-            raise RuntimeError(f"浏览器下载失败：{download.failure()}")
+        path = download.completed_path()
         check_product(page, asin)
         payload = read_export(path, asin)
         payload.update({"page_url": page.url, "downloaded_at": now_iso(), "translation_requested": True,
@@ -260,8 +323,6 @@ def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
                 "review_count": payload["review_count"], "elapsed_seconds": payload["elapsed_seconds"],
                 "download_seconds": payload["download_seconds"], "translation": payload["translation"],
                 "warnings": payload["warnings"]}
-    finally:
-        page.remove_listener("download", record_download)
 
 
 def main() -> int:
@@ -299,6 +360,12 @@ def main() -> int:
         # 使用项目已有本地连接，不依赖 ChatGPT 扩展，不读取凭据，也不关闭用户浏览器。
         with sync_playwright() as runtime:
             browser = runtime.chromium.connect_over_cdp(args.cdp, timeout=20_000)
+            # CDP 连接本身会让 Playwright 接管下载；先立即恢复，避免导航失败时遗留随机命名。
+            setup_session = browser.new_browser_cdp_session()
+            try:
+                setup_session.send("Browser.setDownloadBehavior", {"behavior": "default", "eventsEnabled": False})
+            finally:
+                setup_session.detach()
             if not browser.contexts:
                 raise RuntimeError("未找到项目浏览器上下文，请先启动项目专用浏览器")
             context = browser.contexts[0]
