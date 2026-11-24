@@ -64,7 +64,9 @@ powershell -ExecutionPolicy Bypass -File scripts\check_environment.ps1 -RequireI
 powershell -ExecutionPolicy Bypass -File scripts\open_sellersprite_login_browser.ps1 -Site US
 ```
 
-在打开的项目浏览器中安装 softtime/sorftime 插件，登录卖家精灵和目标 Amazon 站点，确认配送邮编。依赖、插件和登录状态需要每台电脑单独准备，不通过 Git 同步。
+在打开的项目浏览器中安装卖家精灵插件，登录卖家精灵和目标 Amazon 站点，确认配送邮编。依赖、插件和登录状态需要每台电脑单独准备，不通过 Git 同步。
+
+同一台电脑换了源码目录时，可以用启动参数 `-ProfileDir "已有的浏览器配置目录"` 复用原来的扩展与登录状态。也可以在 `ecommerce-workflow-skill/.workflow-state/sellersprite/browser-config.json` 中保存 `{"profile_dir":"已有目录的绝对路径"}`（JSON 中的反斜杠须转义），以后无需重复传参。该文件仅保存在本机，不进入 Git。启动器会拒绝复用配置目录不匹配的调试端口，避免误开或连接到另一份浏览器配置。
 
 环境自检不替代账号、插件、COM 及真实工作簿验证。不要上传账号密码、Cookie 或验证码。
 

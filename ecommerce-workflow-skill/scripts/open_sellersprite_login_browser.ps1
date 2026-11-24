@@ -4,13 +4,29 @@
   [string]$Site = "US",
   [string]$SellerSpriteUrl = "https://www.sellersprite.com/v3/keyword-miner/",
   [string]$AmazonUrl = "",
-  [string]$BrowserPath = ""
+  [string]$BrowserPath = "",
+  [string]$ProfileDir = ""
 )
 
 $ErrorActionPreference = "Stop"
 
 $SkillDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$ProfileDir = Join-Path $SkillDir ".workflow-state\sellersprite\.chrome-profile"
+$LocalBrowserConfig = Join-Path $SkillDir ".workflow-state\sellersprite\browser-config.json"
+
+# 本机可以复用原项目配置；不把扩展和登录状态复制到新仓库。
+if ([string]::IsNullOrWhiteSpace($ProfileDir) -and (Test-Path -LiteralPath $LocalBrowserConfig)) {
+  $config = Get-Content -LiteralPath $LocalBrowserConfig -Raw -Encoding UTF8 | ConvertFrom-Json
+  $ProfileDir = [string]$config.profile_dir
+  if ([string]::IsNullOrWhiteSpace($ProfileDir)) {
+    throw "本机浏览器配置缺少 profile_dir：$LocalBrowserConfig"
+  }
+}
+if ([string]::IsNullOrWhiteSpace($ProfileDir)) {
+  $ProfileDir = Join-Path $SkillDir ".workflow-state\sellersprite\.chrome-profile"
+} elseif (-not (Test-Path -LiteralPath $ProfileDir -PathType Container)) {
+  throw "指定的浏览器配置目录不存在，已停止以免误开空白配置：$ProfileDir"
+}
+$ProfileDir = [System.IO.Path]::GetFullPath($ProfileDir).TrimEnd('\')
 
 function Resolve-BrowserPath {
   param([string]$ExplicitPath)
@@ -72,12 +88,23 @@ if ($listeners.Count -gt 0 -and -not (Test-DevToolsEndpoint -DebugPort $Port)) {
   $owners = ($listeners | Select-Object -ExpandProperty OwningProcess -Unique) -join ", "
   throw "端口 $Port 已被其它程序占用（进程 ID：$owners），但不是可复用的项目浏览器。请关闭占用程序后重试。"
 }
+if ($listeners.Count -gt 0) {
+  # 同一调试端口不代表同一份浏览器配置，防止连接到没有扩展的新窗口。
+  foreach ($ownerId in @($listeners | Select-Object -ExpandProperty OwningProcess -Unique)) {
+    $owner = Get-CimInstance Win32_Process -Filter "ProcessId = $ownerId"
+    $profileMatch = [regex]::Match([string]$owner.CommandLine, '--user-data-dir(?:=|\s+)(?:"([^"]+)"|(\S+))')
+    $actualProfile = if ($profileMatch.Groups[1].Success) { $profileMatch.Groups[1].Value } else { $profileMatch.Groups[2].Value }
+    if (-not $profileMatch.Success -or [System.IO.Path]::GetFullPath($actualProfile).TrimEnd('\') -ine $ProfileDir) {
+      throw "端口 $Port 的浏览器使用了另一份配置（进程 $ownerId）。请先关闭该项目窗口后重试。期望配置：$ProfileDir"
+    }
+  }
+}
 
 New-Item -ItemType Directory -Force -Path $ProfileDir | Out-Null
 
 Start-Process -FilePath $Browser -ArgumentList @(
   "--remote-debugging-port=$Port",
-  "--user-data-dir=$ProfileDir",
+  "--user-data-dir=`"$ProfileDir`"",
   "--new-window",
   $SellerSpriteUrl,
   $AmazonUrl
@@ -90,7 +117,7 @@ do {
     Write-Host "浏览器：$Browser"
     Write-Host "DevTools 端口：$Port"
     Write-Host "本机配置目录：$ProfileDir"
-    Write-Host "首次使用时，请在该浏览器中安装 softtime/sorftime 插件，并登录卖家精灵和 Amazon。"
+    Write-Host "使用已选定的项目配置；新电脑首次使用时安装卖家精灵插件，并登录卖家精灵和 Amazon。"
     exit 0
   }
   Start-Sleep -Milliseconds 500
