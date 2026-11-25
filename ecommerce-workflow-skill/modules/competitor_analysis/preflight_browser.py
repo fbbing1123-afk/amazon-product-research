@@ -23,7 +23,7 @@ from review_research.scrape_amazon_reviews import preflight_amazon  # noqa: E402
 from shared.marketplaces import get_marketplace  # noqa: E402
 
 
-SELLERSPRITE_LINK_BUILDER = "https://www.sellersprite.com/v3/link-builder"
+SELLERSPRITE_HOME = "https://www.sellersprite.com/v2/welcome"
 
 
 def debugger_host_port(value: str) -> tuple[str, int]:
@@ -58,7 +58,7 @@ def start_project_browser(*, debugger_address: str, site: str) -> None:
             "-Site",
             site,
             "-SellerSpriteUrl",
-            SELLERSPRITE_LINK_BUILDER,
+            SELLERSPRITE_HOME,
         ],
         check=True,
         cwd=PROJECT_DIR,
@@ -100,11 +100,9 @@ def run_preflight(*, debugger_address: str, site: str, postal_code: str | None) 
             lambda item: "sellersprite.com" in (urlparse(item.url).hostname or ""),
         )
         if "sellersprite.com" not in (urlparse(sellersprite_page.url).hostname or ""):
-            sellersprite_page.goto(SELLERSPRITE_LINK_BUILDER, wait_until="domcontentloaded", timeout=60_000)
-        ensure_sellersprite_logged_in(sellersprite_page, SELLERSPRITE_LINK_BUILDER)
-        if urlparse(sellersprite_page.url).path.rstrip("/") != "/v3/link-builder":
-            sellersprite_page.goto(SELLERSPRITE_LINK_BUILDER, wait_until="domcontentloaded", timeout=60_000)
-            sellersprite_page.wait_for_timeout(1_000)
+            sellersprite_page.goto(SELLERSPRITE_HOME, wait_until="domcontentloaded", timeout=60_000)
+        # 集合链接已在本地生成；这里只检查其它卖家精灵功能所需的登录态。
+        ensure_sellersprite_logged_in(sellersprite_page, SELLERSPRITE_HOME)
 
         amazon_page = find_page(
             context,

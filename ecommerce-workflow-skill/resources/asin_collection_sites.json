@@ -1,0 +1,21 @@
+{
+  "schema": "amazon-asin-collection-sites.v1",
+  "observed_on": "2026-11-25",
+  "source": "https://www.sellersprite.com/v3/link-builder",
+  "path_and_query_prefix": "/s?rh=p_78:",
+  "separator": "|",
+  "sites": {
+    "US": {"label": "美国", "domain": "amazon.com"},
+    "JP": {"label": "日本", "domain": "amazon.co.jp"},
+    "UK": {"label": "英国", "domain": "amazon.co.uk"},
+    "DE": {"label": "德国", "domain": "amazon.de"},
+    "FR": {"label": "法国", "domain": "amazon.fr"},
+    "IT": {"label": "意大利", "domain": "amazon.it"},
+    "ES": {"label": "西班牙", "domain": "amazon.es"},
+    "CA": {"label": "加拿大", "domain": "amazon.ca"},
+    "IN": {"label": "印度", "domain": "amazon.in"},
+    "MX": {"label": "墨西哥", "domain": "amazon.com.mx"},
+    "BR": {"label": "巴西", "domain": "amazon.com.br"},
+    "AU": {"label": "澳洲", "domain": "amazon.com.au"}
+  }
+}
