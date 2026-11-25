@@ -2,21 +2,22 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from openpyxl import load_workbook
 
+MODULES_DIR = Path(__file__).resolve().parents[2]
+if str(MODULES_DIR) not in sys.path:
+    sys.path.insert(0, str(MODULES_DIR))
+from shared.excel_inspect import find_source_sheet
+
 
 def choose_sheet(wb, requested: str | None):
     if requested:
-        return wb[requested]
-    for ws in wb.worksheets:
-        if ws.title.endswith("数据源"):
-            return ws
-    for name in ("US", "Sheet1"):
-        if name in wb.sheetnames:
-            return wb[name]
-    return wb.worksheets[0]
+        return next(ws for ws in wb if ws.title.strip() == requested.strip())
+    source = find_source_sheet(wb)
+    return source if source is not None else wb.worksheets[0]
 
 
 def clean(value):

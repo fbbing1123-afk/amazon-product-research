@@ -77,8 +77,10 @@ class ProductImageTests(unittest.TestCase):
         records=source_records(book.active,[self.asin],{self.asin:{'main_image':self.asset}})
         self.assertEqual(records[self.asin]['评分数'],43)
         self.assertEqual(records[self.asin]['评分'],4.2)
+        missing = source_records(book.active,[self.asin],{self.asin:{'main_image':{**self.asset,'review_count':None}}})
+        self.assertIsNone(missing[self.asin]['评分数'])
         with self.assertRaises(ValueError):
-            source_records(book.active,[self.asin],{self.asin:{'main_image':{**self.asset,'review_count':None}}})
+            source_records(book.active,[self.asin],{self.asin:{'main_image':{**self.asset,'review_count':-1}}})
         book.close()
 
     def test_create_and_replace_without_source_or_resampling(self):
@@ -206,6 +208,15 @@ class ProductImageTests(unittest.TestCase):
         self.assertEqual((cover.anchor._from.row,cover.anchor._from.col),(0,0))
         self.assertEqual(cover._data(),(self.root/'main.png').read_bytes())
         self.assertEqual(checked['测试-市场调研']['A3'].value,'原有关键词')
+        checked.close()
+
+        # 网页没有评分时仍可完成填表，不能把自然空值伪装成零分。
+        content['products'][self.asin]['main_image'] = {**self.asset, 'rating': None, 'review_count': None}
+        content_path.write_text(json.dumps(content, ensure_ascii=False), encoding='utf-8')
+        empty_output = self.root / 'without-ratings.xlsx'
+        populate(path, content_path, self.root / 'no-cards', empty_output)
+        checked = load_workbook(empty_output, rich_text=True)
+        self.assertEqual(checked['测试-竞品分析']['C4'].value, '/')
         checked.close()
 
 

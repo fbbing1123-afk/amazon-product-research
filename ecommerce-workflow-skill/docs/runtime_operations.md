@@ -15,6 +15,12 @@ powershell -ExecutionPolicy Bypass -File scripts\open_sellersprite_login_browser
 
 安装脚本只安装项目依赖，不自动安装系统Python、Node、Chrome或替用户登录。不会自动删除或重建已有环境。若缺软件，由AI明确指出缺项并完成适当的本机安装后继续。浏览器优先复用Chrome；自定义安装位置可设 `CHROME_EXECUTABLE`，离线图表同样复用它，不额外下载Chromium。
 
+## 站点和邮编自动选择
+
+用户明确指定站点优先；否则按商品源链接、竞品链接依次识别，均无信息才默认US。已有默认邮编直接读取 `modules/shared/marketplaces.py`：US 10001、DE 10115、UK B100AB、CA M4Y1M7、FR 75000；用户指定邮编则覆盖。检查和设置浏览器实际配送地址由脚本执行，不让用户重复确认已知值。未配置完整业务的站点不虚构默认邮编或承诺支持。
+
+输入读取只做必要结构定位，正常空值与页名前缀/首尾空白不暂停、不请求授权改名。用户已提供文件并要求分析时，准备后自动继续各阶段。
+
 ## 关键词阶段
 
 ```powershell

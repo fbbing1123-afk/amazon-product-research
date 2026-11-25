@@ -53,13 +53,50 @@ def build_collection_url(asins, site):
 
 def source_sheet(book, requested=None):
     if requested:
-        if requested not in book.sheetnames:
+        matches = [s for s in book if s.title.strip() == requested.strip()]
+        if len(matches) != 1:
             raise ValueError(f'找不到数据源页：{requested}')
-        return book[requested]
-    candidates = [s for s in book if s.title.endswith('数据源') and not any(word in s.title for word in ('评价', '评论'))]
+        return matches[0]
+    candidates = [s for s in book if s.title.strip().endswith('数据源') and not any(word in s.title for word in ('评价', '评论'))]
     if len(candidates) != 1:
         raise ValueError('商品数据源页缺失或不唯一，请通过--sheet明确指定')
     return candidates[0]
+
+
+def infer_workbook_site(book, source=None):
+    """源商品链接优先，其次竞品链接；没有站点证据时使用美国站。"""
+    from shared.excel_inspect import find_source_sheet
+
+    if source is None:
+        source = find_source_sheet(book)
+    competitors = [s for s in book if s.title.strip().endswith('竞品分析')]
+    groups = [('source_product_links', [source] if source is not None else []),
+              ('competitor_links', competitors)]
+    for origin, sheets in groups:
+        sites = set()
+        for sheet in sheets:
+            columns = None
+            if origin == 'source_product_links':
+                columns = {c.column for c in sheet[1] if re.sub(r'\s+', '', str(c.value or '')) in LINK_HEADERS}
+            rows = sheet.iter_rows(min_row=2, max_row=sheet.max_row) if columns is not None else sheet.iter_rows(max_row=min(5, sheet.max_row))
+            for row in rows:
+                for cell in row:
+                    if columns is not None and cell.column not in columns:
+                        continue
+                    values = [str(cell.value or '')]
+                    link = getattr(cell, 'hyperlink', None)
+                    if link and link.target:
+                        values.append(link.target)
+                    for value in values:
+                        for url in re.findall(r'https?://[^\s\"<>]+', value):
+                            host = (urlparse(url).hostname or '').lower()
+                            if host in HOST_TO_SITE:
+                                sites.add(HOST_TO_SITE[host])
+        if len(sites) > 1:
+            raise ValueError('商品链接混用多个站点，请明确本次站点')
+        if sites:
+            return next(iter(sites)), origin
+    return 'US', 'default_us'
 
 
 def collection_from_workbook(workbook, site=None, sheet_name=None):
@@ -105,12 +142,12 @@ def collection_from_workbook(workbook, site=None, sheet_name=None):
         detected = next(iter(domains), None)
         if requested_site and detected and requested_site != detected:
             raise ValueError(f'指定站点{requested_site}与数据源商品链接站点{detected}不一致')
-        selected_site = requested_site or detected
-        if selected_site is None:
-            raise ValueError('数据源没有可识别站点的商品链接，请通过--site指定站点')
+        inferred_site, inferred_origin = infer_workbook_site(book, source=sheet) if not requested_site and not detected else (None, None)
+        selected_site = requested_site or detected or inferred_site
+        site_origin = 'explicit' if requested_site else ('source_product_links' if detected else inferred_origin)
         return {'schema': 'amazon-asin-collection-link.v1', 'source_workbook': str(workbook.resolve()),
                 'source_sha256': fingerprint, 'source_sheet': sheet.title, 'asin_column': asin_column,
-                'site': selected_site, 'site_source': 'explicit' if requested_site else 'source_product_links',
+                'site': selected_site, 'site_source': site_origin,
                 'source_asin_rows': len(values), 'asin_count': len(asins), 'duplicate_rows': len(values) - len(asins),
                 'blank_asin_rows': blank_rows, 'asins': asins, 'source_rows': rows_by_asin,
                 'url': build_collection_url(asins, selected_site), 'rules_verified_on': RULES['observed_on']}

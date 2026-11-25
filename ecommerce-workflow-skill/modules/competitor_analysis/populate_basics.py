@@ -47,7 +47,7 @@ def normalize_text(value: Any) -> str:
 
 def find_sheet(workbook, suffix: str):
     return next(
-        (worksheet for worksheet in workbook.worksheets if worksheet.title.endswith(suffix)),
+        (worksheet for worksheet in workbook.worksheets if worksheet.title.strip().endswith(suffix) and (suffix != "数据源" or not any(word in worksheet.title for word in ("评价", "评论")))),
         None,
     )
 
@@ -84,7 +84,7 @@ def source_records(worksheet, asins: list[str], fallback_products=None) -> dict[
         for cell in worksheet[1]
         if normalize_text(cell.value)
     }
-    required = {"ASIN", "商品详情页链接", "评分数", "评分"}
+    required = {"ASIN"}
     if missing := required - headers.keys():
         raise ValueError(f"数据源缺少字段：{', '.join(sorted(missing))}")
     targets = set(asins)
@@ -103,11 +103,17 @@ def source_records(worksheet, asins: list[str], fallback_products=None) -> dict[
             raise ValueError(f'数据源缺少竞品：{asin}，请先补取网页主图和基础证据')
         validate_asset(asset, asin)
         rating, review_count = asset.get('rating'), asset.get('review_count')
-        if (type(rating) not in (int,float) or not 0 <= rating <= 5
-                or type(review_count) is not int or review_count < 0):
-            raise ValueError(f'{asin}网页评分/评论数尚未取全，不能以0代替缺失值')
+        if ((rating is not None and (type(rating) not in (int, float) or not 0 <= rating <= 5))
+                or (review_count is not None and (type(review_count) is not int or review_count < 0))):
+            raise ValueError(f'{asin}网页评分/评论数值无效')
         records[asin] = {'ASIN':asin, '商品详情页链接':asset['page_url'], '评分':rating, '评分数':review_count}
     return records
+
+
+def rating_summary(record):
+    """评分字段可自然为空；保留真实零值，不把未知值改成零。"""
+    values = [str(record[key]).strip() if record.get(key) is not None else '' for key in ('评分', '评分数')]
+    return ' / '.join(value or '—' for value in values) if any(values) else '/'
 
 
 def fill_basic_fact_rows(worksheet, column, record, fallback=None):
@@ -437,9 +443,7 @@ def populate(
                 underline="single",
             )
 
-            rating = record.get("评分")
-            review_count = record.get("评分数")
-            competitor.cell(rating_row, column, f"{rating or 0} / {review_count or 0}")
+            competitor.cell(rating_row, column, rating_summary(record))
 
             points = [normalize_text(item) for item in product.get("selling_points", []) if normalize_text(item)]
             competitor.cell(

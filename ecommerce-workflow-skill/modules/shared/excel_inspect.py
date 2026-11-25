@@ -7,7 +7,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 
-SOURCE_SHEET_EXACT_NAMES = ("数据源", "US", "Sheet1")
+SOURCE_SHEET_EXACT_NAMES = ("数据源", "US", "DE", "UK", "CA", "FR", "Sheet1")
 SOURCE_SHEET_SUFFIX = "数据源"
 
 
@@ -24,8 +24,9 @@ class ImageRisk:
 
 def find_sheet(wb, exact_names: tuple[str, ...] = (), contains: tuple[str, ...] = ()):
     for name in exact_names:
-        if name in wb.sheetnames:
-            return wb[name]
+        for ws in wb.worksheets:
+            if ws.title.strip() == name:
+                return ws
     for ws in wb.worksheets:
         if any(token in ws.title for token in contains):
             return ws
@@ -34,9 +35,27 @@ def find_sheet(wb, exact_names: tuple[str, ...] = (), contains: tuple[str, ...] 
 
 def find_source_sheet(wb):
     for ws in wb.worksheets:
-        if ws.title.endswith(SOURCE_SHEET_SUFFIX) and ws.title != SOURCE_SHEET_SUFFIX:
+        title = ws.title.strip()
+        if any(word in title for word in ("评价", "评论")):
+            continue
+        if title.endswith(SOURCE_SHEET_SUFFIX) and title != SOURCE_SHEET_SUFFIX:
             return ws
     return find_sheet(wb, exact_names=SOURCE_SHEET_EXACT_NAMES)
+
+
+def infer_product_name(wb):
+    """优先使用本批商品源名称，兼容仍保留示例前缀的报告模板。"""
+    source = find_source_sheet(wb)
+    if source is not None and source.title.strip().endswith(SOURCE_SHEET_SUFFIX):
+        name = source.title.strip()[:-len(SOURCE_SHEET_SUFFIX)].strip("-_ ")
+        if name and name not in {"产品名", "产品名称"}:
+            return name
+    for ws in wb.worksheets:
+        if ws.title.strip().endswith("市场调研"):
+            name = ws.title.strip()[:-len("市场调研")].strip("-_ ")
+            if name and name not in {"产品名", "产品名称"}:
+                return name
+    return None
 
 
 def inspect_image_risk(path: Path) -> ImageRisk:

@@ -21,6 +21,7 @@ if str(MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(MODULES_DIR))
 
 from shared.worksheet_rows import insert_rows_preserving_merges
+from shared.excel_inspect import find_source_sheet as select_source_sheet, infer_product_name as source_product_name
 
 
 CATEGORY_SECTION_MARKER = "所属平台分类及常用分类节点"
@@ -312,19 +313,11 @@ def get_sheet_by_name_or_contains(wb, names=(), contains=()):
 
 
 def find_source_sheet(wb):
-    for ws in wb.worksheets:
-        if ws.title.endswith("数据源") and ws.title != "数据源":
-            return ws
-    return get_sheet_by_name_or_contains(wb, names=("数据源", "US", "Sheet1"))
+    return select_source_sheet(wb)
 
 
 def infer_product_name(wb):
-    for ws in wb.worksheets:
-        if ws.title.endswith("市场调研"):
-            product_name = ws.title[: -len("市场调研")].strip("-_ ")
-            if product_name:
-                return product_name
-    return None
+    return source_product_name(wb)
 
 
 def ensure_canonical_source_sheet_name(wb, ws):

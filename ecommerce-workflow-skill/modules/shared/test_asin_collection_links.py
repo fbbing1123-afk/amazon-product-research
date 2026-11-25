@@ -75,8 +75,8 @@ class CollectionLinkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '不一致'):
             collection_from_workbook(self.workbook(), site='US')
         source = self.workbook(domain=None)
-        with self.assertRaisesRegex(ValueError, '--site'):
-            collection_from_workbook(source)
+        self.assertEqual(collection_from_workbook(source)['site'], 'US')
+        self.assertEqual(collection_from_workbook(source)['site_source'], 'default_us')
         self.assertEqual(collection_from_workbook(source, site='DE')['site'], 'DE')
 
     def test_mixed_sites_or_ambiguous_source_are_rejected(self):

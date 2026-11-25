@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import os
@@ -50,7 +50,8 @@ from keyword_trends.run import run_keyword_trends
 from market_analysis.run import run_market_analysis
 from product_research.run import run_category_research, run_product_research_charts
 from review_research.run import run_review_research
-from shared.excel_inspect import find_source_sheet, inspect_image_risk
+from shared.excel_inspect import find_source_sheet, inspect_image_risk, infer_product_name
+from shared.asin_collection_links import infer_workbook_site
 from shared.image_conversion import convert_wps_dispimg_to_floating, make_wps_embedded_version
 from shared.marketplaces import MARKETPLACES, get_marketplace, normalize_site_code
 from shared.paths import ensure_dir, resolve_existing_file
@@ -232,54 +233,12 @@ def extract_competitor_asins(workbook_path: Path) -> list[str]:
 
 
 def infer_site_from_workbook(workbook_path: Path) -> str:
-    """从数据源中的 Amazon 域名推断站点；多站点混用时拒绝猜测。"""
+    """站点由商品源或竞品链接自动识别，没有证据时才默认美国站。"""
     from openpyxl import load_workbook
 
-    workbook = load_workbook(workbook_path, read_only=True, data_only=True)
+    workbook = load_workbook(workbook_path, data_only=True)
     try:
-        source_sheet = next(
-            (
-                sheet
-                for sheet in workbook.worksheets
-                if sheet.title.endswith("数据源")
-            ),
-            None,
-        )
-        if source_sheet is None:
-            source_sheet = next(
-                (
-                    workbook[name]
-                    for name in ("数据源", "US", "DE", "UK", "Sheet1")
-                    if name in workbook.sheetnames
-                ),
-                None,
-            )
-        if source_sheet is None:
-            source_sheet = workbook.worksheets[0]
-
-        domain_to_site = {
-            marketplace.amazon_domain: site
-            for site, marketplace in MARKETPLACES.items()
-        }
-        detected_sites: set[str] = set()
-        for row in source_sheet.iter_rows(values_only=True):
-            for value in row:
-                text = str(value or "")
-                if "amazon." not in text.lower():
-                    continue
-                host = (urlparse(text).hostname or "").lower()
-                host = host.removeprefix("www.")
-                if host in domain_to_site:
-                    detected_sites.add(domain_to_site[host])
-
-        if len(detected_sites) > 1:
-            sites = ", ".join(sorted(detected_sites))
-            raise ValueError(
-                f"数据源检测到多个 Amazon 站点（{sites}），请通过 --site 明确指定，不能自动混合调研。"
-            )
-        if detected_sites:
-            return next(iter(detected_sites))
-        return "US"
+        return infer_workbook_site(workbook)[0]
     finally:
         workbook.close()
 
@@ -333,15 +292,9 @@ def infer_product_name_from_workbook(source: Path) -> str | None:
         return None
 
     try:
-        for sheet_name in wb.sheetnames:
-            if sheet_name.endswith(MARKET_RESEARCH_SUFFIX):
-                product_name = sheet_name[: -len(MARKET_RESEARCH_SUFFIX)].strip()
-                product_name = re.sub(r"[-_\s]+$", "", product_name)
-                if product_name and product_name not in {"产品名称", "产品名"}:
-                    return product_name
+        return infer_product_name(wb)
     finally:
         wb.close()
-    return None
 
 
 def default_output_name(source: Path) -> str:

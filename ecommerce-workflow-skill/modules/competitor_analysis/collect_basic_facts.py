@@ -176,7 +176,7 @@ def read_source(path: Path, asins: list[str], sheet_name: str | None = None, fie
     fields = FIELDS if fields is None else fields
     wb = load_workbook(path, read_only=True, data_only=True)
     try:
-        sheets = [sheet for sheet in wb if (sheet.title == sheet_name if sheet_name else sheet.title.endswith("数据源"))]
+        sheets = [sheet for sheet in wb if (sheet.title.strip() == sheet_name.strip() if sheet_name else (sheet.title.strip().endswith("数据源") and not any(word in sheet.title for word in ("评价", "评论"))))]
         if len(sheets) != 1:
             raise ValueError("数据源工作表不唯一或不存在，请用 --source-sheet 指定")
         sheet = sheets[0]
