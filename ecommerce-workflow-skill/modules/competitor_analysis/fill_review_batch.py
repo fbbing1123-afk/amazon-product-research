@@ -1,4 +1,4 @@
-"""回填本批已校验评价，文字超出模板行高时复制续行并下移总结。"""
+"""回填本批已校验评价，每款优缺点各一个单元格，长内容纵向合并扩高。"""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,7 @@ from openpyxl import load_workbook
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from competitor_analysis.populate_basics import competitor_asins, find_label_row
-from competitor_analysis.review_mentions import format_report_point
+from competitor_analysis.review_mentions import report_points
 from competitor_analysis.merge_review_sources import merge_sources, verify_analysis
 from shared.worksheet_rows import insert_rows_preserving_merges
 from shared.quality_gates import validate_competitor_review_analysis
@@ -63,7 +63,7 @@ def fill_batch(workbook, output, analyses, summary):
             row = find_label_row(sheet, label)
             blocks = {}
             for column, asin in enumerate(asins, start=3):
-                points = [format_report_point(p, kind) for p in by_asin[asin][kind]]
+                points = report_points(by_asin[asin],kind)
                 blocks[column] = chunk_points(sheet, row, column, points)
             extra = max(len(chunks) for chunks in blocks.values()) - 1
             if extra:
@@ -79,8 +79,10 @@ def fill_batch(workbook, output, analyses, summary):
                 sheet.merge_cells(start_row=row, end_row=row + extra, start_column=2, end_column=2)
                 sheet.cell(row, 2)._style = label_style
             for column, chunks in blocks.items():
-                for offset in range(extra + 1):
-                    sheet.cell(row + offset, column, chunks[offset] if offset < len(chunks) else '')
+                # 扩行只用于提供高度，完整内容始终写在该商品的同一个单元格里。
+                sheet.cell(row, column, '\n'.join(chunks))
+                if extra:
+                    sheet.merge_cells(start_row=row,end_row=row+extra,start_column=column,end_column=column)
         summary_row = find_label_row(sheet, '总结及改进方式')
         sheet.cell(summary_row, 3, summary.strip())
         output.parent.mkdir(parents=True, exist_ok=True)

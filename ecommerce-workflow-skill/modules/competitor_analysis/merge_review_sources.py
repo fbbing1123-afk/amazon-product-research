@@ -36,6 +36,7 @@ def verify_analysis(analysis):
     if any(analysis.get(key) != packet.get(key) for key in ('schema', 'packet_digest', 'source_sha256')):
         raise ValueError('评论数据已变化或分析来自另一批次，拒绝回填')
     checked = dict(analysis)
+    checked['selected_counts']={kind:len(samples) for kind,samples in packet['samples'].items()}
     for kind in ('advantages', 'disadvantages'):
         checked[kind] = validate_result(packet, kind, {
             'schema': packet['schema'], 'asin': packet['asin'], 'packet_digest': packet['packet_digest'],

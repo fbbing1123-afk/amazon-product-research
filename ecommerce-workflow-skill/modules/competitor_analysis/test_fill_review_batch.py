@@ -72,8 +72,10 @@ class FillReviewBatchTests(unittest.TestCase):
         self.assertEqual(self.summary_style,sheet.cell(summary,3)._style)
         self.assertEqual(198,sheet.row_dimensions[summary].height)
         self.assertIn(f'C{summary}:D{summary}',sheet.merged_cells)
-        actual = '\n'.join(sheet.cell(row,3).value or '' for row in range(6,summary))
+        actual = sheet.cell(6,3).value
         self.assertEqual('\n'.join(f'问题{number}需改善（100%）' for number in range(12)),actual)
+        self.assertIn(f'C6:C{summary-1}',sheet.merged_cells)
+        self.assertTrue(all(sheet.cell(row,3).value is None for row in range(7,summary)))
         self.assertTrue(all(sheet.row_dimensions[row].height == 80 for row in range(6,summary)))
         self.assertEqual(summary,sheet._images[0].anchor._from.row)
         self.assertEqual(2,result['review_source_rows'])
@@ -89,6 +91,18 @@ class FillReviewBatchTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'另一批次'):
             fill_batch(self.template,self.output,[self.analysis],'本批改进')
         self.assertFalse(self.output.exists())
+
+    def test_negative_sample_without_specific_reason_is_not_slash(self):
+        self.analysis['disadvantages']=[]
+        self.analysis['empty_reasons']={'disadvantages':'只表达不满，没有具体原因'}
+        # 故意传入错误旧数量，写表必须以重新读取的真实样本为准。
+        self.analysis['selected_counts']={'advantages':1,'disadvantages':0}
+        with patch('competitor_analysis.fill_review_batch.validate_competitor_review_analysis'):
+            fill_batch(self.template,self.output,[self.analysis],'本批改进')
+        book=load_workbook(self.output,rich_text=True)
+        self.assertEqual(book.active['C6'].value,'无具体差评原因')
+        self.assertEqual(book.active['C7'].value,'本批改进')
+        book.close()
 
     def test_wrong_product_rejects_batch_without_output(self):
         book = load_workbook(self.template)

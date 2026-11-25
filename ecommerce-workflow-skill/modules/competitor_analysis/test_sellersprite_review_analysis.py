@@ -274,6 +274,24 @@ class SellerSpriteAnalysisTests(unittest.TestCase):
             fill_workbook(workbook, output, analysis)
         self.assertFalse(output.exists())
 
+    def test_vertical_single_product_merge_and_empty_negative_meanings(self):
+        for rating,expected in [(5,'/'),(1,'无具体差评原因')]:
+            with self.subTest(rating=rating):
+                packet=self.source([self.row(1,rating=rating)])
+                analysis={k:packet[k] for k in ('asin','source_file','packet_digest','source_sha256')}
+                analysis.update(advantages=[],disadvantages=[])
+                workbook=self.make_report(0)
+                book=load_workbook(workbook,rich_text=True)
+                book.active.merge_cells('C10:C12')
+                book.save(workbook)
+                book.close()
+                output=self.root/f'empty-{rating}.xlsx'
+                fill_workbook(workbook,output,analysis)
+                book=load_workbook(output,rich_text=True)
+                self.assertEqual(book.active['C10'].value,expected)
+                self.assertIn('C10:C12',book.active.merged_cells)
+                book.close()
+
 
 if __name__ == "__main__":
     unittest.main()

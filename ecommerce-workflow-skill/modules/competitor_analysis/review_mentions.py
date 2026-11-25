@@ -26,3 +26,16 @@ def format_report_point(point, kind):
     if any(point.get(key) != value for key, value in stats.items()):
         raise ValueError("缺少有效提及统计，请按新提示重新分析并校验")
     return f"{point['text']}（{stats['mention_percent']:g}%）"
+
+
+def report_points(analysis, kind):
+    """区分没有入选差评和分析后没有具体原因，不能都用斜杠表示。"""
+    if analysis[kind]:
+        return [format_report_point(point, kind) for point in analysis[kind]]
+    if kind == "disadvantages":
+        count = analysis.get("selected_counts", {}).get(kind)
+        if type(count) is not int or count < 0:
+            raise ValueError("缺少已核验的入选差评数量，不能判断空结论含义")
+        if count:
+            return ["无具体差评原因"]
+    return ["/"]

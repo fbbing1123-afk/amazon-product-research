@@ -23,7 +23,7 @@ if str(MODULES_DIR) not in sys.path:
 
 from review_research.download_sellersprite_reviews import asin_from_input, read_export, write_json
 from competitor_analysis.annotate_review_export import annotate_export
-from competitor_analysis.review_mentions import MENTION_SCOPE, format_report_point, mention_stats
+from competitor_analysis.review_mentions import MENTION_SCOPE, format_report_point, mention_stats,report_points
 
 
 SCHEMA = "sellersprite-review-analysis.v1"
@@ -229,8 +229,8 @@ def locate_cells(workbook_path: Path, asin: str) -> tuple[str, dict[str, str]]:
                  for kind, label in (("advantages", "优点"), ("disadvantages", "缺点"))}
         for coordinate in cells.values():
             for merged in sheet.merged_cells.ranges:
-                if coordinate in merged and (merged.min_col != merged.max_col or merged.min_row != merged.max_row):
-                    raise ValueError("优缺点目标单元格被合并，需先核对模板")
+                if coordinate in merged and (merged.min_col != merged.max_col or merged.start_cell.coordinate != coordinate):
+                    raise ValueError("优缺点目标跨商品合并或不是合并区左上角，需先核对模板")
         return sheet.title, cells
     finally:
         workbook.close()
@@ -260,6 +260,10 @@ def fill_workbook(workbook: Path, output: Path, analysis: dict) -> dict:
     if output.resolve() == Path(analysis["source_file"]).resolve():
         raise ValueError("不能覆盖评论源文件")
     sheet_name, cells = locate_cells(workbook, analysis["asin"])
+    packet=make_packet(Path(analysis['source_file']),analysis['asin'])
+    if any(analysis.get(key) is not None and analysis[key]!=packet[key] for key in ('packet_digest','source_sha256')):
+        raise ValueError('评论源已经变化，不能按旧分析写入')
+    analysis={**analysis,'selected_counts':{kind:len(samples) for kind,samples in packet['samples'].items()}}
     with ZipFile(workbook) as source:
         root = ET.fromstring(source.read("xl/workbook.xml"))
         relations = ET.fromstring(source.read("xl/_rels/workbook.xml.rels"))
@@ -269,7 +273,7 @@ def fill_workbook(workbook: Path, output: Path, analysis: dict) -> dict:
                       if r.get("Id") == relation_id)
         part = target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join("xl", target))
         xml = source.read(part).decode("utf-8")
-        values = {kind: "\n".join(format_report_point(point, kind) for point in analysis[kind]) or "/" for kind in cells}
+        values = {kind: "\n".join(report_points(analysis,kind)) for kind in cells}
         for kind, coordinate in cells.items():
             xml = patch_cell(xml, coordinate, values[kind])
         ET.fromstring(xml)
