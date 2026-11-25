@@ -23,6 +23,7 @@ if str(MODULES_DIR) not in sys.path:
 from shared.quality_gates import validate_competitor_basics  # noqa: E402
 from shared.worksheet_rows import insert_rows_preserving_merges
 from competitor_analysis.collect_basic_facts import normalize_value
+from competitor_analysis.collect_product_images import validate_asset
 
 
 ASIN_PATTERN = re.compile(r"(?<![A-Z0-9])([A-Z0-9]{10})(?![A-Z0-9])", re.I)
@@ -77,7 +78,7 @@ def competitor_asins(worksheet) -> list[str]:
     return found
 
 
-def source_records(worksheet, asins: list[str]) -> dict[str, dict[str, Any]]:
+def source_records(worksheet, asins: list[str], fallback_products=None) -> dict[str, dict[str, Any]]:
     headers = {
         normalize_text(cell.value): cell.column
         for cell in worksheet[1]
@@ -96,8 +97,16 @@ def source_records(worksheet, asins: list[str]) -> dict[str, dict[str, Any]]:
             header: row[column - 1] if column - 1 < len(row) else None
             for header, column in headers.items()
         }
-    if missing := targets - records.keys():
-        raise ValueError(f"数据源缺少竞品：{', '.join(sorted(missing))}")
+    for asin in targets - records.keys():
+        asset = (fallback_products or {}).get(asin, {}).get('main_image')
+        if not asset:
+            raise ValueError(f'数据源缺少竞品：{asin}，请先补取网页主图和基础证据')
+        validate_asset(asset, asin)
+        rating, review_count = asset.get('rating'), asset.get('review_count')
+        if (type(rating) not in (int,float) or not 0 <= rating <= 5
+                or type(review_count) is not int or review_count < 0):
+            raise ValueError(f'{asin}网页评分/评论数尚未取全，不能以0代替缺失值')
+        records[asin] = {'ASIN':asin, '商品详情页链接':asset['page_url'], '评分':rating, '评分数':review_count}
     return records
 
 
@@ -359,6 +368,8 @@ def populate(
     content_path: Path,
     cards_dir: Path,
     output_path: Path,
+    images_path: Path | None = None,
+    image_display: str = 'original',
 ) -> None:
     content = json.loads(content_path.read_text(encoding="utf-8-sig"))
     workbook = load_workbook(workbook_path, rich_text=True)
@@ -370,14 +381,25 @@ def populate(
 
         asins = competitor_asins(competitor)
         products = content.get("products") or {}
+        if images_path is not None:
+            assets = json.loads(images_path.read_text(encoding='utf-8-sig'))['products']
+            for asin, asset in assets.items():
+                if asin in products:
+                    products[asin]['main_image'] = asset
+        if image_display not in ('fit','original'):
+            raise ValueError('图片显示方式只能为fit或original')
         comparisons = content.get("comparisons") or []
         if set(asins) - set(products):
             raise ValueError("内容 JSON 没有覆盖全部竞品 ASIN。")
         if not 1 <= len(comparisons) <= MAX_COMPARISON_DIMENSIONS:
             raise ValueError(f"对比维度要求 1 到 {MAX_COMPARISON_DIMENSIONS} 个。")
 
-        records = source_records(datasource, asins)
+        records = source_records(datasource, asins, products)
         main_images = source_main_images(datasource, asins)
+        # 新版优先采用对应商品页的高清原图，旧内容仍可复用数据源图片。
+        for asin in asins:
+            if products[asin].get('main_image'):
+                main_images[asin] = validate_asset(products[asin]['main_image'], asin)
         fallback_asins = [asin for asin in asins if asin not in main_images]
         cards = card_files(cards_dir, fallback_asins) if fallback_asins else {}
         product_columns = list(range(3, 3 + len(asins)))
@@ -437,7 +459,8 @@ def populate(
                 if asin in main_images
                 else Image(cards[asin])
             )
-            fit_image_to_cell(image, competitor, image_row, column)
+            if image_display == 'fit':
+                fit_image_to_cell(image, competitor, image_row, column)
             image.anchor = competitor.cell(image_row, column).coordinate
             competitor.add_image(image)
 
@@ -484,8 +507,10 @@ def main() -> int:
     parser.add_argument("--content", type=Path, required=True)
     parser.add_argument("--cards-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument('--images', type=Path, help='已核验的网页主图清单，优先于数据源图片')
+    parser.add_argument('--image-display', choices=['fit','original'], default='original')
     args = parser.parse_args()
-    populate(args.workbook, args.content, args.cards_dir, args.output)
+    populate(args.workbook, args.content, args.cards_dir, args.output, args.images, args.image_display)
     print(args.output.resolve())
     return 0
 

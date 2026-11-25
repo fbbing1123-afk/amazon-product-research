@@ -16,6 +16,8 @@ from playwright.async_api import async_playwright
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'modules'))
 from competitor_analysis.populate_basics import competitor_asins
 from competitor_analysis.prefetch_basics import source_candidates, collect_same_page, refresh_basic_cells
+from competitor_analysis.collect_product_images import collect_main_image
+from competitor_analysis.refresh_product_images import refresh_product_images
 from product_research.scripts.capture_category_overviews import iter_category_rows
 from product_research.scripts.capture_sellersprite_categories import capture
 from product_research.scripts.populate_market_summary import refresh_summary
@@ -88,7 +90,17 @@ async def execute(args):
         if len(products)==len(asins):
             prepared.set()
     async def collect_facts(page, asin):
-        return await collect_same_page(page, asin, candidates[asin])
+        # 复用正在导出的商品页，主图独立取证，基础字段失败也保留已取到的图片。
+        try:
+            asset = await collect_main_image(page, asin, directory/'product-images')
+        except Exception as error:
+            asset = {'asin':asin, 'status':'failed', 'error':str(error)}
+        try:
+            facts = await collect_same_page(page, asin, candidates[asin])
+        except Exception as error:
+            facts = {'asin':asin, 'status':'incomplete', 'error':str(error)}
+        facts['main_image'] = asset
+        return facts
     (directory/'categories').mkdir()
     try:
         async with async_playwright() as runtime:
@@ -135,7 +147,15 @@ async def execute(args):
                     if valid:
                         log('basics_write_started')
                         manifest['basics'] = await asyncio.to_thread(refresh_basic_cells,market_input,directory/'01-basics.xlsx',valid)
+                        market_input = Path(manifest['basics']['output'])
                         log('basics_write_finished',asins=list(valid))
+                        checkpoint()
+                    assets = {asin:fact['main_image'] for asin,fact in products.items() if fact.get('main_image',{}).get('status')=='ok'}
+                    if assets:
+                        manifest['product_images'] = await asyncio.to_thread(
+                            refresh_product_images, market_input, directory/'01-product-images.xlsx', assets,
+                            display_mode=getattr(args,'product_image_display','original'), allow_partial=True)
+                        log('product_images_written',asins=list(assets))
                         checkpoint()
                 async def screenshots():
                     await prepared.wait()
@@ -179,7 +199,9 @@ async def execute(args):
     if categories and (manifest.get('metrics') or args.skip_metrics) and capture_ok:
         try:
             log('image_write_started')
-            market_input = Path(manifest['basics']['output']) if manifest.get('basics') else args.workbook if args.skip_metrics else directory/'01-metrics.xlsx'
+            market_input = (Path(manifest['product_images']['output']) if manifest.get('product_images') else
+                            Path(manifest['basics']['output']) if manifest.get('basics') else
+                            args.workbook if args.skip_metrics else directory/'01-metrics.xlsx')
             result = await asyncio.to_thread(refresh_images, market_input, directory/'02-market-checkpoint.xlsx',
                                              manifest['screenshots'], allow_partial=partial)
             gates = [validate_zip_package(Path(result['output'])), validate_category_research(Path(result['output']))]
@@ -193,9 +215,10 @@ async def execute(args):
     manifest['overlap_evidence'] = overlap_evidence(events)
     manifest['products'] = products
     facts_ok = len(products)==len(asins) and all(p.get('status')=='complete' for p in products.values())
+    images_ok = len(products)==len(asins) and all(p.get('main_image',{}).get('status')=='ok' for p in products.values()) and bool(manifest.get('product_images'))
     market_ok = bool(manifest.get('market_checkpoint')) if categories else (args.skip_metrics or bool(manifest.get('metrics')))
     manifest['status'] = ('completed_with_warnings' if any(r['status']=='incomplete_translation' for r in manifest['reviews'].values())
-                          else 'completed') if reviews_ok and facts_ok and capture_ok and market_ok and not manifest['errors'] else 'incomplete'
+                          else 'completed') if reviews_ok and facts_ok and images_ok and capture_ok and market_ok and not manifest['errors'] else 'incomplete'
     manifest['elapsed_seconds'], manifest['finished_at'] = round(time.monotonic()-began, 3), now_iso()
     checkpoint()
     print(json.dumps({'directory':str(directory), 'status':manifest['status'], 'elapsed_seconds':manifest['elapsed_seconds'],
@@ -216,6 +239,7 @@ def main():
     parser.add_argument('--download-timeout', type=float, default=600, help='每商品总等待上限；连续180秒无新进度提前退出')
     parser.add_argument('--postal-code', default='10001')
     parser.add_argument('--cdp', default='http://127.0.0.1:9223')
+    parser.add_argument('--product-image-display', choices=['fit','original'], default='original', help='默认原尺寸浮动放置，控制表内显示尺寸')
     args = parser.parse_args()
     if (args.max_downloads is not None and args.max_downloads < 1) or args.category_start < 0 or (args.category_limit is not None and args.category_limit < 1):
         parser.error('并发下载数须为正数，类目起点非负且数量为正数')
