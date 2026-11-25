@@ -6,16 +6,98 @@ import zipfile
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.drawing.image import Image as ExcelImage
+from PIL import Image as PillowImage, ImageDraw
 
 from modules.product_research.scripts.fill_custom_template import (
     apply_category_share_display, collect_category_summaries, fill_category_section,
+    set_category_monthly_sales,
 )
 from modules.product_research.scripts.refresh_category_shares import (
     collect_updates, refresh_category_shares,
 )
+from modules.product_research.scripts.capture_sellersprite_categories import screenshot_clip
+from modules.product_research.scripts.refresh_sellersprite_category_images import refresh_images
 
 
 class CategoryShareTests(unittest.TestCase):
+    def test_clip_converts_browser_zoom_without_resizing_output(self):
+        for zoom in (0.5,0.8,0.9,1,1.25,1.5,2):
+            clip=screenshot_clip({'x':300,'y':20,'width':1600,'height':940},
+                                 {'x':0,'y':400},{'visualViewport':{'zoom':zoom}})
+            self.assertAlmostEqual(300*zoom,clip['x'])
+            self.assertAlmostEqual(420*zoom,clip['y'])
+            self.assertAlmostEqual(1600,clip['width']*clip['scale'])
+            self.assertAlmostEqual(940,clip['height']*clip['scale'])
+
+    def test_clip_supports_legacy_metrics_and_rejects_invalid_zoom(self):
+        box = {'x': 20, 'y': 50, 'width': 1600, 'height': 940}
+        scroll = {'x': 100, 'y': 250}
+        clip = screenshot_clip(box, scroll, {
+            'visualViewport': {}, 'layoutViewport': {'clientWidth': 1800},
+            'cssLayoutViewport': {'clientWidth': 2000},
+        })
+        self.assertAlmostEqual(108, clip['x'])
+        self.assertAlmostEqual(270, clip['y'])
+        self.assertAlmostEqual(1600, clip['width'] * clip['scale'])
+        for zoom in (0, -1, float('nan'), float('inf')):
+            with self.assertRaises(ValueError):
+                screenshot_clip(box, scroll, {'visualViewport': {'zoom': zoom}})
+
+    def test_sales_writer_migrates_old_format_and_preserves_zero(self):
+        cell=Workbook().active['I3']
+        cell.value=30524
+        cell.number_format='#,##0"\n数量占比：91.2%"'
+        set_category_monthly_sales(cell,0)
+        self.assertEqual('0\n数量占比：91.2%',cell.value)
+        self.assertEqual('General',cell.number_format)
+        set_category_monthly_sales(cell,12345)
+        self.assertEqual('12,345\n数量占比：91.2%',cell.value)
+        apply_category_share_display(cell,0.5004)
+        set_category_monthly_sales(cell,54321)
+        self.assertEqual('54,321\n数量占比：50.0%',cell.value)
+        self.assertEqual('D9EAF7',cell.fill.fgColor.rgb[-6:])
+        for missing in ('',None,'/'):
+            cell.value=missing
+            apply_category_share_display(cell,0)
+            self.assertEqual('/\n数量占比：0.0%',cell.value)
+
+    def test_image_refresh_keeps_native_size_and_other_parts(self):
+        report,source=self.fixture()
+        data=report.create_sheet('数据源')
+        for row in source.active:
+            for cell in row:
+                data.cell(cell.row,cell.column,cell.value)
+                if cell.hyperlink:
+                    data.cell(cell.row,cell.column).hyperlink=cell.hyperlink.target
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            picture=root/'native.png'
+            with PillowImage.new('RGB',(1600,940),'white') as pixels:
+                ImageDraw.Draw(pixels).rectangle((10,10,1590,930),fill='blue')
+                pixels.save(picture)
+            results={}
+            for row,node in ((3,22),(4,11)):
+                image=ExcelImage(str(picture))
+                image.width,image.height=300,170
+                report.active.add_image(image,f'F{row}')
+                url=f'https://www.amazon.com/gp/bestsellers/electronics/{node}'
+                results[url]={'status':'ok','monthly_sales':node*100,'image':str(picture)}
+            before,after=root/'before.xlsx',root/'after.xlsx'
+            report.save(before)
+            refresh_images(before,after,results)
+            book=load_workbook(after,rich_text=True)
+            self.assertEqual('2,200\n数量占比：33.3%',book.active['I3'].value)
+            self.assertEqual('1,100\n数量占比：66.7%',book.active['I4'].value)
+            self.assertTrue(all((i.anchor.ext.cx,i.anchor.ext.cy)==(1600*9525,940*9525) for i in book.active._images))
+            book.close()
+            with zipfile.ZipFile(before) as old,zipfile.ZipFile(after) as new:
+                allowed={'xl/worksheets/sheet1.xml','xl/styles.xml','xl/drawings/drawing1.xml','xl/media/image1.png','xl/media/image2.png'}
+                self.assertEqual(old.namelist(),new.namelist())
+                self.assertTrue({n for n in old.namelist() if old.read(n)!=new.read(n)}<=allowed)
+            report.close()
+            source.close()
+
     def fixture(self):
         source = Workbook()
         data = source.active
@@ -60,17 +142,16 @@ class CategoryShareTests(unittest.TestCase):
         sheet = report.active
         self.assertNotIn("蓝色", sheet["A1"].value)
         self.assertIn("注：数量占比按有效类目样本计算", sheet["A1"].value)
-        sheet["I3"] = 12345
-        self.assertEqual(12345, sheet["I3"].value)
-        self.assertIn("66.7%", sheet["I3"].number_format)
+        set_category_monthly_sales(sheet["I3"], 12345)
+        self.assertEqual('12,345\n数量占比：66.7%', sheet["I3"].value)
+        self.assertEqual('General', sheet["I3"].number_format)
         self.assertTrue(sheet["I3"].alignment.wrap_text)
         self.assertEqual("D9EAF7", sheet["I3"].fill.fgColor.rgb[-6:])
         # 真实零销量不转成缺失值，100% 和 0% 均可显示。
         sheet["I3"] = 0
         for share, color in ((0, "FCE4D6"), (0.5, "FCE4D6"), (1, "D9EAF7")):
             apply_category_share_display(sheet["I3"], share)
-            self.assertEqual(0, sheet["I3"].value)
-            self.assertIn(f"{share:.1%}", sheet["I3"].number_format)
+            self.assertEqual(f'0\n数量占比：{share:.1%}', sheet["I3"].value)
             self.assertEqual(color, sheet["I3"].fill.fgColor.rgb[-6:])
 
     def test_zip_refresh_preserves_values_other_parts_and_newline(self):
@@ -86,10 +167,9 @@ class CategoryShareTests(unittest.TestCase):
                 changed = {name for name in old.namelist() if old.read(name) != new.read(name)}
                 self.assertEqual({"xl/worksheets/sheet1.xml", "xl/styles.xml"}, changed)
             reopened = load_workbook(after, rich_text=True)
-            self.assertEqual(42095, reopened.active["I3"].value)
-            self.assertEqual('n', reopened.active["I3"].data_type)
-            self.assertIn("\n数量占比：33.3%", reopened.active["I3"].number_format)
-            self.assertIn("\n数量占比：66.7%", reopened.active["I4"].number_format)
+            self.assertEqual('42,095\n数量占比：33.3%', reopened.active["I3"].value)
+            self.assertEqual('s', reopened.active["I3"].data_type)
+            self.assertEqual('42,095\n数量占比：66.7%', reopened.active["I4"].value)
             self.assertEqual("FCE4D6", reopened.active["I3"].fill.fgColor.rgb[-6:])
             self.assertEqual("D9EAF7", reopened.active["I4"].fill.fgColor.rgb[-6:])
             reopened.close()

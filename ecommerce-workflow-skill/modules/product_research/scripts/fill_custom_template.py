@@ -534,11 +534,37 @@ def set_category_link(cell, link: str | None) -> None:
     cell.font = copy(CATEGORY_LINK_FONT)
 
 
-def category_share_number_format(share: float) -> str:
-    """用第二行显示样本占比，保留月总销量的数值类型。"""
+def category_sales_display(sales, share: float) -> str:
+    """用真实换行显示月销量和数量占比，避免WPS忽略数字格式中的换行。"""
     if not math.isfinite(share) or not 0 <= share <= 1:
         raise ValueError("数量占比必须在 0 到 1 之间。")
-    return f'#,##0"\n数量占比：{share:.1%}"'
+    lines = str(sales if sales is not None else '').splitlines()
+    first_line = (lines[0] if lines else '').strip().replace(',', '')
+    if first_line in ('', '/', 'None'):
+        label = '/'
+    else:
+        try:
+            value = float(first_line)
+        except ValueError:
+            raise ValueError(f'无法识别类目月销量：{sales}') from None
+        if not math.isfinite(value) or value < 0 or not value.is_integer():
+            raise ValueError(f'类目月销量必须为非负整数：{sales}')
+        label = f'{int(value):,}'
+    return f'{label}\n数量占比：{share:.1%}'
+
+
+def set_category_monthly_sales(cell, sales) -> None:
+    """截图阶段刷新销量时保留已算好的占比，兼容旧数字格式。"""
+    match = re.search(r'数量占比[：:]\s*([\d.]+)%', str(cell.value or '') + '\n' + cell.number_format)
+    if match:
+        # 显示百分比已经舍入，只更新销量，避免用50.0%重算后改变原蓝色底色。
+        cell.value = category_sales_display(sales, float(match[1]) / 100)
+        cell.number_format = 'General'
+        alignment = copy(cell.alignment)
+        alignment.wrap_text = True
+        cell.alignment = alignment
+    else:
+        cell.value = sales
 
 
 def category_section_title(value) -> str:
@@ -549,8 +575,9 @@ def category_section_title(value) -> str:
     return "\n".join([*lines, CATEGORY_SHARE_NOTE])
 
 
-def apply_category_share_display(cell, share: float) -> None:
-    cell.number_format = category_share_number_format(share)
+def apply_category_share_display(cell, share: float, *, sales=None) -> None:
+    cell.value = category_sales_display(cell.value if sales is None else sales, share)
+    cell.number_format = 'General'
     color = CATEGORY_PRIMARY_COLOR if share > CATEGORY_PRIMARY_SHARE_THRESHOLD else CATEGORY_TRANSFER_COLOR
     cell.fill = PatternFill(fill_type="solid", fgColor=color)
     alignment = copy(cell.alignment)

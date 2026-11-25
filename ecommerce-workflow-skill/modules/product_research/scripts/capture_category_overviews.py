@@ -454,9 +454,8 @@ def capture_category_overviews(
                     display_height,
                 )
                 if data["monthly_sales"] is not None:
-                    ws.cell(item["row"], CATEGORY_SALES_COL).value = data[
-                        "monthly_sales"
-                    ]
+                    from product_research.scripts.fill_custom_template import set_category_monthly_sales
+                    set_category_monthly_sales(ws.cell(item["row"], CATEGORY_SALES_COL), data["monthly_sales"])
                 status = "ok"
                 error = None
                 break

@@ -16,6 +16,30 @@ from shared.quality_gates import (
 
 
 class QualityGateTests(unittest.TestCase):
+    def test_category_native_size_passes_but_stretching_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            image_path = root / 'category.png'
+            with PillowImage.new('RGB', (1600, 940), 'white') as picture:
+                ImageDraw.Draw(picture).rectangle((20, 20, 1580, 920), fill='blue')
+                picture.save(image_path)
+            book = Workbook()
+            sheet = book.active
+            sheet.title = '示例-市场调研'
+            sheet['A2'], sheet['A3'], sheet['A4'] = '一级类目', '手工', '3.市场数据分析'
+            sheet['A3'].hyperlink = 'https://www.amazon.com/gp/bestsellers/arts-crafts/1'
+            sheet['I3'] = '100\n数量占比：100.0%'
+            image = ExcelImage(image_path)
+            sheet.add_image(image, 'F3')
+            path = root / 'category.xlsx'
+            book.save(path)
+            self.assertEqual(1, validate_category_research(path).metrics['images'])
+            image.width = 1800
+            book.save(path)
+            with self.assertRaises(QualityGateError):
+                validate_category_research(path)
+            book.close()
+
     def test_category_boundary_supports_both_templates_and_still_checks_links(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'category.xlsx'

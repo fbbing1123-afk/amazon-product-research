@@ -499,12 +499,14 @@ def validate_category_research(
                 failures.append(f"第 {row} 行类目截图为空白或无法读取")
             payload = image.payload_size
             display = image.display_size
-            if payload and display and payload[0] <= display[0]:
+            # 原尺寸浮动截图允许1:1显示，缩略图仍须保留高清原像素。
+            original_size = bool(payload and display and all(abs(a - b) <= 1 for a, b in zip(payload, display)))
+            if payload and display and payload[0] <= display[0] and not original_size:
                 failures.append(
                     f"第 {row} 行类目截图未保留高清原图："
                     f"原图 {payload[0]}px，显示 {display[0]}px"
                 )
-            if display and (display[0] > 420 or display[1] > 170):
+            if display and not original_size and (display[0] > 420 or display[1] > 170):
                 failures.append(
                     f"第 {row} 行类目截图显示框过大：{display[0]}×{display[1]}"
                 )

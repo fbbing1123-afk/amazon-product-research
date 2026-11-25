@@ -16,7 +16,7 @@ from openpyxl import load_workbook
 from .fill_custom_template import (
     CATEGORY_HEADER_MARKER, CATEGORY_SECTION_MARKER, CATEGORY_PRIMARY_COLOR,
     CATEGORY_TRANSFER_COLOR, CATEGORY_PRIMARY_SHARE_THRESHOLD, category_path_key,
-    category_section_title, category_share_number_format,
+    category_section_title, category_sales_display,
     collect_category_summaries, extract_node_id, find_next_section_row,
     find_research_sheet, find_row_containing, find_source_sheet,
 )
@@ -62,7 +62,7 @@ def share_fill_id(styles, share, current_id):
     return index
 
 
-def collect_updates(workbook, source_workbook):
+def collect_updates(workbook, source_workbook, sales_by_node=None):
     """按节点关联当前行，不依赖两张表的行序。"""
     source = find_source_sheet(source_workbook)
     sheet = find_research_sheet(workbook)
@@ -94,19 +94,19 @@ def collect_updates(workbook, source_workbook):
         summary = candidates[0]
         updates.append({"cell": f"I{row}", "node": node, "count": summary.product_count,
                         "share": summary.product_share,
-                        "format": category_share_number_format(summary.product_share)})
+                        "value": category_sales_display((sales_by_node or {}).get(node, sheet.cell(row, 9).value), summary.product_share)})
     if not updates:
         raise ValueError("类目区域没有数据行。")
     return sheet.title, section, category_section_title(sheet.cell(section, 1).value), updates
 
 
-def refresh_category_shares(workbook_path: Path, source_path: Path, output: Path) -> dict:
+def refresh_category_shares(workbook_path: Path, source_path: Path, output: Path, *, sales_by_node=None) -> dict:
     if output.resolve() in {workbook_path.resolve(), source_path.resolve()}:
         raise ValueError("输出必须使用独立路径，不能覆盖报告或数据源。")
     workbook = load_workbook(workbook_path, rich_text=True)
     source = load_workbook(source_path, rich_text=True)
     try:
-        sheet_name, section, title, updates = collect_updates(workbook, source)
+        sheet_name, section, title, updates = collect_updates(workbook, source, sales_by_node)
     finally:
         workbook.close()
         source.close()
@@ -121,30 +121,23 @@ def refresh_category_shares(workbook_path: Path, source_path: Path, output: Path
         doc = minidom.parseString(archive.read(part))
         styles = minidom.parseString(archive.read("xl/styles.xml"))
         xfs = elements(styles, "cellXfs")[0]
-        formats = elements(styles, "numFmts")
-        if formats:
-            formats = formats[0]
-        else:
-            formats = styles.createElementNS(NS, "numFmts")
-            styles.documentElement.insertBefore(formats, styles.documentElement.firstChild)
-        existing_formats = {f.getAttribute("formatCode"): int(f.getAttribute("numFmtId"))
-                            for f in elements(formats, "numFmt")}
-        next_id = max([163, *existing_formats.values()]) + 1
         cells = {c.getAttribute("r"): c for c in elements(doc, "c")}
         for update in updates:
             cell = cells.get(update["cell"])
             if cell is None:
                 raise ValueError(f"缺少目标单元格 {update['cell']}。")
-            code = update["format"]
-            if code not in existing_formats:
-                fmt = styles.createElementNS(NS, "numFmt")
-                fmt.setAttribute("numFmtId", str(next_id))
-                fmt.setAttribute("formatCode", code)
-                formats.appendChild(fmt)
-                existing_formats[code] = next_id
-                next_id += 1
+            # 真正写入带LF的文本，不再依赖不同表格软件对数字格式换行的实现。
+            for child in list(cell.childNodes):
+                cell.removeChild(child)
+            cell.setAttribute('t', 'inlineStr')
+            inline = doc.createElementNS(NS, 'is')
+            value = doc.createElementNS(NS, 't')
+            value.setAttribute('xml:space', 'preserve')
+            value.appendChild(doc.createTextNode(update['value']))
+            inline.appendChild(value)
+            cell.appendChild(inline)
             xf = elements(xfs, "xf")[int(cell.getAttribute("s") or "0")].cloneNode(True)
-            xf.setAttribute("numFmtId", str(existing_formats[code]))
+            xf.setAttribute("numFmtId", "0")
             xf.setAttribute("applyNumberFormat", "1")
             xf.setAttribute("fillId", str(share_fill_id(styles, update["share"], int(xf.getAttribute("fillId") or "0"))))
             xf.setAttribute("applyFill", "1")
@@ -158,7 +151,6 @@ def refresh_category_shares(workbook_path: Path, source_path: Path, output: Path
             xf.setAttribute("applyAlignment", "1")
             cell.setAttribute("s", str(len(elements(xfs, "xf"))))
             xfs.appendChild(xf)
-        formats.setAttribute("count", str(len(elements(formats, "numFmt"))))
         xfs.setAttribute("count", str(len(elements(xfs, "xf"))))
         title_cell = cells[f"A{section}"]
         for child in list(title_cell.childNodes):
@@ -170,7 +162,7 @@ def refresh_category_shares(workbook_path: Path, source_path: Path, output: Path
         text.appendChild(doc.createTextNode(title))
         inline.appendChild(text)
         title_cell.appendChild(inline)
-        # XML 属性中的换行必须转义，否则重开工作簿会归一化为空格。
+        # 保留其它已有自定义数字格式的换行属性。
         style_xml = re.sub(r'formatCode="[^"]*"', lambda m: m[0].replace("\n", "&#10;"), styles.toxml())
         patches = {part: doc.toxml(encoding="utf-8"), "xl/styles.xml": style_xml.encode("utf-8")}
         output.parent.mkdir(parents=True, exist_ok=True)
