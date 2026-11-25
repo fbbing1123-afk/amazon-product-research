@@ -31,6 +31,11 @@ $ProfileDir = [System.IO.Path]::GetFullPath($ProfileDir).TrimEnd('\')
 function Resolve-BrowserPath {
   param([string]$ExplicitPath)
 
+  # 与环境检查及图表渲染共用用户明确指定的浏览器路径。
+  if ([string]::IsNullOrWhiteSpace($ExplicitPath) -and $env:CHROME_EXECUTABLE) {
+    $ExplicitPath = $env:CHROME_EXECUTABLE
+  }
+
   if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
     if (Test-Path -LiteralPath $ExplicitPath) {
       return (Resolve-Path -LiteralPath $ExplicitPath).Path
@@ -42,6 +47,7 @@ function Resolve-BrowserPath {
     (Join-Path $env:ProgramFiles "Google\Chrome\Application\chrome.exe"),
     (Join-Path ${env:ProgramFiles(x86)} "Google\Chrome\Application\chrome.exe"),
     (Join-Path $env:LOCALAPPDATA "Google\Chrome\Application\chrome.exe"),
+    (Join-Path $env:LOCALAPPDATA "Microsoft\Edge\Application\msedge.exe"),
     (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe"),
     (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe")
   ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }

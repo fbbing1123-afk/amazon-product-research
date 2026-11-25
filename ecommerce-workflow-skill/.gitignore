@@ -8,6 +8,7 @@ modules/product_research/scripts/chart-runtime/node_modules/
 outputs/
 work/
 *.xlsx
+!assets/产品调研模板.xlsx
 *.xlsm
 *.png
 # 必要的资源 JSON 和 package.json 纳入版本管理；只忽略具体运行状态。

@@ -117,32 +117,15 @@ Agent 运行规则：默认不调用翻译 API。新数据源出现缓存里没�
 最终链接 = https://www.amazon.com/gp/bestsellers/hi/3226898011
 ```
 
-如果取不到 `node`，则优先使用 `类目路径` 原超链接；再取不到时使用 `大类目` 原超链接。
+如果缺少末级节点或无法得到有效BSR链接，先补齐来源并核验，不能把普通 `/b?node=` 页面当成BSR验收通过。
 
 ## 类目表现和月总销量
 
-默认情况下，第 2 小节只负责：
+当前只使用卖家精灵插件。布局填完后，运行 `modules/product_research/scripts/capture_sellersprite_categories.py`：核验站点和邮编，打开每行末级BSR链接，展开卖家精灵市场概况；面板出现后固定等满20秒，再检查画面稳定且无加载动画。未就绪应记录失败，不能以未加载完成的截图冒充结果。
 
-- 写入类目层级。
-- 给最细类目挂 Amazon 节点超链接。
+每批最多5个类目，用 `--start` 从成功检查点续跑。仅截图使用 `--capture-only`，保存图像及清单后，由 `refresh_sellersprite_category_images.py` 对已有报告定点换图；普通布局阶段可使用独立 `--output`。
 
-`category_research` 默认负责补充第 2 小节：
-
-- 读取每一行最细类目的 Amazon 超链接。
-- 使用项目 Chrome 调试端口打开该 Amazon 类目页，要求该浏览器已安装并启用 softtime/sorftime 插件。
-- 等待 softtime/sorftime 插件的 `.fullPanoramaBox` 市场全景区域渲染完成。
-  - softtime/sorftime 市场全景截图区域出现后，默认最多再等 30 秒。
-  - 完整加载标准：核心文字齐全，并且 canvas 数量和宽高达到要求后，区域尺寸、文字长度、canvas 数量稳定约 2.5 秒。
-  - 默认只尝试 1 轮：如果 30 秒内完整加载，会立即截图；如果 30 秒内仍未满足完整状态，也会截图当前区域并继续写入 Excel，避免该类目空缺。
-- 将该区域整块截图插入同一行的 `类目表现` 区域（F:H）。
-- 从市场全景文本中提取 `月总销量`，写入同一行的 I 列。
-
-建议先用 `--category-overviews-limit 1` 测试一个类目，确认 Amazon 页面、softtime/sorftime 插件和截图尺寸正常后再跑全量。
-如果临时不想抓类目概览，可以运行工作流时加 `--no-category-overviews`。
-
-单独运行 `category_research` 时也会先检查数据源/模板里的 WPS `DISPIMG` 图片，并在需要时转换成浮动图片再处理，避免产品图片、关键词趋势图或已有截图在 openpyxl 写表过程中丢失。
-
-第 3 小节的 9 张 ECharts 图表不属于 `category_research`，默认归到 `market_analysis` 前置处理。
+图像按当前浏览器缩放换算，原尺寸浮动放在对应行F列；不重采样、不改行高列宽。插件月总销量写在I列第一行，数量占比保持第二行。九张数据概览图由当前市场调研的独立阶段补齐，不在此阶段生成。
 
 ## 模板格式保护
 

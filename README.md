@@ -1,90 +1,24 @@
-# 亚马逊选品调研自动化
+# 亚马逊选品调研自动化｜当前测试版
 
-基于 Windows、Python、Node.js 和浏览器自动化，将商品数据加工为同一份 Excel 调研报告。流程涵盖关键词、类目、市场、评论及竞品分析。
+本版本统一执行2026-11-25确认的最新流程，供同事使用自己的商品数据测试。无需选择新旧版本。先阅读 [开始使用.txt](开始使用.txt) 和 [使用指南](ecommerce-workflow-skill/docs/使用指南.md)。
 
-## 当前状态
+## 准备与填写
 
-- 源码基线来自 `亚马逊选品自动化-开发交接-20261121.zip`，于 2026-11-22 建立本地 Git 管理。
-- 当前默认“最新周 PPC 竞价＋关键词按旺季搜索量降序”，原旺季区间算法可通过参数选择。两种方案的区别、开发记录及恢复方式见[开发日志](开发日志.md)。
-- 类目月总销量下方显示数量占比百分比，并保留蓝色/粉色底色；支持从独立数据源工作簿局部刷新已有报告，详见[类目规则](ecommerce-workflow-skill/docs/market_research_category_section_rules.md)。
-- 关键词竞价刷新已用8个关键词实测，相关26项测试通过；其它业务模块和整条工作流尚未在本机重新验收。
-- 类目截图边缘裁切及部分结果问题仍需实测；保留固定等待满 20 秒策略。
-- GitHub 公开仓库：[amazon-product-research](https://github.com/fbbing1123-afk/amazon-product-research)，任何人无需 GitHub 账号即可查看、下载或克隆源码。
-- 仓库不包含业务 Excel、原始模板、历史输出、登录状态或依赖目录。
+- 完整解压后，在能读写本地文件和执行命令的AI工具中打开本目录，让AI读取 [SKILL.md](ecommerce-workflow-skill/SKILL.md)。
+- 先检查已有环境；可用的Python和Node依赖直接复用，缺项才安装在项目目录。推荐Windows、Python 3.12、Node.js 22/24、Chrome。
+- 在项目专用浏览器安装卖家精灵插件，分别登录插件、卖家精灵网页和Amazon；脚本使用Playwright连接。
+- 复制 [产品调研模板](ecommerce-workflow-skill/assets/产品调研模板.xlsx) 作工作副本。按 [模板填写说明](ecommerce-workflow-skill/docs/模板填写说明.md) 填市场调研A3的关键词反查ASIN、竞品分析A1的对比ASIN，并填入自己的商品数据源。
 
-## 文件入口
+## 当前流程
 
-| 路径 | 用途 |
-| --- | --- |
-| [AGENTS.md](AGENTS.md) | 开发助手的协作与 GitHub 同步约定 |
-| [开发交接.md](开发交接.md) | 2026-11-21 交接快照、迁移背景和待验证事项 |
-| [codex.md](codex.md) | 工作簿格式与交付验收规范 |
-| [使用指南](ecommerce-workflow-skill/docs/使用指南.md) | 环境准备及日常使用 |
-| [SKILL.md](ecommerce-workflow-skill/SKILL.md) | 业务流程和模块运行规则 |
-| [CHANGELOG.md](CHANGELOG.md) | 已记录的项目变更 |
-| [开发日志.md](开发日志.md) | 两种竞价方案、验证记录、备份标记与恢复方式 |
+市场调研含关键词、类目、12项指标和九张图；本地生成集合链接，无200条截断。竞品提前导出评论，等待期间截图填数；主图取网页高清原文件，类目图及主图原尺寸浮动。评价基于本批VP/Vine评论，按最新规则筛样并归纳，全部原评论合并回唯一评价数据源。
 
-`开发交接.md` 中“尚未建立 Git 仓库”的描述属于历史状态；当前状态以本 README 和实际 Git 记录为准。
+各阶段由AI按 [执行顺序](ecommerce-workflow-skill/docs/new_workflow_trial.md) 衔接，交付前执行 [验收规范](ecommerce-workflow-skill/docs/delivery_checks.md)。目前不是单个命令完成全部业务，不能无参数运行旧总入口。
 
-## 新电脑安装
+## 测试与版本
 
-### 获取项目（无需 GitHub 账号）
+已完成作者机器上的业务和单项验证，具体范围、已知限制及反馈方式见使用指南。12站支持指集合链接格式，当前新版完整业务主要验证美国站。新电脑需核验本机账号、插件及实际采集。
 
-- 不熟悉 Git：打开仓库网页，点击绿色 `Code` → `Download ZIP`，下载后解压。也可[直接下载 main 最新版 ZIP](https://github.com/fbbing1123-afk/amazon-product-research/archive/refs/heads/main.zip)。ZIP 是下载时的快照，以后需要重新下载新版，不能直接执行 `git pull`。
-- 需要继续开发：让 AI 克隆仓库，保留 Git 历史，方便后续拉取更新：
+同事测试包不带Git历史、账号状态、真实商品数据、截图、旧评价缓存或依赖目录；包含已确认的空数据源模板。包内 `PACKAGE-MANIFEST.json` 标明源提交及文件SHA256。
 
-```powershell
-git clone https://github.com/fbbing1123-afk/amazon-product-research.git
-```
-
-本机已经克隆过时，不必再次克隆。先让 AI 检查当前分支和未提交修改，再安全拉取最新版本，不要覆盖已有工作。
-
-可以直接把下面这段发给有本机文件与命令行访问能力的 AI：
-
-```text
-请获取项目 https://github.com/fbbing1123-afk/amazon-product-research 。
-这是公开仓库，下载或克隆不需要 GitHub 账号。
-如果本机没有项目，请克隆；如果已有项目，请先检查分支和未提交修改，再安全更新。
-阅读 README.md、AGENTS.md、开发日志.md 和 CHANGELOG.md，按 README 检查运行环境。
-告诉我当前版本及还需准备的工作簿、软件和登录状态，随后按我指定的功能继续开发或运行。
-修改后先保存本地 Git；功能完成并实际跑通后，询问我是否推送到 GitHub。
-```
-
-公开访问只提供读取权限。要把修改推送回这个仓库，仍需登录有写入权限的 GitHub 账号。
-
-### 准备运行环境
-
-推荐 Windows、Python 3.12、Node.js 22/24 和 Chrome。原生切片器等步骤需要本机 Excel/WPS COM 支持。
-
-克隆或下载仓库后，进入 `ecommerce-workflow-skill` 目录，再运行：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\setup_first_run.ps1
-powershell -ExecutionPolicy Bypass -File scripts\check_environment.ps1 -RequireInstalled
-powershell -ExecutionPolicy Bypass -File scripts\open_sellersprite_login_browser.ps1 -Site US
-```
-
-在打开的项目浏览器中安装卖家精灵插件，登录卖家精灵和目标 Amazon 站点，确认配送邮编。依赖、插件和登录状态需要每台电脑单独准备，不通过 Git 同步。
-
-同一台电脑换了源码目录时，可以用启动参数 `-ProfileDir "已有的浏览器配置目录"` 复用原来的扩展与登录状态。也可以在 `ecommerce-workflow-skill/.workflow-state/sellersprite/browser-config.json` 中保存 `{"profile_dir":"已有目录的绝对路径"}`（JSON 中的反斜杠须转义），以后无需重复传参。该文件仅保存在本机，不进入 Git。启动器会拒绝复用配置目录不匹配的调试端口，避免误开或连接到另一份浏览器配置。
-
-环境自检不替代账号、插件、COM 及真实工作簿验证。不要上传账号密码、Cookie 或验证码。
-
-## 工作流程
-
-```text
-输入工作簿 → 关键词调研 → 类目调研 → 市场分析 → 评论调研
-          → AI 竞品语义分析 → Excel 回填、差评透视和切片器 → 最终验收
-```
-
-`scripts/run_workflow.py` 串联前四个脚本阶段。竞品语义分析需要 AI 完成交接 JSON，再进入竞品后处理；脚本阶段结束不代表完整报告验收通过。实际使用需另行提供业务工作簿、站点、邮编及运行范围。
-
-## 开发和同步
-
-1. 开始工作前检查分支和未提交修改；有远程仓库后先获取最新状态。
-2. 使用功能分支进行新功能开发，完成相应检查和实际验证。
-3. 本地按功能提交，说明具体变化。
-4. 功能完成并跑通后，向用户报告并询问是否同步 GitHub；确认后才推送。
-5. 更换电脑前确认需要同步的提交已推送；另一台电脑开始修改前拉取。
-
-业务数据、检查点和输出文件默认被忽略，更换电脑继续同一个案例时需要另行安全转移。下载源码后仍需安装运行依赖、准备自己的业务工作簿，并登录所需业务网站。
+公开GitHub的main版可能落后于此测试包，暂不要用main覆盖本目录。测试包无需GitHub账号即可使用；本地整理不代表已经推送。维护者打包方式见 [分发说明](ecommerce-workflow-skill/docs/distribution.md)。

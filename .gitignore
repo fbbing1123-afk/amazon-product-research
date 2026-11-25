@@ -32,6 +32,7 @@ cache/
 downloads/
 .workflow-state/
 *.xlsx
+!ecommerce-workflow-skill/assets/产品调研模板.xlsx
 *.xls
 *.xlsm
 *.csv

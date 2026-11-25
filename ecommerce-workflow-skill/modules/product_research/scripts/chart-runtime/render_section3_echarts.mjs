@@ -394,6 +394,9 @@ async function renderOption(browser, cell, option) {
 async function findBrowserExecutable() {
   const candidates = [
     process.env.CHROME_EXECUTABLE,
+    // 兼容同事在用户目录安装的浏览器，直接复用，无需重复下载。
+    process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe"),
+    process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "Microsoft/Edge/Application/msedge.exe"),
     "C:/Program Files/Google/Chrome/Application/chrome.exe",
     "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
     "C:/Program Files/Microsoft/Edge/Application/msedge.exe",

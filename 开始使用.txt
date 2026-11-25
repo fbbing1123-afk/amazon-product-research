@@ -1,0 +1,21 @@
+﻿亚马逊选品自动化｜同事测试版｜2026-11-25
+
+本包只执行本次最新流程，不需要选择新旧版本。
+
+1. 完整解压ZIP到固定目录，不要在压缩包内运行。
+2. 用能读写本地文件、执行命令的AI工具打开本目录。
+3. 复制下面这段给AI：
+
+请阅读 README.md、codex.md、ecommerce-workflow-skill/SKILL.md 和 ecommerce-workflow-skill/docs/使用指南.md。按当前最新版检查这台Windows电脑的环境；缺少项目依赖时运行首次安装并完成自检。先不要处理Excel，不推送GitHub。环境可用后打开项目专用浏览器，我来安装并登录卖家精灵插件、卖家精灵网页和Amazon。
+
+4. 按AI指引在项目浏览器安装“卖家精灵”插件并登录。
+5. 复制包内 ecommerce-workflow-skill/assets/产品调研模板.xlsx，按模板填写说明替换两组示例ASIN并填入自己的商品数据源。
+
+推荐：Windows、Python 3.12、Node.js 22/24、Chrome。
+测试包含空数据源模板，不含真实商品数据、账号、Cookie、浏览器配置和依赖。已有可用环境直接复用，缺少的依赖才安装到项目内。
+不必安装Git或登录GitHub；不要从GitHub main下载覆盖本测试包。
+
+完整步骤、可复制的运行指令、结果说明和问题处理：
+ecommerce-workflow-skill/docs/使用指南.md
+
+包内 PACKAGE-MANIFEST.json 标明源码提交及文件校验值，反馈时提供版本号。

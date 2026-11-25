@@ -1,93 +1,43 @@
 ﻿param(
-  [switch]$RequireInstalled
+  [switch]$RequireInstalled,
+  [string]$Python = "",
+  [string]$NodeModules = ""
 )
-
-$ErrorActionPreference = "Continue"
+$ErrorActionPreference = "Stop"
 $SkillDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$VenvPython = Join-Path $SkillDir ".venv\Scripts\python.exe"
-$ChartRuntimeDir = Join-Path $SkillDir "modules\product_research\scripts\chart-runtime"
+. (Join-Path $PSScriptRoot "runtime_environment.ps1")
 $failures = New-Object System.Collections.Generic.List[string]
-
-function Add-CheckResult {
-  param(
-    [string]$Name,
-    [bool]$Passed,
-    [string]$Detail
-  )
-  $status = if ($Passed) { "通过" } else { "失败" }
-  Write-Host ("[{0}] {1}：{2}" -f $status, $Name, $Detail)
-  if (-not $Passed) {
-    $script:failures.Add($Name)
-  }
+function Write-Check {
+  param([string]$Name, [bool]$Passed, [string]$Detail)
+  Write-Host ("[{0}] {1}：{2}" -f $(if ($Passed) { "通过" } else { "失败" }), $Name, $Detail)
+  if (-not $Passed) { $script:failures.Add($Name) }
 }
-
-function Find-Browser {
-  $candidates = @(
-    (Join-Path $env:ProgramFiles "Google\Chrome\Application\chrome.exe"),
-    (Join-Path ${env:ProgramFiles(x86)} "Google\Chrome\Application\chrome.exe"),
-    (Join-Path $env:LOCALAPPDATA "Google\Chrome\Application\chrome.exe"),
-    (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe"),
-    (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe")
-  ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-  return $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
-}
-
-Write-Host "亚马逊选品自动化 Skill 环境自检"
+Write-Host "亚马逊选品自动化｜当前测试版环境检查"
 Write-Host "技能目录：$SkillDir"
-Write-Host ""
-
 $requiredFiles = @(
-  "SKILL.md",
-  "agents\openai.yaml",
-  "requirements.txt",
-  "scripts\run_workflow.py",
+  "SKILL.md", "agents\openai.yaml", "requirements.txt", "docs\delivery_checks.md",
+  "scripts\build_amazon_collection_link.py", "scripts\run_review_prefetch.py",
+  "modules\competitor_analysis\fill_review_batch.py", "resources\asin_collection_sites.json",
   "modules\product_research\scripts\chart-runtime\package.json",
   "modules\product_research\scripts\chart-runtime\pnpm-lock.yaml",
   "modules\product_research\scripts\chart-runtime\vendor\echarts.min.js"
 )
-$missingFiles = @($requiredFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $SkillDir $_)) })
-Add-CheckResult -Name "技能文件" -Passed ($missingFiles.Count -eq 0) -Detail $(if ($missingFiles.Count -eq 0) { "关键文件齐全" } else { "缺少：$($missingFiles -join ', ')" })
-
+$missing = @($requiredFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $SkillDir $_)) })
+Write-Check "技能文件" ($missing.Count -eq 0) $(if ($missing.Count) { $missing -join ', ' } else { "齐全" })
 $nodeCommand = Get-Command node -ErrorAction SilentlyContinue
-$nodeVersion = if ($nodeCommand) { (& node --version 2>&1 | Out-String).Trim() } else { "未找到" }
-$nodeReady = $nodeVersion -match "v(\d+)" -and [int]$Matches[1] -ge 18
-Add-CheckResult -Name "Node.js" -Passed $nodeReady -Detail "$nodeVersion（需要 18 或以上）"
-
-$browser = Find-Browser
-Add-CheckResult -Name "浏览器" -Passed ($null -ne $browser) -Detail $(if ($browser) { $browser } else { "未找到 Chrome 或 Edge" })
-
-$venvExists = Test-Path -LiteralPath $VenvPython
-if ($venvExists) {
-  $pythonVersion = (& $VenvPython --version 2>&1 | Out-String).Trim()
-  & $VenvPython -c "import openpyxl, PIL, playwright; print('依赖可导入')" *> $null
-  $pythonReady = $LASTEXITCODE -eq 0
-  Add-CheckResult -Name "Python 虚拟环境" -Passed $pythonReady -Detail "$pythonVersion；依赖检查 $(if ($pythonReady) { '通过' } else { '失败' })"
-} elseif ($RequireInstalled) {
-  Add-CheckResult -Name "Python 虚拟环境" -Passed $false -Detail "未找到 .venv\Scripts\python.exe"
-} else {
-  Write-Host "[待安装] Python 虚拟环境：运行 scripts\setup_first_run.ps1 后生成"
-}
-
-$nodeDependencies = @("playwright", "sharp", "echarts")
-$missingNodeDependencies = @($nodeDependencies | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ChartRuntimeDir "node_modules\$_")) })
-if ($missingNodeDependencies.Count -eq 0) {
-  Add-CheckResult -Name "图表运行时" -Passed $true -Detail "Node.js 依赖齐全"
-} elseif ($RequireInstalled) {
-  Add-CheckResult -Name "图表运行时" -Passed $false -Detail "缺少：$($missingNodeDependencies -join ', ')"
-} else {
-  Write-Host "[待安装] 图表运行时：运行 scripts\setup_first_run.ps1 后生成"
-}
-
-Write-Host ""
-if ($failures.Count -gt 0) {
-  Write-Host "自检未通过：$($failures -join '、')"
-  exit 1
-}
-
-if ($RequireInstalled) {
-  Write-Host "自检通过，可以运行工作流。"
-} else {
-  Write-Host "基础条件通过。若显示待安装，请继续运行 scripts\setup_first_run.ps1。"
-}
+$nodeVersion = if ($nodeCommand) { (& node --version | Out-String).Trim() } else { "未找到" }
+$nodeReady = $nodeVersion -match '^v(\d+)' -and [int]$Matches[1] -ge 18
+Write-Check "Node.js" $nodeReady "$nodeVersion，推荐22或24"
+$browser = Find-WorkflowBrowser
+Write-Check "浏览器" ([bool]$browser) $(if ($browser) { $browser } else { "请安装Chrome，或指定CHROME_EXECUTABLE" })
+$readyPython = Get-WorkflowPythonCandidates $SkillDir $Python | Where-Object { Test-WorkflowPython $_ } | Select-Object -First 1
+if ($readyPython) { Write-Check "可复用Python依赖" $true $readyPython }
+elseif ($RequireInstalled) { Write-Check "Python依赖" $false "未找到可用环境，可用-Python指定已有解释器" }
+else { Write-Host "[待准备] Python依赖：先指定或确认已有环境，确实缺少再运行setup_first_run.ps1" }
+$readyNode = Get-WorkflowNodeRoots $SkillDir $NodeModules | Where-Object { Test-WorkflowNodeRoot $_ } | Select-Object -First 1
+if ($readyNode) { Write-Check "可复用图表依赖" $true $readyNode }
+elseif ($RequireInstalled) { Write-Check "图表依赖" $false "未找到可导入的playwright、sharp、echarts" }
+else { Write-Host "[待准备] 图表依赖：可用-NodeModules指定已有目录，确实缺少才安装到项目内" }
+if ($failures.Count) { Write-Host "未通过：$($failures -join '、')"; exit 1 }
+Write-Host "检查结束；仍须核验插件和网页登录、站点邮编及输入模板。此检查不访问业务网站。"
 exit 0
-
