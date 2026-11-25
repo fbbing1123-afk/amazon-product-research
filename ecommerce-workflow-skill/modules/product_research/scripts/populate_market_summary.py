@@ -61,7 +61,8 @@ def fill_summary(worksheet, metrics):
         if isinstance(target, MergedCell) or any(target.coordinate in area for area in worksheet.merged_cells.ranges):
             raise ValueError(f"{label}右侧与合并区域冲突：{target.coordinate}")
         target.value = metrics[key]
-        target.number_format = "0.0%" if key.endswith("_share") else "#,##0.00" if "价格" in label or "销售额" in label else "#,##0"
+        # 只改显示精度，价格、销售额与占比的原始数值不取整。
+        target.number_format = "0%" if key.endswith("_share") else "#,##0"
         written[label] = target.coordinate
     return written
 
@@ -92,7 +93,7 @@ def refresh_summary(input_path, output, data_dir):
         else:
             formats = formats[0]
         format_ids = {f.getAttribute('formatCode'): int(f.getAttribute('numFmtId')) for f in children(formats, 'numFmt')}
-        format_ids.update({'#,##0': 3, '#,##0.00': 4})
+        format_ids.update({'#,##0': 3, '#,##0.00': 4, '0%': 9})
         xfs = children(root, 'cellXfs')[0]
         data = children(doc.documentElement, 'sheetData')[0]
         rows = {int(r.getAttribute('r')): r for r in children(data, 'row')}
