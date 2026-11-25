@@ -16,6 +16,7 @@ from openpyxl.styles import PatternFill
 from competitor_analysis.collect_product_images import image_candidates,validate_asset,selected_asin,collect_main_image
 from competitor_analysis.refresh_product_images import refresh_product_images
 from competitor_analysis.populate_basics import source_records,populate
+from competitor_analysis.market_cover import copy_first_product_image
 
 
 class ProductImageTests(unittest.TestCase):
@@ -118,6 +119,59 @@ class ProductImageTests(unittest.TestCase):
             refresh_product_images(source,output,{self.asin:{**self.asset,'asin':'B087654321'}})
         self.assertFalse(output.exists())
 
+    def test_market_cover_uses_first_competitor_and_replaces_only_a1(self):
+        source=self.workbook()
+        book=load_workbook(source,rich_text=True)
+        competitor=book['测试-竞品分析']
+        other='B087654321'
+        competitor['A1']=other+'/'+self.asin
+        competitor['D7']='https://www.amazon.com/dp/'+other
+        buffer=BytesIO()
+        PillowImage.new('RGB',(300,300),'red').save(buffer,format='PNG')
+        red=buffer.getvalue()
+        # 图片关系和标题故意倒序，首款必须仍按详情链接从左到右确定。
+        competitor.add_image(Image(BytesIO(red)),'D6')
+        competitor.add_image(Image(BytesIO((self.root/'main.png').read_bytes())),'C6')
+        market=book.create_sheet('测试-市场调研')
+        market.merge_cells('A1:F1')
+        market.row_dimensions[1].height=250
+        market['B4']='已有关键词'
+        market.add_image(Image(BytesIO(red)),'A4')
+        book.save(source)
+        book.close()
+        for index in range(2):
+            output=self.root/f'cover-{index}.xlsx'
+            result=copy_first_product_image(source,output)
+            self.assertEqual(result['asin'],self.asin)
+            checked=load_workbook(output,rich_text=True)
+            market=checked['测试-市场调研']
+            self.assertEqual(len(market._images),2)
+            cover=next(im for im in market._images if im.anchor._from.row==0)
+            self.assertEqual(cover._data(),(self.root/'main.png').read_bytes())
+            self.assertEqual((cover.anchor.ext.cx//9525,cover.anchor.ext.cy//9525),(1200,900))
+            self.assertEqual(market['B4'].value,'已有关键词')
+            self.assertEqual(market.row_dimensions[1].height,250)
+            self.assertIn('A1:F1',market.merged_cells)
+            checked.close()
+            with ZipFile(source) as before,ZipFile(output) as after:
+                self.assertEqual(before.read('xl/worksheets/sheet1.xml'),after.read('xl/worksheets/sheet1.xml'))
+                self.assertEqual(before.read('xl/drawings/drawing1.xml'),after.read('xl/drawings/drawing1.xml'))
+            source=output
+
+    def test_refresh_also_adds_market_cover_without_existing_drawing(self):
+        source=self.workbook()
+        book=load_workbook(source,rich_text=True)
+        book.create_sheet('测试-市场调研')['A1']='原有内容'
+        book.save(source)
+        book.close()
+        output=self.root/'refreshed-with-cover.xlsx'
+        result=refresh_product_images(source,output,{self.asin:self.asset})
+        self.assertEqual(result['market_cover']['asin'],self.asin)
+        checked=load_workbook(output,rich_text=True)
+        self.assertEqual(checked['测试-市场调研']['A1'].value,'原有内容')
+        self.assertEqual(checked['测试-市场调研']._images[0]._data(),(self.root/'main.png').read_bytes())
+        checked.close()
+
     def test_populate_missing_asin_uses_web_image_and_rating(self):
         book=Workbook()
         sheet=book.active
@@ -132,6 +186,7 @@ class ProductImageTests(unittest.TestCase):
         sheet.column_dimensions['C'].width=30
         source=book.create_sheet('测试-数据源')
         source.append(['ASIN','商品详情页链接','评分','评分数'])
+        book.create_sheet('测试-市场调研')['A3']='原有关键词'
         path=self.root/'missing-source.xlsx'
         book.save(path)
         book.close()
@@ -147,6 +202,10 @@ class ProductImageTests(unittest.TestCase):
         image=checked['测试-竞品分析']._images[0]
         self.assertEqual((image.anchor.ext.cx//9525,image.anchor.ext.cy//9525),(1200,900))
         self.assertEqual(image._data(),(self.root/'main.png').read_bytes())
+        cover=checked['测试-市场调研']._images[0]
+        self.assertEqual((cover.anchor._from.row,cover.anchor._from.col),(0,0))
+        self.assertEqual(cover._data(),(self.root/'main.png').read_bytes())
+        self.assertEqual(checked['测试-市场调研']['A3'].value,'原有关键词')
         checked.close()
 
 

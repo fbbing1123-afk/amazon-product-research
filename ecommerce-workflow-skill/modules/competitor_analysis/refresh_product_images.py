@@ -95,6 +95,16 @@ def refresh_product_images(workbook, output, assets, *, display_mode='original',
             prepared[asin]={'asset':asset,'payload':payload,'column':columns[0],
                             'size':(image.width,image.height),'extension':'jpg' if image.format=='jpeg' else 'png'}
         name=sheet.title
+        market_sheets=[s for s in book if s.title.endswith('市场调研')]
+        if len(market_sheets)>1:
+            raise ValueError('市场调研页不唯一')
+        link_order=[]
+        for cell in sheet[link_row]:
+            try:
+                link_order.append(asin_from_input(str(cell.hyperlink.target if cell.hyperlink else cell.value or '')))
+            except ValueError:
+                continue
+        update_cover=bool(market_sheets) and bool(link_order) and link_order[0] in prepared
     finally:
         book.close()
     output.parent.mkdir(parents=True,exist_ok=True)
@@ -183,6 +193,14 @@ def refresh_product_images(workbook, output, assets, *, display_mode='original',
             for path,payload in changes.items():
                 if path not in archive.namelist():
                     destination.writestr(path,payload)
+        cover=None
+        allowed_changes=set(changes)
+        if update_cover:
+            # 从新写入的竞品主图复用图片，保证两页同款且不重新下载。
+            from competitor_analysis.market_cover import copy_first_product_image
+            cover=copy_first_product_image(staged,Path(directory)/'with-market-cover.xlsx')
+            staged=Path(cover['output'])
+            allowed_changes.update(cover['changed_parts'])
         checked=load_workbook(staged,rich_text=True)
         try:
             images={image.anchor._from.col+1:image for image in checked[name]._images if image.anchor._from.row+1==row}
@@ -193,10 +211,11 @@ def refresh_product_images(workbook, output, assets, *, display_mode='original',
         finally:
             checked.close()
         with ZipFile(staged) as result:
-            if result.testzip() or any(result.read(n)!=archive.read(n) for n in archive.namelist() if n not in changes):
+            if result.testzip() or any(result.read(n)!=archive.read(n) for n in archive.namelist() if n not in allowed_changes):
                 raise ValueError('主图之外的工作簿部件被改变')
         staged.replace(output)
     return {'output':str(output),'asins':list(prepared),'display_mode':display_mode,
+            'market_cover':{k:v for k,v in cover.items() if k!='output'} if cover else None,
             'images':{asin:{'pixels':[item['asset']['width'],item['asset']['height']],'display':item['size']} for asin,item in prepared.items()}}
 
 

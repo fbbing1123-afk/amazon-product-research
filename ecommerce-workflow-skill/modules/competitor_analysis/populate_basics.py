@@ -464,6 +464,14 @@ def populate(
             image.anchor = competitor.cell(image_row, column).coordinate
             competitor.add_image(image)
 
+        # 市场调研首格使用竞品页第一款主图，原尺寸浮动，重复运行只替换该位置。
+        market = find_sheet(workbook, '市场调研')
+        if market is not None:
+            first = asins[0]
+            remove_existing_product_images(market, 1, {1})
+            cover = Image(BytesIO(main_images[first])) if first in main_images else Image(cards[first])
+            market.add_image(cover, 'A1')
+
         for offset, row in enumerate(available_comparison_rows):
             if offset >= len(comparisons):
                 competitor.cell(row, 2).value = None
