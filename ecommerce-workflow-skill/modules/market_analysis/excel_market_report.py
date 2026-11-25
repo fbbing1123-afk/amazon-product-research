@@ -30,7 +30,8 @@ SLICER_SOURCE_ROW_OFFSET = SLICER_TABLE_HEADER_ROW - 1
 
 def find_source_sheet(wb):
     for ws in wb.worksheets:
-        if ws.title.endswith(SOURCE_SHEET) and ws.title != SOURCE_SHEET:
+        # 合并评价来源同样以“数据源”结尾，不能被当作商品销售数据。
+        if ws.title.endswith(SOURCE_SHEET) and ws.title not in (SOURCE_SHEET, '评价数据源'):
             return ws
     if SOURCE_SHEET in wb.sheetnames:
         return wb[SOURCE_SHEET]

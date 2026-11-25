@@ -37,7 +37,7 @@ def relations(archive,owner):
     return {r.get('Id'):resolve(owner,r.get('Target')) for r in root}
 
 
-def refresh_images(workbook,output,results):
+def refresh_images(workbook,output,results,*,allow_partial=False):
     if output.exists() or output.resolve()==workbook.resolve():
         raise ValueError('输出须为新的独立文件')
     book=load_workbook(workbook,rich_text=True)
@@ -48,9 +48,12 @@ def refresh_images(workbook,output,results):
     finally:
         book.close()
     selected={item['row']:results[item['url']] for item in items if item['url'] in results}
-    if len(selected)!=len(items) or any(r.get('status')!='ok' for r in selected.values()):
+    if (not selected or (not allow_partial and len(selected)!=len(items))
+            or any(r.get('status')!='ok' for r in selected.values())
+            or set(results)-{item['url'] for item in items}):
         raise ValueError('所有类目必须有本批成功截图')
-    sales={re.search(r'/(\d+)(?:/|$)',item['url'])[1]:results[item['url']]['monthly_sales'] for item in items}
+    sales={re.search(r'/(\d+)(?:/|$)',item['url'])[1]:results[item['url']]['monthly_sales']
+           for item in items if item['row'] in selected}
     output.parent.mkdir(parents=True,exist_ok=True)
     with ZipFile(workbook) as archive, tempfile.TemporaryDirectory(dir=output.parent) as temp:
         root=ET.fromstring(archive.read('xl/workbook.xml'))

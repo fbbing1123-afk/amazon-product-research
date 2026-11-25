@@ -3,6 +3,8 @@ from __future__ import annotations
 import tempfile
 import unittest
 import zipfile
+import asyncio
+from unittest.mock import AsyncMock, Mock, patch
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
@@ -16,11 +18,24 @@ from modules.product_research.scripts.fill_custom_template import (
 from modules.product_research.scripts.refresh_category_shares import (
     collect_updates, refresh_category_shares,
 )
-from modules.product_research.scripts.capture_sellersprite_categories import screenshot_clip
+from modules.product_research.scripts.capture_sellersprite_categories import screenshot_clip, stable_screenshot
 from modules.product_research.scripts.refresh_sellersprite_category_images import refresh_images
 
 
 class CategoryShareTests(unittest.TestCase):
+    def test_waits_until_loading_animation_stops(self):
+        session=Mock(send=AsyncMock(side_effect=[{'data':s} for s in ['转动1','转动2','静止','静止','静止']]))
+        with patch('modules.product_research.scripts.capture_sellersprite_categories.asyncio.sleep',AsyncMock()):
+            result=asyncio.run(stable_screenshot(session,{}))
+        self.assertEqual(result['data'],'静止')
+        self.assertEqual(session.send.await_count,5)
+
+    def test_unfinished_screenshot_is_not_accepted(self):
+        async def blocked(*args):
+            await asyncio.Future()
+        with self.assertRaisesRegex(TimeoutError,'加载动画'):
+            asyncio.run(stable_screenshot(Mock(send=blocked),{},timeout=0.02))
+
     def test_clip_converts_browser_zoom_without_resizing_output(self):
         for zoom in (0.5,0.8,0.9,1,1.25,1.5,2):
             clip=screenshot_clip({'x':300,'y':20,'width':1600,'height':940},
@@ -85,6 +100,17 @@ class CategoryShareTests(unittest.TestCase):
                 results[url]={'status':'ok','monthly_sales':node*100,'image':str(picture)}
             before,after=root/'before.xlsx',root/'after.xlsx'
             report.save(before)
+            one = {next(iter(results)): next(iter(results.values()))}
+            with self.assertRaisesRegex(ValueError, '所有类目'):
+                refresh_images(before, root/'rejected.xlsx', one)
+            partial = root/'partial.xlsx'
+            refresh_images(before, partial, one, allow_partial=True)
+            checked = load_workbook(partial, rich_text=True)
+            self.assertEqual('42,095\n数量占比：66.7%', checked.active['I4'].value)
+            self.assertEqual(checked.active._images[1].anchor.ext.cx, 300*9525)
+            checked.close()
+            with zipfile.ZipFile(before) as old, zipfile.ZipFile(partial) as new:
+                self.assertEqual(old.read('xl/media/image2.png'), new.read('xl/media/image2.png'))
             refresh_images(before,after,results)
             book=load_workbook(after,rich_text=True)
             self.assertEqual('2,200\n数量占比：33.3%',book.active['I3'].value)

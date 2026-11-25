@@ -43,7 +43,7 @@ def screenshot_clip(box, scroll, metrics):
             'width': box['width'] * zoom, 'height': box['height'] * zoom, 'scale': 1 / zoom}
 
 
-async def capture(page, url, image, postal_code):
+async def capture(page, url, image, postal_code, on_capture=None):
     original_viewport = page.viewport_size
     session = await page.context.new_cdp_session(page)
     target, original_style = None, None
@@ -114,10 +114,10 @@ async def capture(page, url, image, postal_code):
         scroll = await page.evaluate('({x:scrollX,y:scrollY})')
         metrics = await session.send('Page.getLayoutMetrics')
         print(f"[类目] 采集边界 {box['width']:.0f}×{box['height']:.0f}，浏览器缩放 {metrics['visualViewport'].get('zoom')}",flush=True)
-        shot = await asyncio.wait_for(session.send('Page.captureScreenshot', {
+        shot = await stable_screenshot(session, {
             'format':'png', 'fromSurface':True, 'captureBeyondViewport':True,
             'clip':screenshot_clip(box,scroll,metrics),
-        }), timeout=20)
+        })
         content = base64.b64decode(shot['data'])
         with PILImage.open(BytesIO(content)) as preview:
             stats = ImageStat.Stat(preview.convert('RGB'))
@@ -129,6 +129,8 @@ async def capture(page, url, image, postal_code):
         # 直接检验浏览器输出，不通过缩放图片来掩盖坐标或像素比错误。
         if any(abs(actual - expected) > 1 for actual, expected in zip(size, (box['width'], box['height']))):
             raise ValueError(f'截图尺寸与面板不符：{size}，停止写入')
+        if on_capture:
+            on_capture()
         image.write_bytes(content)
         return {'monthly_sales':sales,'image':str(image.resolve()),'pixels':list(size),'text':text,
                 'url':page.url,'capture_version':CAPTURE_VERSION,'bounds':box,
@@ -142,6 +144,25 @@ async def capture(page, url, image, postal_code):
         else:
             await session.send('Emulation.clearDeviceMetricsOverride')
         await session.detach()
+
+
+async def stable_screenshot(session, params, timeout=30):
+    """连续三帧相同才接受，拒绝canvas里的旋转加载动画；不调整图片尺寸。"""
+    async def wait_stable():
+        previous, identical, index = None, 0, 0
+        while identical < 3:
+            shot = await session.send('Page.captureScreenshot',params)
+            identical = identical+1 if shot['data']==previous else 1
+            previous = shot['data']
+            if identical < 3:
+                # 使用不同间隔，避免恰好按动画周期采样误认为已停止。
+                await asyncio.sleep((0.65,1.05)[index % 2])
+                index += 1
+        return shot
+    try:
+        return await asyncio.wait_for(wait_stable(),timeout)
+    except TimeoutError as error:
+        raise TimeoutError('插件画面仍有加载动画或持续变化，未保存截图') from error
 
 
 async def run(args):

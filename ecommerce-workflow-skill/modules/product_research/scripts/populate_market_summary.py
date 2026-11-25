@@ -6,17 +6,23 @@ import argparse
 import json
 import re
 import sys
+import tempfile
+from copy import copy
 from pathlib import Path
+from xml.dom import minidom
+from zipfile import ZipFile
 
 from openpyxl import load_workbook
 from openpyxl.cell.cell import MergedCell
 from openpyxl.drawing.image import Image
+from openpyxl.utils.cell import column_index_from_string
 
 MODULES = Path(__file__).resolve().parents[2]
 if str(MODULES) not in sys.path:
     sys.path.insert(0, str(MODULES))
 from market_analysis.excel_market_report import compute_metrics, find_source_sheet, read_rows
 from product_research.scripts.insert_sellersprite_screenshots import region_pixels
+from competitor_analysis.annotate_review_export import worksheet_part, children, element
 
 
 METRICS = {
@@ -58,6 +64,82 @@ def fill_summary(worksheet, metrics):
         target.number_format = "0.0%" if key.endswith("_share") else "#,##0.00" if "价格" in label or "销售额" in label else "#,##0"
         written[label] = target.coordinate
     return written
+
+
+def refresh_summary(input_path, output, data_dir):
+    """本地统计并定点写入12项指标，不重存既有图片、评价或原生部件。"""
+    if output.exists() or input_path.resolve() == output.resolve():
+        raise ValueError('整体指标输出必须是新的独立文件')
+    book = load_workbook(input_path, rich_text=True)
+    try:
+        metrics = prepare_inputs(book, data_dir)
+        sheet = next(s for s in book if s.title.endswith('市场调研'))
+        locations = fill_summary(sheet, metrics)
+        values = {addr: (sheet[addr].value, sheet[addr].number_format) for addr in locations.values()}
+        name = sheet.title
+    finally:
+        book.close()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with ZipFile(input_path) as archive, tempfile.TemporaryDirectory(dir=output.parent) as temporary:
+        part = worksheet_part(archive, name)
+        doc = minidom.parseString(archive.read(part))
+        styles = minidom.parseString(archive.read('xl/styles.xml'))
+        root = styles.documentElement
+        formats = children(root, 'numFmts')
+        if not formats:
+            formats = element(root, 'numFmts', {'count': 0})
+            root.insertBefore(formats, root.firstChild)
+        else:
+            formats = formats[0]
+        format_ids = {f.getAttribute('formatCode'): int(f.getAttribute('numFmtId')) for f in children(formats, 'numFmt')}
+        format_ids.update({'#,##0': 3, '#,##0.00': 4})
+        xfs = children(root, 'cellXfs')[0]
+        data = children(doc.documentElement, 'sheetData')[0]
+        rows = {int(r.getAttribute('r')): r for r in children(data, 'row')}
+        for address, (value, code) in values.items():
+            row = rows[int(re.search(r'\d+$', address)[0])]
+            matches = [c for c in children(row, 'c') if c.getAttribute('r') == address]
+            if matches:
+                cell = matches[0]
+            else:
+                # 未填过且无独立样式的空格可能没有XML，按列序补节点，不移动其它单元格。
+                cell = element(row, 'c', {'r': address})
+                column = column_index_from_string(re.match(r'[A-Z]+', address)[0])
+                following = next((c for c in children(row, 'c') if column_index_from_string(
+                    re.match(r'[A-Z]+', c.getAttribute('r'))[0]) > column), None)
+                row.insertBefore(cell, following) if following is not None else row.appendChild(cell)
+            for child in list(cell.childNodes):
+                cell.removeChild(child)
+            cell.setAttribute('t', 'n')
+            node = element(cell, 'v')
+            node.appendChild(doc.createTextNode(str(value)))
+            cell.appendChild(node)
+            if code not in format_ids:
+                format_ids[code] = max([163, *format_ids.values()]) + 1
+                formats.appendChild(element(formats, 'numFmt', {'numFmtId': format_ids[code], 'formatCode': code}))
+            xf = children(xfs, 'xf')[int(cell.getAttribute('s') or '0')].cloneNode(True)
+            xf.setAttribute('numFmtId', str(format_ids[code]))
+            xf.setAttribute('applyNumberFormat', '1')
+            cell.setAttribute('s', str(len(children(xfs, 'xf'))))
+            xfs.appendChild(xf)
+        formats.setAttribute('count', str(len(children(formats, 'numFmt'))))
+        xfs.setAttribute('count', str(len(children(xfs, 'xf'))))
+        style_xml = re.sub(r'formatCode="[^"]*"', lambda m: m[0].replace('\n', '&#10;'), styles.toxml())
+        changes = {part: doc.toxml(encoding='utf-8'), 'xl/styles.xml': style_xml.encode('utf-8')}
+        staged = Path(temporary) / 'metrics.xlsx'
+        with ZipFile(staged, 'w') as result:
+            for info in archive.infolist():
+                result.writestr(copy(info), changes.get(info.filename, archive.read(info.filename)))
+        checked = load_workbook(staged, rich_text=True)
+        try:
+            for address, (value, code) in values.items():
+                cell = checked[name][address]
+                if abs(cell.value - value) > max(1, abs(value)) * 1e-12 or cell.number_format != code:
+                    raise ValueError(f'整体指标写入校验失败：{address}')
+        finally:
+            checked.close()
+        staged.replace(output)
+    return {'output': str(output), 'metrics': locations, 'sample_count': metrics['sample_count']}
 
 
 def insert_local_charts(worksheet, chart_dir):
