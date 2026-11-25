@@ -31,7 +31,12 @@ def format_report_point(point, kind):
 def report_points(analysis, kind):
     """区分没有入选差评和分析后没有具体原因，不能都用斜杠表示。"""
     if analysis[kind]:
-        return [format_report_point(point, kind) for point in analysis[kind]]
+        points = analysis[kind]
+        if kind == "disadvantages":
+            # 仅调整报告显示顺序，占比相同保持原顺序，不改变分析证据。
+            points = sorted(points, key=lambda point: -mention_stats(
+                point.get("review_numbers"), point.get("sample_count"))["mention_percent"])
+        return [format_report_point(point, kind) for point in points]
     if kind == "disadvantages":
         count = analysis.get("selected_counts", {}).get(kind)
         if type(count) is not int or count < 0:
