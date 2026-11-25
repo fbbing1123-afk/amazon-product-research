@@ -5,6 +5,7 @@ import argparse
 import json
 import math
 import sys
+import tempfile
 import unicodedata
 from copy import copy
 from pathlib import Path
@@ -14,7 +15,7 @@ from openpyxl import load_workbook
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from competitor_analysis.populate_basics import competitor_asins, find_label_row
 from competitor_analysis.review_mentions import format_report_point
-from competitor_analysis.sellersprite_review_analysis import make_packet, validate_result, MENTION_SCOPE
+from competitor_analysis.merge_review_sources import merge_sources, verify_analysis
 from shared.worksheet_rows import insert_rows_preserving_merges
 from shared.quality_gates import validate_competitor_review_analysis
 
@@ -50,21 +51,7 @@ def fill_batch(workbook, output, analyses, summary):
     if output.exists() or output.resolve() == workbook.resolve():
         raise ValueError('输出必须是新的独立文件')
     # 回填前再核验源文件指纹和证据，不能把旧 checked.json 直接套到新评论。
-    verified = []
-    for analysis in analyses:
-        packet = make_packet(Path(analysis['source_file']), analysis['asin'])
-        if any(analysis.get(key) != packet.get(key) for key in ('schema', 'packet_digest', 'source_sha256')):
-            raise ValueError('评论数据已变化或分析来自另一批次，拒绝回填')
-        checked = dict(analysis)
-        for kind in ('advantages', 'disadvantages'):
-            checked[kind] = validate_result(packet, kind, {
-                'schema':packet['schema'],'asin':packet['asin'],'packet_digest':packet['packet_digest'],
-                'kind':kind,'reviewed_numbers':[r['number'] for r in packet['samples'][kind]],
-                'points':analysis[kind],'evidence_scope':MENTION_SCOPE,
-                'no_supported_points_reason':analysis.get('empty_reasons',{}).get(kind,''),
-            })
-        verified.append(checked)
-    analyses = verified
+    analyses = [verify_analysis(analysis)[1] for analysis in analyses]
     book = load_workbook(workbook, rich_text=True)
     try:
         sheet = next(s for s in book if s.title.endswith('竞品分析'))
@@ -97,11 +84,16 @@ def fill_batch(workbook, output, analyses, summary):
         summary_row = find_label_row(sheet, '总结及改进方式')
         sheet.cell(summary_row, 3, summary.strip())
         output.parent.mkdir(parents=True, exist_ok=True)
-        book.save(output)
+        # 先保存临时回填结果，评论合并和逐行验收成功后才产生最终文件。
+        with tempfile.TemporaryDirectory(dir=output.parent) as temporary:
+            staged = Path(temporary) / 'filled.xlsx'
+            book.save(staged)
+            source_result = merge_sources(staged, output, analyses)
     finally:
         book.close()
     validate_competitor_review_analysis(output)
-    return {'output': str(output), 'products': len(asins), 'summary_row': summary_row}
+    return {'output': str(output), 'products': len(asins), 'summary_row': summary_row,
+            'review_source_sheet': source_result['sheet'], 'review_source_rows': source_result['reviews']}
 
 
 def main():

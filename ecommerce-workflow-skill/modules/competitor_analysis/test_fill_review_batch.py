@@ -76,6 +76,9 @@ class FillReviewBatchTests(unittest.TestCase):
         self.assertEqual('\n'.join(f'问题{number}需改善（100%）' for number in range(12)),actual)
         self.assertTrue(all(sheet.row_dimensions[row].height == 80 for row in range(6,summary)))
         self.assertEqual(summary,sheet._images[0].anchor._from.row)
+        self.assertEqual(2,result['review_source_rows'])
+        self.assertEqual('评价数据源',result['review_source_sheet'])
+        self.assertEqual(self.asin,book['评价数据源']['A2'].value)
         book.close()
 
     def test_changed_source_rejects_old_analysis_without_output(self):
