@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 import tempfile
 import unicodedata
@@ -47,6 +48,18 @@ def chunk_points(sheet, row, column, points):
     return chunks or ['/']
 
 
+def format_summary(summary):
+    """总结顶部统一加标题，依据说明只留在分析记录，不写进报告正文。"""
+    lines = [line.rstrip() for line in summary.strip().splitlines()
+             if not re.match(r'^\s*依据\s*[:：]', line)]
+    text = '\n'.join(lines).strip()
+    if not text:
+        raise ValueError('总结正文不能为空')
+    if text.startswith(('精简总结：', '精简总结:')):
+        return '精简总结：' + text[5:]
+    return '精简总结：\n' + text
+
+
 def fill_batch(workbook, output, analyses, summary):
     if output.exists() or output.resolve() == workbook.resolve():
         raise ValueError('输出必须是新的独立文件')
@@ -84,7 +97,7 @@ def fill_batch(workbook, output, analyses, summary):
                 if extra:
                     sheet.merge_cells(start_row=row,end_row=row+extra,start_column=column,end_column=column)
         summary_row = find_label_row(sheet, '总结及改进方式')
-        sheet.cell(summary_row, 3, summary.strip())
+        sheet.cell(summary_row, 3, format_summary(summary))
         output.parent.mkdir(parents=True, exist_ok=True)
         # 先保存临时回填结果，评论合并和逐行验收成功后才产生最终文件。
         with tempfile.TemporaryDirectory(dir=output.parent) as temporary:

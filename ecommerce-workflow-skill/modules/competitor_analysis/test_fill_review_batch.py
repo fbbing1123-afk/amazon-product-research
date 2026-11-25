@@ -68,7 +68,7 @@ class FillReviewBatchTests(unittest.TestCase):
         sheet = book.active
         summary = result['summary_row']
         self.assertGreater(summary,7)
-        self.assertEqual('本批改进',sheet.cell(summary,3).value)
+        self.assertEqual('精简总结：\n本批改进',sheet.cell(summary,3).value)
         self.assertEqual(self.summary_style,sheet.cell(summary,3)._style)
         self.assertEqual(198,sheet.row_dimensions[summary].height)
         self.assertIn(f'C{summary}:D{summary}',sheet.merged_cells)
@@ -101,7 +101,7 @@ class FillReviewBatchTests(unittest.TestCase):
             fill_batch(self.template,self.output,[self.analysis],'本批改进')
         book=load_workbook(self.output,rich_text=True)
         self.assertEqual(book.active['C6'].value,'无具体差评原因')
-        self.assertEqual(book.active['C7'].value,'本批改进')
+        self.assertEqual(book.active['C7'].value,'精简总结：\n本批改进')
         book.close()
 
     def test_wrong_product_rejects_batch_without_output(self):
