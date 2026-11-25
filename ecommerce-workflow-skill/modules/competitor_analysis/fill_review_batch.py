@@ -49,15 +49,16 @@ def chunk_points(sheet, row, column, points):
 
 
 def format_summary(summary):
-    """总结顶部统一加标题，依据说明只留在分析记录，不写进报告正文。"""
+    """要求实际精简总结和编号改进建议，不把建议列表冒充总结。"""
     lines = [line.rstrip() for line in summary.strip().splitlines()
              if not re.match(r'^\s*依据\s*[:：]', line)]
     text = '\n'.join(lines).strip()
-    if not text:
-        raise ValueError('总结正文不能为空')
-    if text.startswith(('精简总结：', '精简总结:')):
-        return '精简总结：' + text[5:]
-    return '精简总结：\n' + text
+    match = re.fullmatch(
+        r'总结[ \t]*[:：][ \t]*(?P<overview>[^\n]+)\n'
+        r'[ \t]*改进方式[ \t]*[:：][ \t]*\n?(?P<actions>[\s\S]+)', text)
+    if not match or not match['overview'].strip() or not re.match(r'1[.、]\s*\S', match['actions'].strip()):
+        raise ValueError('请提供“总结：实际精简总结”及“改进方式：”下的编号建议')
+    return '总结：' + match['overview'].strip() + '\n改进方式：\n' + match['actions'].strip()
 
 
 def fill_batch(workbook, output, analyses, summary):

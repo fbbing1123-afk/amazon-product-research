@@ -20,6 +20,7 @@ class FillReviewBatchTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
         self.asin = 'B012345678'
+        self.summary = '总结：装配问题影响使用。\n改进方式：\n1. 改善装配。'
         self.source = self.root / 'reviews.xlsx'
         book = Workbook()
         sheet = book.active
@@ -63,12 +64,12 @@ class FillReviewBatchTests(unittest.TestCase):
     def test_long_reviews_keep_every_point_and_move_summary_and_image(self):
         # 该测试聚焦扩行；完整基础门禁由真实最终报告另行验证。
         with patch('competitor_analysis.fill_review_batch.validate_competitor_review_analysis'):
-            result = fill_batch(self.template,self.output,[self.analysis],'本批改进')
+            result = fill_batch(self.template,self.output,[self.analysis],self.summary)
         book = load_workbook(self.output,rich_text=True)
         sheet = book.active
         summary = result['summary_row']
         self.assertGreater(summary,7)
-        self.assertEqual('精简总结：\n本批改进',sheet.cell(summary,3).value)
+        self.assertEqual(self.summary,sheet.cell(summary,3).value)
         self.assertEqual(self.summary_style,sheet.cell(summary,3)._style)
         self.assertEqual(198,sheet.row_dimensions[summary].height)
         self.assertIn(f'C{summary}:D{summary}',sheet.merged_cells)
@@ -89,7 +90,7 @@ class FillReviewBatchTests(unittest.TestCase):
         book.save(self.source)
         book.close()
         with self.assertRaisesRegex(ValueError,'另一批次'):
-            fill_batch(self.template,self.output,[self.analysis],'本批改进')
+            fill_batch(self.template,self.output,[self.analysis],self.summary)
         self.assertFalse(self.output.exists())
 
     def test_negative_sample_without_specific_reason_is_not_slash(self):
@@ -98,10 +99,10 @@ class FillReviewBatchTests(unittest.TestCase):
         # 故意传入错误旧数量，写表必须以重新读取的真实样本为准。
         self.analysis['selected_counts']={'advantages':1,'disadvantages':0}
         with patch('competitor_analysis.fill_review_batch.validate_competitor_review_analysis'):
-            fill_batch(self.template,self.output,[self.analysis],'本批改进')
+            fill_batch(self.template,self.output,[self.analysis],self.summary)
         book=load_workbook(self.output,rich_text=True)
         self.assertEqual(book.active['C6'].value,'无具体差评原因')
-        self.assertEqual(book.active['C7'].value,'精简总结：\n本批改进')
+        self.assertEqual(book.active['C7'].value,self.summary)
         book.close()
 
     def test_wrong_product_rejects_batch_without_output(self):
@@ -110,7 +111,7 @@ class FillReviewBatchTests(unittest.TestCase):
         book.save(self.template)
         book.close()
         with self.assertRaisesRegex(ValueError,'一一对应'):
-            fill_batch(self.template,self.output,[self.analysis],'本批改进')
+            fill_batch(self.template,self.output,[self.analysis],self.summary)
         self.assertFalse(self.output.exists())
 
 
