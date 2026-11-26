@@ -1,3 +1,4 @@
+import { getDebuggerAddress } from "../../../shared/browser_runtime.mjs";
 import { chromium } from "playwright";
 import { writeFile } from "node:fs/promises";
 import sharp from "sharp";
@@ -368,7 +369,7 @@ async function main() {
   const args = parseArgs(process.argv);
   const url = args.url;
   const output = args.output;
-  const debuggerAddress = args["debugger-address"] || "127.0.0.1:9223";
+  const debuggerAddress = args["debugger-address"] || getDebuggerAddress();
   const timeoutMs = Number(args["timeout-ms"] || 30000);
   const allowPartial = args["allow-partial"] === "1" || args["allow-partial"] === "true";
   const postalCode = args["postal-code"] || "";

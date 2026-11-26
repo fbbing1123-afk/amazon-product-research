@@ -39,6 +39,7 @@ WORKFLOW_MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(WORKFLOW_MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(WORKFLOW_MODULES_DIR))
 
+from shared.browser_runtime import get_browser_port
 from shared.marketplaces import amazon_domains, get_marketplace, normalize_site_code
 
 DEFAULT_PROJECT_DIR = Path(__file__).resolve().parent
@@ -75,7 +76,7 @@ CHROME_PATH = find_browser_executable()
 CHROME_USER_DATA_DIR = ".chrome-profile"
 BROWSER_STATE_FILE = ".browser-state.json"
 SELLERSPRITE_URL = "https://www.sellersprite.com/v3/keyword-miner/"
-DEBUG_PORT = 9222
+DEBUG_PORT = get_browser_port()
 ACTIVE_DEBUG_PORT = DEBUG_PORT
 NO_TREND_MAX_MIN_RATIO = 1.5
 NO_TREND_RANGE_AVG_RATIO = 0.35
@@ -1235,7 +1236,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="输出 Excel 副本路径")
     parser.add_argument("--project-dir", type=Path, default=DEFAULT_PROJECT_DIR, help="包含截图脚本的项目目录")
     parser.add_argument("--browser-state-dir", type=Path, default=None, help="共享浏览器登录态目录，默认使用 project-dir")
-    parser.add_argument("--debug-port", type=int, default=DEBUG_PORT, help="Chrome/Edge DevTools 调试端口")
+    parser.add_argument("--debug-port", type=int, default=get_browser_port(), help="Chrome/Edge DevTools 调试端口")
     parser.add_argument("--use-existing-browser", action="store_true", help="直接连接已经打开的调试浏览器，不杀进程、不新开 Chrome")
     parser.add_argument("--prefix", default=DEFAULT_PREFIX, help="截图输出前缀")
     parser.add_argument("--dry-run", action="store_true", help="只识别关键词，不执行截图或写 Excel")

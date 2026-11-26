@@ -5,7 +5,6 @@ import json
 import socket
 import subprocess
 import sys
-import time
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -20,6 +19,7 @@ from keyword_backfill.seller_sprite_keyword_tool import (  # noqa: E402
     ensure_sellersprite_logged_in,
 )
 from review_research.scrape_amazon_reviews import preflight_amazon  # noqa: E402
+from shared.browser_runtime import get_debugger_address
 from shared.marketplaces import get_marketplace  # noqa: E402
 
 
@@ -43,7 +43,7 @@ def debugger_ready(value: str, timeout_seconds: float = 1.0) -> bool:
         return False
 
 
-def start_project_browser(*, debugger_address: str, site: str) -> None:
+def start_project_browser(*, debugger_address: str, site: str) -> str:
     _, port = debugger_host_port(debugger_address)
     script = PROJECT_DIR / "scripts" / "open_sellersprite_login_browser.ps1"
     subprocess.run(
@@ -63,12 +63,11 @@ def start_project_browser(*, debugger_address: str, site: str) -> None:
         check=True,
         cwd=PROJECT_DIR,
     )
-    deadline = time.monotonic() + 20
-    while time.monotonic() < deadline:
-        if debugger_ready(debugger_address):
-            return
-        time.sleep(0.5)
-    raise RuntimeError(f"Project browser did not open on {debugger_address}.")
+    # 启动器可能跳过被占用的端口，必须读取成功后保存的实际地址。
+    actual_address = get_debugger_address()
+    if not debugger_ready(actual_address):
+        raise RuntimeError(f"项目浏览器连接未就绪：{actual_address}")
+    return actual_address
 
 
 def find_page(context, predicate):
@@ -85,10 +84,11 @@ def run_preflight(*, debugger_address: str, site: str, postal_code: str | None) 
     from playwright.sync_api import sync_playwright
 
     marketplace = get_marketplace(site)
-    started_browser = False
-    if not debugger_ready(debugger_address):
-        start_project_browser(debugger_address=debugger_address, site=marketplace.code)
-        started_browser = True
+    was_ready = debugger_ready(debugger_address)
+    previous_address = debugger_address
+    # 即使端口有响应，也由启动器校验配置归属，避免误连其它项目浏览器。
+    debugger_address = start_project_browser(debugger_address=debugger_address, site=marketplace.code)
+    started_browser = not was_ready or debugger_address != previous_address
 
     endpoint = debugger_address if "://" in debugger_address else f"http://{debugger_address}"
     with sync_playwright() as playwright:
@@ -128,7 +128,7 @@ def run_preflight(*, debugger_address: str, site: str, postal_code: str | None) 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Prepare the project browser for competitor analysis.")
-    parser.add_argument("--debugger-address", default="127.0.0.1:9223")
+    parser.add_argument("--debugger-address", default=get_debugger_address())
     parser.add_argument("--site", default="US")
     parser.add_argument("--amazon-postal-code")
     args = parser.parse_args()

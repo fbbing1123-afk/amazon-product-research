@@ -7,7 +7,7 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 
 ## 当前唯一执行流程
 
-本测试版采用截至2026-11-25本轮确认的最新步骤。用户不必选择版本。先读[使用指南](docs/使用指南.md)、[阶段执行顺序](docs/new_workflow_trial.md)，交付前读[验收规范](docs/delivery_checks.md)。只运行用户要求的范围；已有结果从检查点续跑。
+本测试版采用截至2026-11-26本轮确认的最新步骤。用户不必选择版本。先读[使用指南](docs/使用指南.md)、[阶段执行顺序](docs/new_workflow_trial.md)，交付前读[验收规范](docs/delivery_checks.md)。只运行用户要求的范围；已有结果从检查点续跑。
 
 最新链路为：模板与数据源检查 → 关键词和类目布局 → 提前打开竞品页、同页取数并启动评论导出 → 导出等待期间截图和填数 → 本地集合链接及卖家精灵市场报告 → 本批评价分析 → 合并评价数据源 → 验收。
 
@@ -27,7 +27,7 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 
 1. 在当前解压目录读取文件，不使用原作者电脑的绝对路径。工作目录为本Skill目录。先运行 `scripts/check_environment.ps1`，检查Python、Node.js及Chrome。
 2. 先检查本项目环境、`.workflow-state/runtime.json` 记录、当前激活环境和用户指定的已有环境；可用则复用。运行 `scripts/setup_first_run.ps1` 会跳过可用Python/Node依赖，缺项才安装到项目内。可传 `-Python`、`-NodeModules` 复用其它目录，不修改外部环境。准备后读取记录的Python路径，并将 `CODEX_NODE_MODULES` 设为记录的依赖目录。推荐Python 3.12、Node.js 22/24、Windows和Chrome。
-3. 使用 `scripts/open_sellersprite_login_browser.ps1 -Site US` 打开项目专用浏览器，CDP为 `http://127.0.0.1:9223`。同机迁移优先复用本机记录的 `-ProfileDir`，不误开空白配置。
+3. 使用 `scripts/open_sellersprite_login_browser.ps1 -Site US` 打开项目专用浏览器。优先复用同配置的现有浏览器；新启动优先9223，占用时自动尝试9224–9243，仍占用则由系统分配空闲端口。成功后将实际端口、CDP地址和配置目录保存到 `.workflow-state/sellersprite/browser-config.json`，后续脚本默认读取该记录，不能继续硬传9223。同机迁移优先复用本机记录的 `-ProfileDir`，不误开空白配置。
 4. 在这个浏览器内安装并登录**卖家精灵插件**，同时核验卖家精灵网页和Amazon登录、站点及配送邮编。网页和插件登录分开核验；插件可用“同步网页端账号”恢复既有登录。脚本通过Playwright连接，不要求安装Codex浏览器操作扩展。
 5. 环境检查不等于账号、模板和真实业务已验收。需要登录或真人验证时保留页面，让用户完成后继续；不索要密码、Cookie或验证码。
 

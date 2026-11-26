@@ -16,6 +16,7 @@ sys.path.insert(0, str(MODULE_DIR.parent))
 from openpyxl import load_workbook
 from keyword_rows import latest_monthly_bid, latest_weekly_bid, update_keyword_rows
 import sellersprite_playwright_runner as runner
+from shared.browser_runtime import get_browser_port
 from shared.marketplaces import ensure_sellersprite_site
 from shared.quality_gates import validate_keyword_research
 
@@ -58,7 +59,7 @@ def main(argv=None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--site", default="US")
-    parser.add_argument("--debug-port", type=int, default=9223)
+    parser.add_argument("--debug-port", type=int, default=get_browser_port())
     parser.add_argument("--ppc-bid-mode", choices=("latest-week", "latest-month"), default="latest-week")
     parser.add_argument("--resume", action="store_true", help="显式复用本次缓存，仅补未成功的关键词")
     args = parser.parse_args(argv)

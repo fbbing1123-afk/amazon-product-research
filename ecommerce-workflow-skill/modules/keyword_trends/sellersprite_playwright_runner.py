@@ -18,6 +18,7 @@ WORKFLOW_MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(WORKFLOW_MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(WORKFLOW_MODULES_DIR))
 
+from shared.browser_runtime import get_browser_port
 from shared.marketplaces import (
     amazon_domains,
     ensure_amazon_postal_code,
@@ -216,7 +217,7 @@ def safe_auto_handle_page_issue(page) -> dict[str, str]:
     return {"action": "none", "reason": str(state.get("reason") or "")}
 
 
-def cleanup_browser_tabs(project_dir: Path, port: int = 9222, keep_sellersprite_keyword_pages: int = 1, close_amazon_tabs: bool = True) -> int:
+def cleanup_browser_tabs(project_dir: Path, port: int = get_browser_port(), keep_sellersprite_keyword_pages: int = 1, close_amazon_tabs: bool = True) -> int:
     sync_playwright = require_sync_playwright()
     closed_count = 0
     with sync_playwright() as p:
@@ -462,7 +463,7 @@ def navigate_sellersprite_tool(page, target_url: str, link_text: str) -> None:
     page.goto(target_url, wait_until="domcontentloaded", timeout=45_000)
 
 
-def ensure_sellersprite_login(project_dir: Path, port: int = 9222, state_file_name: str = ".browser-state.json") -> bool:
+def ensure_sellersprite_login(project_dir: Path, port: int = get_browser_port(), state_file_name: str = ".browser-state.json") -> bool:
     sync_playwright = require_sync_playwright()
     state_file = project_dir / state_file_name
     with sync_playwright() as p:
@@ -1908,7 +1909,7 @@ def run_sellersprite_workflow(
     keywords: Sequence[str],
     prefix: str,
     data_output: Path,
-    port: int = 9222,
+    port: int = get_browser_port(),
     site: str = "US",
     amazon_postal_code: str | None = None,
 ) -> BrowserRunResult:
@@ -1966,7 +1967,7 @@ def run_sellersprite_workflow(
 
 def retry_failed_amazon_results(
     data_path: Path,
-    port: int = 9222,
+    port: int = get_browser_port(),
     site: str = "US",
     amazon_postal_code: str | None = None,
 ) -> int:

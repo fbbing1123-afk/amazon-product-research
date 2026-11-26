@@ -24,6 +24,7 @@ from product_research.scripts.populate_market_summary import refresh_summary
 from product_research.scripts.refresh_sellersprite_category_images import refresh_images
 from review_research.download_sellersprite_reviews import asin_from_input, now_iso, write_json
 from review_research.prefetch_sellersprite_reviews import DownloadRouter, prefetch_one
+from shared.browser_runtime import get_cdp_url
 from shared.quality_gates import validate_category_research, validate_zip_package
 
 
@@ -238,7 +239,7 @@ def main():
     parser.add_argument('--max-downloads', type=int, help='默认全部竞品同时导出；可显式限制并发数量')
     parser.add_argument('--download-timeout', type=float, default=600, help='每商品总等待上限；连续180秒无新进度提前退出')
     parser.add_argument('--postal-code', default='10001')
-    parser.add_argument('--cdp', default='http://127.0.0.1:9223')
+    parser.add_argument('--cdp', default=get_cdp_url())
     parser.add_argument('--product-image-display', choices=['fit','original'], default='original', help='默认原尺寸浮动放置，控制表内显示尺寸')
     args = parser.parse_args()
     if (args.max_downloads is not None and args.max_downloads < 1) or args.category_start < 0 or (args.category_limit is not None and args.category_limit < 1):

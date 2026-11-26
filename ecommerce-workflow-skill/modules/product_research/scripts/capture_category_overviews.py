@@ -22,6 +22,7 @@ WORKFLOW_MODULES_DIR = Path(__file__).resolve().parents[2]
 if str(WORKFLOW_MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(WORKFLOW_MODULES_DIR))
 
+from shared.browser_runtime import get_debugger_address
 from shared.marketplaces import ensure_amazon_postal_code, get_marketplace, normalize_amazon_url
 
 
@@ -491,7 +492,7 @@ def main() -> int:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--image-dir", type=Path)
-    parser.add_argument("--debugger-address", default="127.0.0.1:9223")
+    parser.add_argument("--debugger-address", default=get_debugger_address())
     parser.add_argument("--sheet")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--timeout-ms", type=int, default=DEFAULT_TIMEOUT_MS)

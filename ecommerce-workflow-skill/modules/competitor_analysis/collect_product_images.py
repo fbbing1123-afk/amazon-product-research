@@ -22,6 +22,9 @@ IMAGE_HOSTS = {'m.media-amazon.com', 'images-na.ssl-images-amazon.com',
                'images-eu.ssl-images-amazon.com', 'images-fe.ssl-images-amazon.com'}
 
 
+sys.path.insert(0, str((Path(__file__).resolve().parent / "..").resolve()))
+from shared.browser_runtime import get_cdp_url
+
 def valid_image_url(url):
     """只使用商品主图节点实际给出的亚马逊图片地址，不推测或改造网址。"""
     parsed = urlparse(str(url or ''))
@@ -184,7 +187,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('items', nargs='+', help='ASIN或美国站商品链接，不要求在数据源中')
     parser.add_argument('--output-dir', type=Path, required=True)
-    parser.add_argument('--cdp', default='http://127.0.0.1:9223')
+    parser.add_argument('--cdp', default=get_cdp_url())
     args = parser.parse_args()
     return asyncio.run(collect_batch(list(dict.fromkeys(asin_from_input(v) for v in args.items)), args.output_dir, args.cdp))
 

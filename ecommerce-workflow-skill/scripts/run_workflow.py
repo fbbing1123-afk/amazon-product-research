@@ -50,6 +50,7 @@ from keyword_trends.run import run_keyword_trends
 from market_analysis.run import run_market_analysis
 from product_research.run import run_category_research, run_product_research_charts
 from review_research.run import run_review_research
+from shared.browser_runtime import get_debugger_address, get_browser_port
 from shared.excel_inspect import find_source_sheet, inspect_image_risk, infer_product_name
 from shared.asin_collection_links import infer_workbook_site
 from shared.image_conversion import convert_wps_dispimg_to_floating, make_wps_embedded_version
@@ -389,12 +390,12 @@ def _main(power_hold_stack: ExitStack) -> int:
     parser.add_argument("--keyword-backfill-export-file", help="Existing SellerSprite expand-keywords export .xlsx")
     parser.add_argument("--keyword-backfill-skip-browser", action="store_true", help="Skip SellerSprite browser automation and process --keyword-backfill-export-file")
     parser.add_argument("--keyword-backfill-excel-writer", default="openpyxl", choices=("openpyxl", "excel_com"), help="Workbook writer for keyword backfill")
-    parser.add_argument("--keyword-backfill-debugger-address", default="127.0.0.1:9223", help="Edge/Chrome CDP debugger address for keyword backfill")
+    parser.add_argument("--keyword-backfill-debugger-address", default=get_debugger_address(), help="Edge/Chrome CDP debugger address for keyword backfill")
     parser.add_argument("--keyword-backfill-site", default=None, help="Compatibility alias for --site")
     parser.add_argument("--keyword-backfill-brand-word", action="append", default=None, help="Temporary brand word to exclude; repeat as needed")
     parser.add_argument("--keyword-trends-prefix", default="excel-trends", help="Keyword trend screenshot file prefix")
     parser.add_argument("--keyword-ppc-bid-mode", choices=("latest-week", "latest-month", "peak-period"), default="latest-week", help="竞价默认取最新周，可选最新月或旧旺季区间逻辑")
-    parser.add_argument("--keyword-trends-debug-port", type=int, default=9223, help="Chrome/Edge DevTools port for keyword trend screenshots")
+    parser.add_argument("--keyword-trends-debug-port", type=int, default=get_browser_port(), help="Chrome/Edge DevTools port for keyword trend screenshots")
     parser.add_argument(
         "--keyword-trends-use-existing-browser",
         action=argparse.BooleanOptionalAction,
@@ -404,7 +405,7 @@ def _main(power_hold_stack: ExitStack) -> int:
     parser.add_argument("--keyword-trends-skip-screenshot", action="store_true", help="Use existing keyword trend PNG/JSON artifacts instead of opening Sellersprite")
     parser.add_argument("--keyword-trends-keep-artifacts", action="store_true", help="Keep keyword trend PNG/JSON run artifacts")
     parser.add_argument("--category-overviews", action=argparse.BooleanOptionalAction, default=True, help="Capture softtime/sorftime market overview screenshots for category rows")
-    parser.add_argument("--category-overviews-debugger-address", default="127.0.0.1:9223", help="Chrome/Edge CDP debugger address for category overview screenshots")
+    parser.add_argument("--category-overviews-debugger-address", default=get_debugger_address(), help="Chrome/Edge CDP debugger address for category overview screenshots")
     parser.add_argument(
         "--category-overviews-limit",
         type=int,
@@ -413,7 +414,7 @@ def _main(power_hold_stack: ExitStack) -> int:
     )
     parser.add_argument("--market-analysis-charts", action=argparse.BooleanOptionalAction, default=True, help="Generate and insert the 9 market-research chart images before market_analysis")
     parser.add_argument("--market-analysis-source-slicers", action=argparse.BooleanOptionalAction, default=False, help="Optionally add source-data market-layer slicers; disabled by default")
-    parser.add_argument("--review-debugger-address", default="127.0.0.1:9223", help="Chrome/Edge CDP debugger address for Amazon review research")
+    parser.add_argument("--review-debugger-address", default=get_debugger_address(), help="Chrome/Edge CDP debugger address for Amazon review research")
     parser.add_argument("--review-asin", action="append", default=[], help="Explicit ASIN for review research; repeat as needed. Overrides workbook ASINs.")
     parser.add_argument("--review-asin-limit", type=int, help="Limit workbook ASINs for review research")
     parser.add_argument("--review-max-pages", type=int, default=10, help="Maximum 10-review batches per ASIN; kept as pages for compatibility")

@@ -21,7 +21,7 @@ python modules/competitor_analysis/collect_product_images.py ASIN1 ASIN2 --outpu
 python modules/competitor_analysis/refresh_product_images.py --workbook "当前报告.xlsx" --images "采集目录/images.json" --output "高清主图版.xlsx"
 ```
 
-采集入口也接受美国站详情页链接，默认连接项目浏览器 `http://127.0.0.1:9223`。目标ASIN不要求出现在商品数据源里。每个商品采集完成即保存清单，失败保留页面，成功只关闭本入口新建的页面。出现真人验证时由用户处理后定点续跑，不代勾。
+采集入口也接受美国站详情页链接，默认读取本项目 `browser-config.json` 的实际端口，先运行启动器自动选择或复用浏览器，不固定连接9223。目标ASIN不要求出现在商品数据源里。每个商品采集完成即保存清单，失败保留页面，成功只关闭本入口新建的页面。出现真人验证时由用户处理后定点续跑，不代勾。
 
 只读取页面主图节点实际提供的原图/动态图片地址，优先原图，再按动态尺寸选择；不猜测高清URL、不拼接图片后缀。页面网址、选中ASIN和目标必须一致。Amazon重复的ASIN节点仅在值全部相同时接受，出现冲突则拒绝。图片清单记录来源网址、时间、邮编文案、像素和SHA256，写入前再次核验归属、文件指纹及格式。长边不足1000像素时如实标记，不能把小图放大后称为高清。
 

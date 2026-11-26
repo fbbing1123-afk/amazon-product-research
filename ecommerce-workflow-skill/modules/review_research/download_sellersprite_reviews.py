@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from collections import Counter
 from datetime import date, datetime, timezone
 import hashlib
@@ -20,6 +21,9 @@ from openpyxl import load_workbook
 PANEL = "#seller-sprite-extension-quick-view-listing"
 REQUIRED_HEADERS = {"ASIN", "标题", "内容", "VP评论", "Vine Voice评论", "星级", "评论链接", "评论时间"}
 
+
+sys.path.insert(0, str((Path(__file__).resolve().parent / "..").resolve()))
+from shared.browser_runtime import get_cdp_url
 
 class NeedsUserAction(RuntimeError):
     """需要保留页面，交给用户处理登录或真人验证。"""
@@ -352,7 +356,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("items", nargs="+", help="一个或多个 ASIN / 美国站商品链接")
     parser.add_argument("--output-dir", required=True, type=Path, help="本地输出父目录；每次创建独立运行目录")
-    parser.add_argument("--cdp", default="http://127.0.0.1:9223")
+    parser.add_argument("--cdp", default=get_cdp_url())
     parser.add_argument("--download-timeout", type=float, default=180)
     parser.add_argument("--import-file", type=Path, help="只读校验已下载文件，仅支持一个 ASIN，不连接浏览器")
     args = parser.parse_args()

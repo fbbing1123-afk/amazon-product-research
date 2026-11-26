@@ -17,6 +17,8 @@ Write-Host "技能目录：$SkillDir"
 $requiredFiles = @(
   "SKILL.md", "agents\openai.yaml", "requirements.txt", "docs\delivery_checks.md",
   "scripts\build_amazon_collection_link.py", "scripts\run_review_prefetch.py",
+  "scripts\open_sellersprite_login_browser.ps1", "scripts\browser_runtime.ps1",
+  "modules\shared\browser_runtime.py", "modules\shared\browser_runtime.mjs",
   "modules\competitor_analysis\fill_review_batch.py", "resources\asin_collection_sites.json",
   "modules\product_research\scripts\chart-runtime\package.json",
   "modules\product_research\scripts\chart-runtime\pnpm-lock.yaml",

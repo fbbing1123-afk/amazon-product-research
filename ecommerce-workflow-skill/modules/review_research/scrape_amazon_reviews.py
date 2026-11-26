@@ -26,6 +26,7 @@ MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(MODULES_DIR))
 
+from shared.browser_runtime import get_debugger_address
 from shared.marketplaces import (
     amazon_location_text,
     amazon_postal_code_matches,
@@ -1656,7 +1657,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--site", default="US")
     parser.add_argument("--amazon-postal-code")
-    parser.add_argument("--debugger-address", default="127.0.0.1:9223")
+    parser.add_argument("--debugger-address", default=get_debugger_address())
     parser.add_argument("--asin", action="append", default=[], help="Explicit ASIN; repeat to collect more than one")
     parser.add_argument("--asin-limit", type=int)
     parser.add_argument("--max-pages", type=int, default=10)

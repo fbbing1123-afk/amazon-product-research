@@ -25,6 +25,7 @@ MODULES_DIR = Path(__file__).resolve().parents[1]
 if str(MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(MODULES_DIR))
 
+from shared.browser_runtime import get_cdp_url
 from shared.worksheet_rows import insert_rows_preserving_merges
 from shared.marketplaces import ensure_sellersprite_site, get_marketplace, normalize_site_code
 
@@ -520,7 +521,7 @@ def run_browser_flow(config: dict[str, Any], info: TemplateInfo) -> Path:
     download_dir = Path(config["download_dir"]).expanduser().resolve()
     download_dir.mkdir(parents=True, exist_ok=True)
 
-    debugger_address = normalize_text(config.get("browser", {}).get("debugger_address")) or "http://127.0.0.1:9222"
+    debugger_address = normalize_text(config.get("browser", {}).get("debugger_address")) or get_cdp_url()
     if not debugger_address.startswith(("http://", "https://", "ws://", "wss://")):
         debugger_address = f"http://{debugger_address}"
 
@@ -537,8 +538,8 @@ def run_browser_flow(config: dict[str, Any], info: TemplateInfo) -> Path:
             )
         except Exception as exc:
             raise RuntimeError(
-                "无法连接浏览器调试端口。请先关闭 Edge/Chrome 后，用 "
-                "--remote-debugging-port=9222 打开已登录卖家精灵的浏览器。"
+                "无法连接项目浏览器。请运行"
+                "项目浏览器启动器复用或打开已登录的浏览器，并使用本机配置记录的实际端口。"
             ) from exc
 
         print("SellerSprite CDP connected", flush=True)
@@ -877,7 +878,7 @@ def ensure_sellersprite_logged_in(page: Any, return_url: str) -> None:
         return
 
     raise RuntimeError(
-        "卖家精灵当前未能自动恢复登录态。请先在已打开的 9223 浏览器里登录卖家精灵，"
+        "卖家精灵当前未能自动恢复登录态。请先在已打开的项目浏览器里登录卖家精灵，"
         "确认页面不再显示“未登录/游客”后再重新运行。"
     )
 

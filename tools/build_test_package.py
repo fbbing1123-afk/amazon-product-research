@@ -27,6 +27,8 @@ REQUIRED = {
     SKILL + "SKILL.md", SKILL + "docs/使用指南.md", SKILL + "docs/模板填写说明.md",
     SKILL + "docs/delivery_checks.md", SKILL + "scripts/runtime_environment.ps1",
     SKILL + "scripts/setup_first_run.ps1", SKILL + "scripts/check_environment.ps1",
+    SKILL + "scripts/open_sellersprite_login_browser.ps1", SKILL + "scripts/browser_runtime.ps1",
+    SKILL + "modules/shared/browser_runtime.py", SKILL + "modules/shared/browser_runtime.mjs",
     SKILL + "scripts/build_amazon_collection_link.py", SKILL + "scripts/run_review_prefetch.py",
     SKILL + "modules/product_research/scripts/chart-runtime/vendor/echarts.min.js",
 }

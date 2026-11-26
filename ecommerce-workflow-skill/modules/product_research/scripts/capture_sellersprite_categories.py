@@ -27,6 +27,9 @@ CAPTURE_VERSION = 'category-panel-v2-zoom-aware'
 CAPTURE_WIDTH = 1600
 
 
+sys.path.insert(0, str((Path(__file__).resolve().parent / "../..").resolve()))
+from shared.browser_runtime import get_cdp_url
+
 def read_sales(text):
     match = re.search(r'(?:^|\n)月销量\s*\n\s*([\d,]+)(?:\n|$)', text)
     return int(match[1].replace(',', '')) if match else None
@@ -224,7 +227,7 @@ def main():
     parser.add_argument('--capture-only',action='store_true')
     parser.add_argument('--image-dir',type=Path,required=True)
     parser.add_argument('--postal-code',default='10001')
-    parser.add_argument('--cdp',default='http://127.0.0.1:9223')
+    parser.add_argument('--cdp',default=get_cdp_url())
     parser.add_argument('--start',type=int,default=0)
     parser.add_argument('--limit',type=int,default=5)
     args = parser.parse_args()

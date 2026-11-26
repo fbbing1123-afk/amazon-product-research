@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
+import sys
 import json
 import time
 from urllib.parse import urlparse
@@ -9,6 +11,9 @@ from urllib.parse import urlparse
 CONTINUE_TEXT = "Continue shopping"
 HUMAN_CHECK_ID = "#continueCheck"
 
+
+sys.path.insert(0, str((Path(__file__).resolve().parent / "../modules").resolve()))
+from shared.browser_runtime import get_debugger_address
 
 def challenge_page(browser):
     """优先选择当前 Amazon 真人确认页。"""
@@ -26,7 +31,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="处理 Amazon 真人确认页：人工勾选后自动点击 Continue shopping。"
     )
-    parser.add_argument("--debugger-address", default="127.0.0.1:9223")
+    parser.add_argument("--debugger-address", default=get_debugger_address())
     parser.add_argument("--timeout-seconds", type=int, default=300)
     parser.add_argument("--poll-seconds", type=float, default=1.0)
     args = parser.parse_args()

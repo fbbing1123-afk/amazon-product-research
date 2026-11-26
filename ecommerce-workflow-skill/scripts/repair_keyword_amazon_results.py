@@ -16,10 +16,13 @@ sys.path.insert(0, str(MODULES_DIR))
 from keyword_trends.sellersprite_playwright_runner import extract_amazon_result
 
 
+sys.path.insert(0, str((Path(__file__).resolve().parent / "../modules").resolve()))
+from shared.browser_runtime import get_browser_port
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--workbook", required=True)
-    parser.add_argument("--port", type=int, default=9223)
+    parser.add_argument("--port", type=int, default=get_browser_port())
     parser.add_argument("--site", default="US")
     parser.add_argument("--postal-code", default="10001")
     args = parser.parse_args()

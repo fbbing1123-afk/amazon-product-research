@@ -6,7 +6,7 @@
 
 - 完整解压后，在能读写本地文件和执行命令的AI工具中打开本目录，让AI读取 [SKILL.md](ecommerce-workflow-skill/SKILL.md)。
 - 先检查已有环境；可用的Python和Node依赖直接复用，缺项才安装在项目目录。推荐Windows、Python 3.12、Node.js 22/24、Chrome。
-- 在项目专用浏览器安装卖家精灵插件，分别登录插件、卖家精灵网页和Amazon；脚本使用Playwright连接。
+- 项目浏览器自动选择空闲端口并保存，各阶段直接读取实际地址。在该浏览器安装卖家精灵插件，分别登录插件、卖家精灵网页和Amazon；脚本使用Playwright连接。
 - 复制 [产品调研模板](ecommerce-workflow-skill/assets/产品调研模板.xlsx) 作工作副本。按 [模板填写说明](ecommerce-workflow-skill/docs/模板填写说明.md) 填市场调研A3的关键词反查ASIN、竞品分析A1的对比ASIN，并填入自己的商品数据源。
 
 ## 当前流程

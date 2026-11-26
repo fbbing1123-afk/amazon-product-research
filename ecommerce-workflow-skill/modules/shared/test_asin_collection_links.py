@@ -115,6 +115,7 @@ class PreflightTests(unittest.TestCase):
         manager.__exit__ = Mock(return_value=False)
         with patch('playwright.sync_api.sync_playwright', return_value=manager), \
              patch.object(module, 'debugger_ready', return_value=True), \
+             patch.object(module, 'start_project_browser', return_value='127.0.0.1:9223'), \
              patch.object(module, 'ensure_sellersprite_logged_in') as login, \
              patch.object(module, 'preflight_amazon'):
             result = module.run_preflight(debugger_address='127.0.0.1:9223', site='US', postal_code='10001')

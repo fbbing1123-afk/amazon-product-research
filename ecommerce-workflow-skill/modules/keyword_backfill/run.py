@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from shared.browser_runtime import get_debugger_address
 from shared.subprocess_runner import run_command
 
 from .config import (
@@ -24,7 +25,7 @@ def run_keyword_backfill(
     export_file: Path | None = None,
     skip_browser: bool = False,
     excel_writer: str = "openpyxl",
-    debugger_address: str = DEFAULT_DEBUGGER_ADDRESS,
+    debugger_address: str | None = None,
     site: str = DEFAULT_SITE,
     brand_words: list[str] | None = None,
 ) -> dict[str, Path]:
@@ -48,7 +49,7 @@ def run_keyword_backfill(
         "excel_writer": excel_writer,
         "browser": {
             "type": "edge",
-            "debugger_address": debugger_address,
+            "debugger_address": debugger_address or get_debugger_address(),
         },
     }
     config_path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")

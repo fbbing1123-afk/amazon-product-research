@@ -1,4 +1,5 @@
 ﻿param(
+  [ValidateRange(1, 65535)]
   [int]$Port = 9223,
   [ValidateSet("US", "DE", "UK", "CA", "FR")]
   [string]$Site = "US",
@@ -9,6 +10,7 @@
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "browser_runtime.ps1")
 
 $SkillDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $LocalBrowserConfig = Join-Path $SkillDir ".workflow-state\sellersprite\browser-config.json"
@@ -68,16 +70,6 @@ function Resolve-BrowserPath {
   throw "未找到 Google Chrome 或 Microsoft Edge。请先安装其中一个浏览器，或用 -BrowserPath 指定路径。"
 }
 
-function Test-DevToolsEndpoint {
-  param([int]$DebugPort)
-  try {
-    $response = Invoke-RestMethod -Uri "http://127.0.0.1:$DebugPort/json/version" -TimeoutSec 2
-    return -not [string]::IsNullOrWhiteSpace($response.webSocketDebuggerUrl)
-  } catch {
-    return $false
-  }
-}
-
 if ([string]::IsNullOrWhiteSpace($AmazonUrl)) {
   $AmazonUrl = switch ($Site) {
     "DE" { "https://www.amazon.de/gp/css/homepage.html" }
@@ -89,26 +81,26 @@ if ([string]::IsNullOrWhiteSpace($AmazonUrl)) {
 }
 
 $Browser = Resolve-BrowserPath -ExplicitPath $BrowserPath
-$listeners = @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)
-if ($listeners.Count -gt 0 -and -not (Test-DevToolsEndpoint -DebugPort $Port)) {
-  $owners = ($listeners | Select-Object -ExpandProperty OwningProcess -Unique) -join ", "
-  throw "端口 $Port 已被其它程序占用（进程 ID：$owners），但不是可复用的项目浏览器。请关闭占用程序后重试。"
+$runningPort = Get-RunningProjectBrowserPort $ProfileDir
+if ($runningPort) {
+  # 已运行的同一配置优先复用，避免重复打开窗口或丢失插件登录。
+  $Port = $runningPort
+  Save-ProjectBrowserConfig $LocalBrowserConfig $ProfileDir $Browser $Port
+  Write-Host "[复用] 项目浏览器已运行：http://127.0.0.1:$Port"
+  Write-Host "本机配置目录：$ProfileDir"
+  exit 0
 }
-if ($listeners.Count -gt 0) {
-  # 同一调试端口不代表同一份浏览器配置，防止连接到没有扩展的新窗口。
-  foreach ($ownerId in @($listeners | Select-Object -ExpandProperty OwningProcess -Unique)) {
-    $owner = Get-CimInstance Win32_Process -Filter "ProcessId = $ownerId"
-    $profileMatch = [regex]::Match([string]$owner.CommandLine, '--user-data-dir(?:=|\s+)(?:"([^"]+)"|(\S+))')
-    $actualProfile = if ($profileMatch.Groups[1].Success) { $profileMatch.Groups[1].Value } else { $profileMatch.Groups[2].Value }
-    if (-not $profileMatch.Success -or [System.IO.Path]::GetFullPath($actualProfile).TrimEnd('\') -ine $ProfileDir) {
-      throw "端口 $Port 的浏览器使用了另一份配置（进程 $ownerId）。请先关闭该项目窗口后重试。期望配置：$ProfileDir"
-    }
-  }
+if (@(Get-ProjectBrowserProcesses $ProfileDir).Count -gt 0) {
+  throw "同一项目配置已有浏览器进程，但尚未提供可用的调试连接。请关闭使用这份配置的窗口后重试：$ProfileDir"
 }
-
+$preferredPort = $Port
+$Port = Find-FreeBrowserPort $preferredPort
+if ($Port -ne $preferredPort) {
+  Write-Host "[自动切换] 端口 $preferredPort 被占用，使用空闲端口 $Port。"
+}
 New-Item -ItemType Directory -Force -Path $ProfileDir | Out-Null
-
 Start-Process -FilePath $Browser -ArgumentList @(
+  "--remote-debugging-address=127.0.0.1",
   "--remote-debugging-port=$Port",
   "--user-data-dir=`"$ProfileDir`"",
   "--new-window",
@@ -118,16 +110,16 @@ Start-Process -FilePath $Browser -ArgumentList @(
 
 $deadline = (Get-Date).AddSeconds(20)
 do {
-  if (Test-DevToolsEndpoint -DebugPort $Port) {
+  # 不能只检查端口是否响应；必须确认响应来自这份项目配置。
+  if (Test-ProjectDevToolsEndpoint $Port $ProfileDir) {
+    Save-ProjectBrowserConfig $LocalBrowserConfig $ProfileDir $Browser $Port
     Write-Host "[完成] 项目专用浏览器已打开。"
     Write-Host "浏览器：$Browser"
-    Write-Host "DevTools 端口：$Port"
+    Write-Host "CDP 地址：http://127.0.0.1:$Port"
     Write-Host "本机配置目录：$ProfileDir"
-    Write-Host "使用已选定的项目配置；新电脑首次使用时安装卖家精灵插件，并登录卖家精灵和 Amazon。"
+    Write-Host "端口已保存，后续脚本自动读取。新电脑首次使用时安装卖家精灵插件并登录。"
     exit 0
   }
   Start-Sleep -Milliseconds 500
 } while ((Get-Date) -lt $deadline)
-
-throw "浏览器已启动，但 20 秒内未检测到 DevTools 端口 $Port。请关闭该项目浏览器后重试。"
-
+throw "浏览器启动后未在端口 $Port 提供本项目调试连接，配置记录未更新。请检查该项目窗口后重试。"

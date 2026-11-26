@@ -15,6 +15,19 @@ powershell -ExecutionPolicy Bypass -File scripts\open_sellersprite_login_browser
 
 安装脚本只安装项目依赖，不自动安装系统Python、Node、Chrome或替用户登录。不会自动删除或重建已有环境。若缺软件，由AI明确指出缺项并完成适当的本机安装后继续。浏览器优先复用Chrome；自定义安装位置可设 `CHROME_EXECUTABLE`，离线图表同样复用它，不额外下载Chromium。
 
+## 浏览器端口自动选择
+
+每批开始先调用 `open_sellersprite_login_browser.ps1`。启动器先复用同一配置已运行的浏览器；需要新启动时优先9223，也可用 `-Port` 指定首选端口。首选端口被其它程序或其它配置的浏览器占用时自动跳过，尝试9223–9243范围，全部占用则由系统分配空闲端口。不会关闭占用程序，也不会为换端口另建一份丢失插件的配置。
+
+启动器验证端口归属和DevTools响应后，才把 `port`、`cdp_url`、`debugger_address`、`profile_dir` 保存到 `.workflow-state/sellersprite/browser-config.json`。原配置其它字段保留。Python和Node网页入口默认读取本项目记录；AI临时编排Playwright时也必须读取其中的 `cdp_url`，不能写死9223。明确传入的CLI连接参数仍按调用值使用。
+
+```powershell
+$browser = Get-Content -LiteralPath '.workflow-state/sellersprite/browser-config.json' -Raw -Encoding UTF8 | ConvertFrom-Json
+$browser.cdp_url
+```
+
+同一配置已运行但没有可用调试连接时，保留窗口并报告具体问题，不关闭其它浏览器或盲目换新配置。端口检测与浏览器启动之间若发生竞争而连接失败，不能把另一程序的响应记成成功。
+
 ## 站点和邮编自动选择
 
 用户明确指定站点优先；否则按商品源链接、竞品链接依次识别，均无信息才默认US。已有默认邮编直接读取 `modules/shared/marketplaces.py`：US 10001、DE 10115、UK B100AB、CA M4Y1M7、FR 75000；用户指定邮编则覆盖。检查和设置浏览器实际配送地址由脚本执行，不让用户重复确认已知值。未配置完整业务的站点不虚构默认邮编或承诺支持。
@@ -33,8 +46,7 @@ $env:PYTHONUTF8='1'
   --site US --amazon-postal-code 10001 `
   --steps keyword_research `
   --keyword-ppc-bid-mode latest-week `
-  --keyword-backfill-debugger-address '127.0.0.1:9223' `
-  --keyword-trends-debug-port 9223 --keyword-trends-use-existing-browser
+  --keyword-trends-use-existing-browser
 ```
 
 其余当前阶段使用 `new_workflow_trial.md` 的独立入口。不要去掉 `--steps keyword_research` 或往该命令加入旧市场、类目、评论步骤。复用手动关键词导出时先核对文件、关键词和站点，再使用该脚本对应导入参数。

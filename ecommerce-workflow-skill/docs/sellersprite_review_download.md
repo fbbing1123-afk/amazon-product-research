@@ -6,7 +6,7 @@
 
 ## 前置条件
 
-- 启动项目专用 Chrome，调试端口默认为 `127.0.0.1:9223`；沿用已登录的配置目录。
+- 用项目启动器打开专用Chrome，自动避开占用端口并记录实际地址；沿用已登录的配置目录。
 - 卖家精灵插件已启用并登录，Amazon 美国站商品页和翻译服务可以访问。当前插件提示默认 Google 翻译需要代理。
 - 本地 Python 具备现有项目的 `playwright` 和 `openpyxl` 依赖。
 - 运行脚本不需要 ChatGPT 浏览器扩展。卖家精灵插件是下载功能的提供方，仍然需要。
@@ -27,7 +27,7 @@ python modules/review_research/download_sellersprite_reviews.py B0DT8TCBNG --out
 python modules/review_research/download_sellersprite_reviews.py B0DT8TCBNG --import-file "已下载评论.xlsx" --output-dir outputs/review-sources
 ```
 
-可选参数：`--cdp http://127.0.0.1:9223`；`--download-timeout 180` 控制点击后等待下载事件的秒数。
+默认自动读取本项目保存的端口；可用 `--cdp 实际CDP地址` 显式覆盖；`--download-timeout 180` 控制点击后等待下载事件的秒数。
 
 ## 实际流程与输出
 

@@ -26,7 +26,7 @@ python modules/competitor_analysis/collect_basic_facts.py B000TEST01 B000TEST02 
 示例 ASIN 为占位符，实际执行时换成用户给出的 ASIN 或商品链接。
 
 - 可一次传入多个商品，重复 ASIN 自动去重。
-- 默认连接 `http://127.0.0.1:9223`；用 `--cdp` 指定项目浏览器地址。不会自动新建浏览器配置或改登录信息。
+- 默认读取 `.workflow-state/sellersprite/browser-config.json` 的实际端口；尚无端口记录时兼容9223。先运行项目浏览器启动器，它会自动跳过占用端口；也可用 `--cdp` 显式指定地址。不会自动新建浏览器配置或改登录信息。
 - 有多个数据源页时，用 `--source-sheet "具体页名"` 指定。
 - `--source-only` 只检查 Excel，不连接浏览器。
 - 只补产品卖点时追加 `--fields selling_points`；只取原基础三项时追加 `--fields monthly_sales price listed_at`。

@@ -1,5 +1,6 @@
 """从已生成的卖家精灵市场报告截取三张图表，保留真实样本口径。"""
 import argparse
+import sys
 import asyncio
 import base64
 import json
@@ -10,6 +11,9 @@ from urllib.parse import urlparse
 from PIL import Image, ImageStat
 from playwright.async_api import async_playwright
 
+
+sys.path.insert(0, str((Path(__file__).resolve().parent / "../..").resolve()))
+from shared.browser_runtime import get_cdp_url
 
 async def capture(args):
     parsed = urlparse(args.report_url)
@@ -67,7 +71,7 @@ def main():
     parser.add_argument('--report-url',required=True)
     parser.add_argument('--loaded-count',type=int)
     parser.add_argument('--output-dir',type=Path,required=True)
-    parser.add_argument('--cdp',default='http://127.0.0.1:9223')
+    parser.add_argument('--cdp',default=get_cdp_url())
     asyncio.run(capture(parser.parse_args()))
 
 

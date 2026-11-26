@@ -1,3 +1,4 @@
+import { getCdpUrl } from "../../../shared/browser_runtime.mjs";
 import { chromium } from "playwright";
 import { writeFile } from "node:fs/promises";
 
@@ -63,7 +64,7 @@ async function main() {
     throw new Error("缺少 --asins 或 --output");
   }
 
-  const version = await (await fetch("http://127.0.0.1:9223/json/version")).json();
+  const version = await (await fetch(`${getCdpUrl()}/json/version`)).json();
   const browser = await chromium.connectOverCDP(version.webSocketDebuggerUrl, { timeout: 20_000 });
   const pages = browser.contexts()[0].pages();
   const page = pages.find((item) => item.url().includes("sellersprite.com"));

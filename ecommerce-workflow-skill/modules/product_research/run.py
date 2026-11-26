@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shared.browser_runtime import get_debugger_address
 from shared.excel_inspect import inspect_image_risk
 from shared.image_conversion import convert_wps_dispimg_to_floating
 from shared.subprocess_runner import run_command
@@ -71,7 +72,7 @@ def run_category_research(
     node_exe: str,
     force: bool = False,
     capture_category_overviews: bool = True,
-    category_overview_debugger_address: str = "127.0.0.1:9223",
+    category_overview_debugger_address: str = get_debugger_address(),
     category_overview_limit: int | None = 5,
     site: str = "US",
     amazon_postal_code: str | None = None,
@@ -232,7 +233,7 @@ def run_product_research(
     node_exe: str,
     force: bool = False,
     capture_category_overviews: bool = True,
-    category_overview_debugger_address: str = "127.0.0.1:9223",
+    category_overview_debugger_address: str = get_debugger_address(),
     category_overview_limit: int | None = 5,
     site: str = "US",
     amazon_postal_code: str | None = None,

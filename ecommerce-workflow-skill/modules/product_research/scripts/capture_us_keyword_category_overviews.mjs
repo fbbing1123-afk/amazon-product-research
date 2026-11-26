@@ -1,3 +1,4 @@
+import { getDebuggerAddress } from "../../shared/browser_runtime.mjs";
 import { chromium } from "./chart-runtime/node_modules/playwright/index.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -276,7 +277,7 @@ async function prepareWindow(page, context) {
 
 async function main() {
   const args = parseArgs(process.argv);
-  const debuggerAddress = args["debugger-address"] || "127.0.0.1:9223";
+  const debuggerAddress = args["debugger-address"] || getDebuggerAddress();
   const timeoutMs = Number(args["timeout-ms"] || DEFAULT_TIMEOUT_MS);
   const site = String(args.site || "US").toUpperCase();
   const marketplace = MARKETPLACES[site];

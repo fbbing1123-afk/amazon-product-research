@@ -1,3 +1,4 @@
+import { getDebuggerAddress } from "../shared/browser_runtime.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -11,7 +12,7 @@ const ASIN_PATTERN = /^[A-Z0-9]{10}$/;
 
 function parseArgs(argv) {
   const args = {
-    debuggerAddress: "127.0.0.1:9223",
+    debuggerAddress: getDebuggerAddress(),
     outputDir: path.resolve("outputs", "competitor_product_cards"),
     viewportWidth: 380,
     viewportHeight: 1100,

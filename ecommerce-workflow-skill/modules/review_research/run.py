@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shared.browser_runtime import get_debugger_address
 from shared.subprocess_runner import (
     DEFAULT_COMMAND_TIMEOUT_SECONDS,
     DEFAULT_INACTIVITY_TIMEOUT_SECONDS,
@@ -35,7 +36,7 @@ def run_review_research(
     python_exe: str,
     site: str = "US",
     amazon_postal_code: str | None = None,
-    debugger_address: str = "127.0.0.1:9223",
+    debugger_address: str = get_debugger_address(),
     asins: list[str] | None = None,
     asin_limit: int | None = None,
     max_pages: int = 10,

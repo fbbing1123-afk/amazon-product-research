@@ -23,6 +23,9 @@ SCHEMA = "competitor-basic-facts.v1"
 MISSING = {"", "/", "-", "--", "n/a", "none", "null", "暂无", "无数据"}
 
 
+sys.path.insert(0, str((Path(__file__).resolve().parent / "..").resolve()))
+from shared.browser_runtime import get_cdp_url
+
 def normalize_selling_points(value) -> str | None:
     """保留原始卖点内容，只清理空项和重复条目，不强行凑足或截断五条。"""
     if value is None or isinstance(value, (bool, int, float)):
@@ -312,7 +315,7 @@ def main():
     parser.add_argument("--workbook", type=Path, required=True)
     parser.add_argument("--source-sheet")
     parser.add_argument("--output", type=Path, required=True, help="取数结果 JSON，不修改 Excel")
-    parser.add_argument("--cdp", default="http://127.0.0.1:9223")
+    parser.add_argument("--cdp", default=get_cdp_url())
     parser.add_argument("--timeout", type=float, default=25)
     parser.add_argument("--source-only", action="store_true", help="仅检查 Excel，不打开网页")
     parser.add_argument("--fields", nargs="+", choices=list(AVAILABLE_FIELDS), default=list(ALL_FIELDS),
