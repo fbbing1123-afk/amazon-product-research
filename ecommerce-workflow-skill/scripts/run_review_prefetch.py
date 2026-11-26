@@ -25,6 +25,7 @@ from product_research.scripts.refresh_sellersprite_category_images import refres
 from review_research.download_sellersprite_reviews import asin_from_input, now_iso, write_json
 from review_research.prefetch_sellersprite_reviews import DownloadRouter, prefetch_one
 from shared.browser_runtime import get_cdp_url
+from shared.amazon_access import AmazonAccessRequired, pending_amazon_access_page
 from shared.quality_gates import validate_category_research, validate_zip_package
 
 
@@ -81,13 +82,16 @@ async def execute(args):
         write_json(directory/'manifest.json', manifest)
     checkpoint()
     ui_lock, ready, blocked = asyncio.Lock(), asyncio.Event(), asyncio.Event()
-    launch_limit = args.max_downloads or len(asins)
+    launch_limit = args.max_downloads or 2
+    manifest['max_downloads'] = launch_limit
     slots = asyncio.Semaphore(launch_limit)
-    prepared, products = asyncio.Event(), {}
+    prepared, initial_prepared, products = asyncio.Event(), asyncio.Event(), {}
     def on_prepared(asin, facts):
         products[asin] = facts
         write_json(directory/'basic-facts.json', {'products':list(products.values())})
         log('product_prepared', asin=asin, status=facts.get('status'))
+        if len(products) >= min(launch_limit, len(asins)):
+            initial_prepared.set()
         if len(products)==len(asins):
             prepared.set()
     async def collect_facts(page, asin):
@@ -108,21 +112,12 @@ async def execute(args):
             browser = await runtime.chromium.connect_over_cdp(args.cdp, timeout=20000)
             context = browser.contexts[0]
             async with DownloadRouter(browser, directory/'downloads', log) as router:
-                async def open_product(asin):
-                    page = await context.new_page()
-                    try:
-                        await page.goto(f'https://www.amazon.com/dp/{asin}',wait_until='domcontentloaded',timeout=45000)
-                        log('product_opened',asin=asin)
-                    except Exception as error:
-                        log('product_open_failed',asin=asin,error=str(error))
-                    return page
-                # 先打开本批全部竞品页；每页依次启动导出，导出请求在后台同时进行。
-                pages = dict(zip(asins,await asyncio.gather(*(open_product(asin) for asin in asins))))
                 async def review_job(asin):
+                    # 开页和导出共用槽位；已有商品保存完成后才补下一个。
                     async with slots:
                         result = await prefetch_one(context, router, asin, directory, ui_lock, ready, blocked,
                                                     log, args.download_timeout, args.postal_code,
-                                                    page=pages[asin], collect_facts=collect_facts, on_prepared=on_prepared)
+                                                    collect_facts=collect_facts, on_prepared=on_prepared)
                         manifest['reviews'][asin] = result
                         checkpoint()
                 async def reviews():
@@ -132,8 +127,10 @@ async def execute(args):
                         # 首个启动失败也不能令本地工作无限等待。
                         ready.set()
                         prepared.set()
+                        initial_prepared.set()
                 async def metrics():
-                    await prepared.wait()
+                    # 首个导出启动即可计算本地指标；竞品回填等待本批证据齐备。
+                    await ready.wait()
                     market_input = args.workbook
                     if not args.skip_metrics:
                         log('metrics_started')
@@ -142,6 +139,7 @@ async def execute(args):
                         market_input = Path(result['output'])
                         log('metrics_finished', sample_count=result['sample_count'])
                         checkpoint()
+                    await prepared.wait()
                     # 同一写入流程先整体指标再竞品数值，原中文卖点和对比不被原文覆盖。
                     valid = {asin:fact for asin,fact in products.items() if all(fact.get('fields',{}).get(k,{}).get('value') is not None
                              for k in ('monthly_sales','price','listed_at'))}
@@ -159,10 +157,16 @@ async def execute(args):
                         log('product_images_written',asins=list(assets))
                         checkpoint()
                 async def screenshots():
-                    await prepared.wait()
+                    await initial_prepared.wait()
                     for item in categories:
                         async with ui_lock:
                             if blocked.is_set():
+                                break
+                            pending_page = pending_amazon_access_page(context)
+                            if pending_page is not None:
+                                blocked.set()
+                                await pending_page.bring_to_front()
+                                log('amazon_access_paused', url=pending_page.url)
                                 break
                             log('category_started', row=item['row'], url=item['url'])
                             page = next((p for p in context.pages if p.url == item['url']), None)
@@ -177,7 +181,7 @@ async def execute(args):
                                 log('category_finished', row=item['row'])
                             except Exception as error:
                                 result = {'status': 'failed', 'error': str(error), 'row': item['row']}
-                                if any(part in page.url for part in ('/checkpoint/', '/ap/signin', 'validateCaptcha')) or '未登录' in str(error):
+                                if isinstance(error, AmazonAccessRequired) or any(part in page.url for part in ('/checkpoint/', '/ap/signin', 'validateCaptcha')) or '未登录' in str(error):
                                     blocked.set()
                                     keep_page = True
                                     result['status'] = 'needs_user_action'
@@ -213,6 +217,9 @@ async def execute(args):
             manifest['errors'].append(str(error))
     reviews_ok = len(manifest['reviews']) == len(asins) and all(
         r['status'] in ('downloaded', 'incomplete_translation') for r in manifest['reviews'].values())
+    manifest['access_paused'] = blocked.is_set()
+    manifest['remaining_asins'] = [asin for asin in asins if manifest['reviews'].get(asin, {}).get('status')
+                                   not in ('downloaded', 'incomplete_translation')]
     manifest['overlap_evidence'] = overlap_evidence(events)
     manifest['products'] = products
     facts_ok = len(products)==len(asins) and all(p.get('status')=='complete' for p in products.values())
@@ -236,7 +243,7 @@ def main():
     parser.add_argument('--category-limit', type=int)
     parser.add_argument('--skip-categories', action='store_true', help='定点恢复时复用已完成的类目截图')
     parser.add_argument('--skip-metrics', action='store_true', help='定点恢复时复用已完成的整体指标')
-    parser.add_argument('--max-downloads', type=int, help='默认全部竞品同时导出；可显式限制并发数量')
+    parser.add_argument('--max-downloads', type=int, default=2, help='同时开页及导出的商品上限，默认2；完成后再补下一个')
     parser.add_argument('--download-timeout', type=float, default=600, help='每商品总等待上限；连续180秒无新进度提前退出')
     parser.add_argument('--postal-code', default='10001')
     parser.add_argument('--cdp', default=get_cdp_url())

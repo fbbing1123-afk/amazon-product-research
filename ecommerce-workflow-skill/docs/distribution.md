@@ -5,7 +5,7 @@
 维护者在仓库根目录先提交本次已核对改动，再运行：
 
 ```powershell
-python tools/build_test_package.py --version 20261126-test1 --output-dir 本地分发目录
+python tools/build_test_package.py --version 20261126-test2 --output-dir 本地分发目录
 ```
 
 入口需要Git，只用于维护者打包；同事解压使用不需要Git。只读取已提交源码，不删除或搬动开发机的依赖、缓存、浏览器状态。输出独立ZIP、SHA256文件及包内 `PACKAGE-MANIFEST.json`，记录源提交和所有文件指纹。

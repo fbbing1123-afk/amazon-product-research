@@ -29,6 +29,9 @@ CAPTURE_WIDTH = 1600
 
 sys.path.insert(0, str((Path(__file__).resolve().parent / "../..").resolve()))
 from shared.browser_runtime import get_cdp_url
+from shared.amazon_access import (
+    AmazonAccessRequired, amazon_challenge_visible_async, is_amazon_access_url, pending_amazon_access_page,
+)
 
 def read_sales(text):
     match = re.search(r'(?:^|\n)月销量\s*\n\s*([\d,]+)(?:\n|$)', text)
@@ -47,6 +50,10 @@ def screenshot_clip(box, scroll, metrics):
 
 
 async def capture(page, url, image, postal_code, on_capture=None):
+    pending = pending_amazon_access_page(page.context)
+    if pending is not None:
+        await pending.bring_to_front()
+        raise AmazonAccessRequired('已有Amazon验证或登录页待处理，暂停类目访问')
     original_viewport = page.viewport_size
     session = await page.context.new_cdp_session(page)
     target, original_style = None, None
@@ -57,8 +64,8 @@ async def capture(page, url, image, postal_code, on_capture=None):
         await page.set_viewport_size({'width': 2100, 'height': 1400})
         if page.url != url:
             await page.goto(url, wait_until='domcontentloaded', timeout=45000)
-        if any(part in page.url for part in ('/checkpoint/', '/ap/signin', 'validateCaptcha')):
-            raise RuntimeError('Amazon需要人工验证或登录，页面已保留')
+        if await amazon_challenge_visible_async(page):
+            raise AmazonAccessRequired('Amazon需要人工验证或登录，页面已保留')
         location = await page.locator('#glow-ingress-line2').inner_text(timeout=5000)
         if postal_code not in location:
             raise RuntimeError(f'配送邮编不符：{location}')
@@ -76,6 +83,8 @@ async def capture(page, url, image, postal_code, on_capture=None):
         await page.wait_for_timeout(20000)
         refreshed, deadline = False, time.monotonic() + 120
         while True:
+            if await amazon_challenge_visible_async(page):
+                raise AmazonAccessRequired('类目加载期间出现Amazon验证，页面已保留')
             text = await panel.inner_text(timeout=5000)
             if '需要登录' in text:
                 raise RuntimeError('卖家精灵插件未登录')
@@ -182,6 +191,7 @@ async def run(args):
             context = browser.contexts[0]
             for item in items:
                 url, started = item['url'], time.monotonic()
+                page = None
                 print(f"[类目] 开始 {item['label']}，第{item['row']}行", flush=True)
                 try:
                     prior = results.get(url,{})
@@ -203,6 +213,8 @@ async def run(args):
                 except Exception as error:
                     failed = True
                     result = {'status':'failed','error':str(error)}
+                    if isinstance(error, AmazonAccessRequired) or (page is not None and is_amazon_access_url(page.url)):
+                        result['status'] = 'needs_user_action'
                     print(f"[类目] 失败：{type(error).__name__}: {error}",flush=True)
                 result.update({'row':item['row'],'label':item['label'],'elapsed_seconds':round(time.monotonic()-started,1)})
                 results[url] = result
@@ -215,6 +227,8 @@ async def run(args):
                     wb.close()
                     wb = load_workbook(args.output,rich_text=True)
                     ws = next(ws for ws in wb if ws.title.endswith('市场调研'))
+                if result['status'] == 'needs_user_action':
+                    break
     finally:
         wb.close()
     return int(failed)

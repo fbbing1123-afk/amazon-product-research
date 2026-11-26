@@ -19,6 +19,7 @@ if str(WORKFLOW_MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(WORKFLOW_MODULES_DIR))
 
 from shared.browser_runtime import get_browser_port
+from shared.amazon_access import amazon_challenge_visible, is_amazon_access_url, pending_amazon_access_page
 from shared.marketplaces import (
     amazon_domains,
     ensure_amazon_postal_code,
@@ -1718,7 +1719,19 @@ def check_amazon_login_state(amazon_page) -> dict[str, Any]:
         return {"status": "failed", "error": str(exc)}
 
 
+def require_amazon_access(amazon_page) -> None:
+    """验证出现后停止导航，不以登录探测覆盖人工验证页面。"""
+    if amazon_challenge_visible(amazon_page):
+        amazon_page.bring_to_front()
+        raise ManualActionRequired(
+            "Amazon需要登录或人工验证，页面已保留；完成后仅继续未完成项。",
+            reason="login" if "/ap/signin" in amazon_page.url else "captcha",
+            stage="amazon-access",
+        )
+
+
 def require_amazon_login(amazon_page, site: str = "US") -> dict[str, Any]:
+    require_amazon_access(amazon_page)
     marketplace = get_marketplace(site)
     state = check_amazon_login_state(amazon_page)
     if state.get("status") == "logged-in":
@@ -1729,7 +1742,10 @@ def require_amazon_login(amazon_page, site: str = "US") -> dict[str, Any]:
         for probe_url in (marketplace.amazon_account_url, marketplace.amazon_base_url + "/"):
             try:
                 amazon_page.goto(probe_url, wait_until="domcontentloaded", timeout=45000)
+                require_amazon_access(amazon_page)
                 amazon_page.wait_for_timeout(2500)
+            except ManualActionRequired:
+                raise
             except Exception:
                 continue
             probe_state = check_amazon_login_state(amazon_page)
@@ -1737,7 +1753,10 @@ def require_amazon_login(amazon_page, site: str = "US") -> dict[str, Any]:
                 if original_url and url_belongs_to_amazon(original_url, (marketplace.amazon_domain,)) and original_url != amazon_page.url:
                     try:
                         amazon_page.goto(original_url, wait_until="domcontentloaded", timeout=45000)
+                        require_amazon_access(amazon_page)
                         amazon_page.wait_for_timeout(1500)
+                    except ManualActionRequired:
+                        raise
                     except Exception:
                         pass
                 probe_state["validatedVia"] = probe_url
@@ -1762,19 +1781,28 @@ def extract_amazon_result(
     amazon_postal_code: str | None = None,
 ) -> dict[str, Any]:
     amazon_page = None
+    keep_page = False
     marketplace = get_marketplace(site)
     delivery_zip = str(amazon_postal_code or marketplace.postal_code or DEFAULT_AMAZON_DELIVERY_ZIP)
     try:
+        pending_page = pending_amazon_access_page(page.context)
+        if pending_page is not None:
+            require_amazon_access(pending_page)
         amazon_page = page.context.new_page()
         url = marketplace.amazon_search_url(keyword)
         amazon_page.goto(url, wait_until="domcontentloaded", timeout=45000)
         login_state = require_amazon_login(amazon_page, marketplace.code)
         zip_result = ensure_amazon_postal_code(amazon_page, delivery_zip)
+        require_amazon_access(amazon_page)
         if zip_result.get("status") in {"success", "already-set"}:
-            amazon_page.goto(url, wait_until="domcontentloaded", timeout=45000)
-            require_amazon_login(amazon_page, marketplace.code)
-            if not (amazon_page.url or "").startswith(url):
+            # 邮编已正确且仍是同一搜索页时直接读取；只在改邮编或离开目标页后重取一次。
+            current = urllib.parse.urlparse(amazon_page.url)
+            same_search = (url_belongs_to_amazon(amazon_page.url, (marketplace.amazon_domain,))
+                           and current.path.rstrip('/') == '/s'
+                           and urllib.parse.parse_qs(current.query).get('k') == [keyword])
+            if zip_result.get("status") == "success" or not same_search:
                 amazon_page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                require_amazon_login(amazon_page, marketplace.code)
         else:
             return {
                 "amazonResultStatus": "failed",
@@ -1789,6 +1817,7 @@ def extract_amazon_result(
                 "amazonLoginStatus": login_state.get("status"),
             }
         amazon_page.wait_for_timeout(6000)
+        require_amazon_access(amazon_page)
         body_text = amazon_page.evaluate("() => document.body ? document.body.innerText || '' : ''")
         parsed = extract_count_from_amazon_text(str(body_text))
         fields = {
@@ -1816,20 +1845,25 @@ def extract_amazon_result(
             fields["amazonResultDebugText"] = amazon_debug_excerpt(str(body_text))
         return fields
     except ManualActionRequired:
+        keep_page = True
         raise
     except Exception as exc:
+        if amazon_page is not None and is_amazon_access_url(amazon_page.url):
+            keep_page = True
+            require_amazon_access(amazon_page)
         return {"amazonResultStatus": "failed", "amazonResultError": str(exc), "amazonResultSource": "direct-url"}
     finally:
-        if amazon_page is not None:
+        if amazon_page is not None and not keep_page and not is_amazon_access_url(amazon_page.url):
             try:
                 amazon_page.close(run_before_unload=False)
             except Exception:
                 pass
-        try:
-            page.bring_to_front()
-        except Exception:
-            pass
-        sleep(page, 700)
+        if not keep_page:
+            try:
+                page.bring_to_front()
+            except Exception:
+                pass
+            sleep(page, 700)
 
 
 def collect_trend_result(page) -> dict[str, Any]:
@@ -2013,9 +2047,9 @@ def retry_failed_amazon_results(
                     item.update(result)
                     print("FAIL")
         finally:
+            # 后面的关键词触发验证时，已补成功的结果也必须落盘。
+            if attempted:
+                payload["results"] = results
+                data_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
             disconnect_browser(browser)
-
-    if attempted:
-        payload["results"] = results
-        data_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return fixed

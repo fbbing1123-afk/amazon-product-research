@@ -5,7 +5,7 @@ import asyncio
 from pathlib import Path
 import re
 import time
-from urllib.parse import urlparse
+from shared.amazon_access import amazon_challenge_visible_async, is_amazon_access_url, pending_amazon_access_page
 
 from review_research.download_sellersprite_reviews import (
     NamedDownload, NeedsUserAction, PANEL, asin_from_input, export_status, now_iso, read_export, write_json,
@@ -78,7 +78,7 @@ class DownloadRouter:
 
 async def check_product(page, asin, postal_code):
     """只读核验目标、邮编和插件；真人验证交还用户，不代勾。"""
-    if any(part in urlparse(page.url).path for part in ('/checkpoint/', '/ap/signin', 'validateCaptcha')):
+    if await amazon_challenge_visible_async(page):
         await page.bring_to_front()
         raise NeedsUserAction('请完成当前商品页的Amazon登录或真人验证后定点重试')
     if asin_from_input(page.url) != asin:
@@ -118,9 +118,14 @@ async def prefetch_one(context, router, asin, run_dir, ui_lock, started_event, b
         async with ui_lock:
             if blocked_event.is_set():
                 return {'asin': asin, 'status': 'not_attempted'}
+            pending_page = pending_amazon_access_page(context)
+            if pending_page is not None:
+                await pending_page.bring_to_front()
+                raise NeedsUserAction('已有Amazon验证或登录页待处理，暂停打开其它商品')
             if page is None:
                 page = await context.new_page()
                 await page.goto(f'https://www.amazon.com/dp/{asin}', wait_until='domcontentloaded', timeout=45000)
+                log('product_opened', asin=asin)
             # 插件首次注入需要前台页，启动完成后才允许转为后台下载。
             await page.bring_to_front()
             panel = await check_product(page, asin, postal_code)
@@ -154,6 +159,9 @@ async def prefetch_one(context, router, asin, run_dir, ui_lock, started_event, b
         deadline, last_progress, last_heartbeat = began + timeout, '', began
         last_activity = began
         while tracker.state != 'completed':
+            if is_amazon_access_url(page.url):
+                await page.bring_to_front()
+                raise NeedsUserAction('下载期间出现Amazon验证，保留页面和已启动导出，暂停新访问')
             if tracker.error:
                 raise ValueError(tracker.error)
             if tracker.state == 'canceled' or page.is_closed():
@@ -185,7 +193,11 @@ async def prefetch_one(context, router, asin, run_dir, ui_lock, started_event, b
         log('review_finished', asin=asin, status=result['status'], count=result['review_count'])
         return result
     except Exception as error:
-        if isinstance(error, NeedsUserAction):
+        # 导航超时或插件等待失败也可能由验证页引起，不能继续开启下一批。
+        if page is not None and not page.is_closed() and is_amazon_access_url(page.url):
+            error = NeedsUserAction('Amazon需要登录或人工验证，当前页面已保留')
+        if isinstance(error, NeedsUserAction) or (tracker is not None and getattr(tracker, 'started', False)
+                                                and tracker.state not in ('completed', 'canceled')):
             blocked_event.set()
         status = 'needs_user_action' if isinstance(error, NeedsUserAction) else 'failed'
         log('review_failed', asin=asin, status=status, error=str(error))
