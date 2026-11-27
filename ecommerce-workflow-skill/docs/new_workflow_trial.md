@@ -10,7 +10,7 @@
 
 关键词使用现有 `scripts/run_workflow.py --steps keyword_research`，明确传站点和邮编；仅复用这一阶段，参数见[运行说明](runtime_operations.md)。按最新周竞价及旺季搜索量排序规则填表。
 
-类目布局依次使用 `modules/product_research/scripts/extract_source_records.py`、`fill_custom_template.py`，缺翻译时只处理缺失JSON并用 `backfill_category_translations.py` 回填。按节点去重，末级单元格绑定BSR，增行带动下方格式和锚点。各命令参数先读 `--help`，不能固定使用样例行号。
+类目布局依次使用 `modules/product_research/scripts/extract_source_records.py`、`fill_custom_template.py`，缺翻译时只处理展示类目的缺失JSON并用 `backfill_category_translations.py` 回填。按节点去重后，用全部有效类目商品算数量占比，只展示占比前10个；不足10个全展示，其余不展示、不截图，不加“其它”汇总行，不裁剪商品源。末级单元格绑定BSR，增行带动下方格式和锚点。各命令参数先读 `--help`，不能固定使用样例行号。旧报告需重新布局后再按新展示行截图，不能只限制截图10张却保留其它类目行。
 
 ## 2. 提前打开竞品，导出期间截图与填数
 
@@ -20,13 +20,15 @@
 
 等待期间完成整体指标、基础字段和类目截图。只让一个客户端管理下载设置，同一工作簿顺序保存；成功商品页关闭，失败/真人验证页保留。已有成功评论文件直接消费，不重复下载。
 
+已知Amazon确认页由[共享模块](amazon_checkpoint.md)在业务原操作锁内尝试处理。确认通过却跳到其它普通页面时，在当前标签重进明确的原目标一次，再核验目标、邮编和插件；仍失败或遇其它验证才暂停。评论导出中途恢复不重复启动导出，已有下载继续监听。
+
 ## 3. 市场调研内容
 
 - 类目：使用 `capture_sellersprite_categories.py`，插件区域出现后等满20秒，每批1–5项，`--start`续跑。原尺寸浮动；已有报告可 `--capture-only` 后用 `refresh_sellersprite_category_images.py` ZIP定点替换。销量和数量占比分行，保持底色和格式。
 - 指标与本地图：`populate_market_summary.py --input 当前检查点 --data-dir 本批目录` 准备统计；`chart-runtime/render_section3_echarts.mjs` 按产生的summary渲染；再传 `--output`、`--chart-dir` 填入12指标和六张品牌/上架时间图。指标按标签定位，整数显示但不舍弃精度，不新增市场分析页。
 - 网页报告：`scripts/build_amazon_collection_link.py --workbook 当前检查点 --output-dir 本批目录` 本地生成集合链接。核验站点后打开，卖家精灵加载更多直到按钮消失，点击市场分析，待生成成功后点击弹窗 `#content-ext-main` 内“立即查看”。见[链接规则](asin_collection_links.md)。
 - 保存报告准确URL、源ASIN数、前台结果数、插件数、报告样本数。报告样本少于前台条数可正常发生，不篡改图中样本数。
-- `capture_sellersprite_report_charts.py --report-url 准确网址 --loaded-count 实际加载数 --output-dir 本批三图目录` 截三图；`insert_sellersprite_screenshots.py` 按当前Review、Rating、价格标签放入，只放图表，结论区留空。
+- `capture_sellersprite_report_charts.py --report-url 准确网址 --loaded-count 实际加载数 --output-dir 本批三图目录` 截三图；`insert_sellersprite_screenshots.py` 按当前Review、Rating、价格标签定位到右侧图框左上角，原尺寸浮动，不缩放、不居中适配。结论区由后续市场分析阶段填写，截图入口仅放图。
 
 ## 4. 竞品基础
 
@@ -46,6 +48,8 @@
 
 ## 6. 验收与交付
 
+先按[市场分析规则](market_narrative.md)运行fill_market_narrative.py prepare，由主智能体阅读本批源表统计和真实图表、核实数字并生成七项正文，再fill回填整体、品牌、上架时间、Review、Rating、价格及底部总结，关键数字、判断和建议局部标红。源表和报告图样本数分开，缺证据明确写出，不留空，不把prepare当完成。文字超长则精简，保持原布局；运行--step market_narrative门禁。
+
 执行[验收规范](delivery_checks.md)。按请求的实际范围核对每项字段、图片、超链接、原格式和来源。输出新文件及完整路径，提供报告URL和本批记录位置；网页、脚本、文件结构、渲染、桌面Excel/WPS验收分别说明。
 
-主报告采用浮动图片，不额外生成嵌入版、独立市场分析页、差评透视或切片器。已验证范围见[使用指南](使用指南.md)；新电脑和新站点必须实际运行后再判断。
+所有采集和填数完成后，先验收并保留浮动检查点，再按[最终图片嵌入](final_image_embedding.md)调用既有`make_wps_embedded_version.py`命令生成单元格图片版。全部图片嵌入，禁止为此调整行高、列宽或合并区域；最终再核对图片数量、原媒体、非图片内容及布局。嵌入后不再用openpyxl整体保存。不新增独立市场分析页、差评透视或切片器。已验证范围见[使用指南](使用指南.md)；新电脑和新站点必须实际运行后再判断。

@@ -30,6 +30,10 @@ REQUIRED = {
     SKILL + "scripts/open_sellersprite_login_browser.ps1", SKILL + "scripts/browser_runtime.ps1",
     SKILL + "modules/shared/browser_runtime.py", SKILL + "modules/shared/browser_runtime.mjs",
     SKILL + "modules/shared/amazon_access.py",
+    SKILL + "modules/shared/amazon_checkpoint.py", SKILL + "docs/amazon_checkpoint.md",
+    SKILL + "modules/shared/cell_image_embedding.py", SKILL + "docs/final_image_embedding.md",
+    SKILL + "scripts/make_wps_embedded_version.py", SKILL + "docs/test_release_20261127.md",
+    SKILL + "modules/product_research/scripts/fill_market_narrative.py", SKILL + "docs/market_narrative.md",
     SKILL + "scripts/build_amazon_collection_link.py", SKILL + "scripts/run_review_prefetch.py",
     SKILL + "modules/product_research/scripts/chart-runtime/vendor/echarts.min.js",
 }

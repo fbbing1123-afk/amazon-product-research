@@ -7,11 +7,11 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 
 ## 当前唯一执行流程
 
-本测试版采用截至2026-11-26本轮确认的最新步骤。用户不必选择版本。先读[使用指南](docs/使用指南.md)、[阶段执行顺序](docs/new_workflow_trial.md)，交付前读[验收规范](docs/delivery_checks.md)。只运行用户要求的范围；已有结果从检查点续跑。
+本测试版采用截至2026-11-27本轮确认的最新步骤。用户不必选择版本。先读[使用指南](docs/使用指南.md)、[阶段执行顺序](docs/new_workflow_trial.md)，交付前读[验收规范](docs/delivery_checks.md)。只运行用户要求的范围；已有结果从检查点续跑。
 
-最新链路为：模板与数据源检查 → 关键词和类目布局 → 提前打开竞品页、同页取数并启动评论导出 → 导出等待期间截图和填数 → 本地集合链接及卖家精灵市场报告 → 本批评价分析 → 合并评价数据源 → 验收。
+最新链路为：模板与数据源检查 → 关键词和类目布局 → 提前打开竞品页、同页取数并启动评论导出 → 导出等待期间截图和填数 → 本地集合链接及卖家精灵市场报告 → 本批评价分析 → 合并评价数据源 → 市场分析及总结回填 → 浮动检查点验收 → 全图嵌入单元格 → 最终验收。
 
-这是AI串联已实现脚本的流程。`scripts/run_workflow.py` 只可用明确的 `--steps keyword_research` 复用关键词阶段，不能不带步骤参数执行，也不能用它的旧类目、市场、评论阶段代替本流程。不执行独立市场分析页、Sorftime采集、旧差评缓存、旧竞品总后处理、差评透视、切片器或图片嵌入。
+这是AI串联已实现脚本的流程。`scripts/run_workflow.py` 只可用明确的 `--steps keyword_research` 复用关键词阶段，不能不带步骤参数执行，也不能用它的旧类目、市场、评论阶段代替本流程。不执行独立市场分析页、Sorftime采集、旧差评缓存、旧竞品总后处理、差评透视或切片器；全部填数结束后执行最终图片嵌入。
 
 ## 自动执行约定
 
@@ -29,7 +29,7 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 2. 先检查本项目环境、`.workflow-state/runtime.json` 记录、当前激活环境和用户指定的已有环境；可用则复用。运行 `scripts/setup_first_run.ps1` 会跳过可用Python/Node依赖，缺项才安装到项目内。可传 `-Python`、`-NodeModules` 复用其它目录，不修改外部环境。准备后读取记录的Python路径，并将 `CODEX_NODE_MODULES` 设为记录的依赖目录。推荐Python 3.12、Node.js 22/24、Windows和Chrome。
 3. 使用 `scripts/open_sellersprite_login_browser.ps1 -Site US` 打开项目专用浏览器。优先复用同配置的现有浏览器；新启动优先9223，占用时自动尝试9224–9243，仍占用则由系统分配空闲端口。成功后将实际端口、CDP地址和配置目录保存到 `.workflow-state/sellersprite/browser-config.json`，后续脚本默认读取该记录，不能继续硬传9223。同机迁移优先复用本机记录的 `-ProfileDir`，不误开空白配置。
 4. 在这个浏览器内安装并登录**卖家精灵插件**，同时核验卖家精灵网页和Amazon登录、站点及配送邮编。网页和插件登录分开核验；插件可用“同步网页端账号”恢复既有登录。脚本通过Playwright连接，不要求安装Codex浏览器操作扩展。
-5. 环境检查不等于账号、模板和真实业务已验收。需要登录或真人验证时保留页面，让用户完成后继续；不索要密码、Cookie或验证码。
+5. 环境检查不等于账号、模板和真实业务已验收。已知确认页由[共享处理模块](docs/amazon_checkpoint.md)尝试恢复；失败、登录或其它验证保留页面及进度。不索要密码、Cookie或验证码。
 
 未提供工作簿时先准备环境；用户已提供已填工作簿并要求分析时，环境就绪后自动继续。需要AI具备本地读写、执行Python/PowerShell/Node及Playwright能力；差评还需要实际子智能体能力。
 
@@ -46,6 +46,7 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 | 当前任务 | 读取的说明与入口 |
 | --- | --- |
 | 阶段衔接、监控和续跑 | [执行顺序](docs/new_workflow_trial.md)、[运行说明](docs/runtime_operations.md) |
+| Amazon已知确认页 | [确认页接入](docs/amazon_checkpoint.md)；同步/异步业务内处理，恢复后核验原目标 |
 | 关键词趋势和竞价 | [趋势规则](docs/keyword_trend_seasonality_rules.md)；`run_workflow.py --steps keyword_research` |
 | 类目布局、数量占比和截图 | [类目规则](docs/market_research_category_section_rules.md)；`fill_custom_template.py`、`capture_sellersprite_categories.py` |
 | 整体指标和六张本地图 | `modules/product_research/scripts/populate_market_summary.py`、`chart-runtime/render_section3_echarts.mjs` |
@@ -54,12 +55,14 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 | 产品主图和市场调研首图 | [高清主图](docs/product_images.md)；`collect_product_images.py`、`refresh_product_images.py`、`market_cover.py` |
 | 评论下载、筛样与分析 | [评论下载](docs/sellersprite_review_download.md)、[评价分析](docs/sellersprite_review_analysis.md) |
 | 竞品整表衔接 | [竞品流程](modules/competitor_analysis/workflow.md)；`populate_basics.py`、`fill_review_batch.py` |
+| 最终全图嵌入 | [嵌入规则](docs/final_image_embedding.md)；`scripts/make_wps_embedded_version.py`，不调整行高列宽 |
+| 市场调研七处文字分析 | [分析规则](docs/market_narrative.md)；`fill_market_narrative.py prepare`后AI实际分析并`fill`回填，不留空 |
 
 - 表头“旺季竞价”取卖家精灵最新周PPC最大值序列，记录实际周区间，不称实时竞价。关键词按旺季月搜索量降序，整行图片、链接和样式一起移动。
-- 类目末级名称绑定BSR链接。月总销量下用真实换行显示“数量占比：xx.x%”，保留蓝色/粉色。截图只用卖家精灵插件，面板出现后等满20秒；单批最多5个类目，按检查点续跑。
-- 整体销售12指标在市场调研页：数值显示整数，销量占比显示整数百分比，保留底层精度；品牌/上架时间六图＋报告三图，共九图。结论空白区不填。
+- 类目按数量占比降序只展示前10个，不足10个全部展示，其余不展示、不截图、不增加“其它”汇总行。占比分母仍是全部有效类目商品，源表不裁剪。末级名称绑定BSR链接。月总销量下用真实换行显示“数量占比：xx.x%”，保留蓝色/粉色。截图只用卖家精灵插件，面板出现后等满20秒；单批最多5个类目，按检查点续跑。
+- 整体销售12指标在市场调研页：数值显示整数，销量占比显示整数百分比，保留底层精度；品牌/上架时间六图＋报告三图，共九图。默认按[市场分析规则](docs/market_narrative.md)完成整体、品牌、上架时间、Review、Rating、价格及底部总结七处文字，不再留空。源表与网页报告样本口径分开，数据不足明确说明；关键数字、主要判断和选品建议局部标红，不整段标红，保持原字体、字号、行高列宽、合并及图片。
 - 集合链接直接读取本批商品源ASIN，保序去重、不按销量筛除、不截断200条。打开链接后加载更多至按钮消失，生成市场报告；源ASIN数、前台结果数、插件加载数、报告有效样本数分别记录。
-- 类目截图和产品高清主图按原像素尺寸浮动放置，允许暂时遮挡相邻格，留给用户手动缩放。主图优先从对应商品详情页下载原文件；数据源无该ASIN也可获取。市场调研A1复用第一款竞品同图。
+- 中间阶段的类目截图、产品高清主图及Review/Rating/价格三张报告截图按原像素尺寸浮动放置，只定位，不自动调整大小。报告截图定位到标签右侧图框左上角，六张本地图沿用原图框规则。所有填数结束后自动将全部浮动图片嵌入单元格，行高、列宽和合并区域保持不变，不留给用户手动完成最终嵌入。主图优先网页原文件，市场调研A1复用第一款竞品同图。
 - 卖点及基础数据优先用商品源，缺失到当前详情页补取。对比维度最多5个，参考Alexa推荐问题选择维度，但问题本身不是功能证据。未知写“页面未明确说明是否……”，不写成不支持。可比较规格数值局部红色加粗。
 - 前方模块增行时，下方单元格、合并区域、样式、行高和图片锚点同步移动。每次按当前标签重新定位，不写死行号。
 
@@ -76,8 +79,10 @@ description: 使用本地 Python、Playwright 和卖家精灵插件，把亚马�
 
 ## 监控、验收与分发
 
-持续监控命令到结束，约30秒报告实际阶段进展；连续60秒无进展即诊断，失败定点续跑。单次CDP连接最多20秒，最多恢复同一配置重连一次。只断开Playwright连接，不关闭用户浏览器。真人验证由用户手动处理。
+持续监控命令到结束，约30秒报告实际阶段进展；连续60秒无进展即诊断，失败定点续跑。单次CDP连接最多20秒，最多恢复同一配置重连一次。只断开Playwright连接，不关闭用户浏览器。已知确认页每页最多15秒、两次提交；确认通过却跳到其它普通页面时，在原标签重进明确的原目标一次，再核验目标、邮编及插件。重进后仍失败或遇其它验证保留现场，不循环重开，不重复启动评论导出。
 
 按[验收规范](docs/delivery_checks.md)及实际修改范围完成门禁、源指纹、格式、图像像素和代表区域渲染核验。脚本退出、完成下载或生成JSON，都不等于整份报告完成；未验证的新电脑/新站点不报告已验证。
+
+所有修改完成后按[最终嵌入规则](docs/final_image_embedding.md)调用既有转换命令，交付单元格图片版。逐项核对图片数量、原媒体及行高/列宽/合并不变；嵌入后不得再整体重存成品。
 
 分发方式见[打包说明](docs/distribution.md)。只从确认的源码版本生成独立ZIP，不删除本机浏览器配置、缓存或依赖来打包。真实业务Excel、登录状态和旧评价语义缓存不随测试包发送。未获得本次明确授权不推送GitHub。

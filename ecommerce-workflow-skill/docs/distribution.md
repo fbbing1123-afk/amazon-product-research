@@ -1,11 +1,11 @@
 # 同事测试包分发
 
-当前包只提供最新流程与填写指引，模板为用户确认的 `assets/产品调研模板.xlsx`。模板数据源为空，市场调研A3和竞品分析A1保留示例ASIN，用户使用时替换。原始模板按字节复制，不重存Excel。
+当前同事测试版20261127-test1，改动及测试步骤见[test_release_20261127.md](test_release_20261127.md)。本包只提供最新流程与填写指引，模板为用户确认的 `assets/产品调研模板.xlsx`。模板数据源为空，市场调研A3和竞品分析A1保留示例ASIN，用户使用时替换。原始模板按字节复制，不重存Excel。
 
 维护者在仓库根目录先提交本次已核对改动，再运行：
 
 ```powershell
-python tools/build_test_package.py --version 20261126-test2 --output-dir 本地分发目录
+python tools/build_test_package.py --version 20261127-test1 --output-dir 本地分发目录
 ```
 
 入口需要Git，只用于维护者打包；同事解压使用不需要Git。只读取已提交源码，不删除或搬动开发机的依赖、缓存、浏览器状态。输出独立ZIP、SHA256文件及包内 `PACKAGE-MANIFEST.json`，记录源提交和所有文件指纹。
