@@ -834,6 +834,32 @@ def validate_zip_package(path: Path) -> GateReport:
     return GateReport("zip_package", path)
 
 
+def validate_market_narrative(path: Path) -> GateReport:
+    """当前报告七处市场分析必须有实际正文，缺证据的原因也须明确填写。"""
+    from product_research.scripts.fill_market_narrative import market_sheet, locate_narrative_regions
+    book = load_workbook(path, rich_text=True)
+    try:
+        sheet = market_sheet(book)
+        regions = locate_narrative_regions(sheet)
+        failures = []
+        for key, area in regions.items():
+            cell = sheet.cell(area.min_row, area.min_col)
+            value = str(cell.value or '').strip()
+            if not value or cell.data_type == 'f' or re.search(r'待填写|待分析|TODO|占位文字', value, re.I):
+                failures.append(f'{key}市场分析未完成：{area}')
+            elif not rich_text_red_text(cell.value):
+                failures.append(f'{key}市场分析缺少重点标红：{area}')
+        if failures:
+            raise QualityGateError('market_narrative', failures)
+        return GateReport('market_narrative', path, {'sections': len(regions)})
+    except ValueError as error:
+        if isinstance(error, QualityGateError):
+            raise
+        raise QualityGateError('market_narrative', [str(error)]) from error
+    finally:
+        book.close()
+
+
 def validate_final_package(
     path: Path,
     *,
@@ -844,6 +870,7 @@ def validate_final_package(
     reports.append(validate_keyword_research(path))
     reports.append(validate_category_research(path))
     reports.append(validate_overview_charts(path))
+    reports.append(validate_market_narrative(path))
     # 当前流程的九图位于市场调研页，独立市场分析页仅由历史阶段入口检查。
     reports.append(
         validate_competitor_basics(
@@ -857,6 +884,8 @@ def validate_final_package(
 
 
 def run_step_gate(step: str, path: Path) -> GateReport:
+    if step == 'market_narrative':
+        return validate_market_narrative(path)
     if step in {"keyword_research", "keyword_backfill", "keyword_trends"}:
         return validate_keyword_research(path)
     if step in {"category_research", "product_research"}:
@@ -883,6 +912,7 @@ def main() -> int:
             "keyword_research",
             "category_research",
             "market_analysis",
+            "market_narrative",
             "review_research",
             "competitor_basics",
             "competitor_review_analysis",

@@ -37,6 +37,7 @@ class QualityGateTests(unittest.TestCase):
             book.save(path)
             with patch('shared.quality_gates.validate_keyword_research'), \
                  patch('shared.quality_gates.validate_overview_charts'), \
+                 patch('shared.quality_gates.validate_market_narrative'), \
                  patch('shared.quality_gates.validate_competitor_basics'):
                 self.assertTrue(validate_final_package(path))
                 sheet._images.clear()
