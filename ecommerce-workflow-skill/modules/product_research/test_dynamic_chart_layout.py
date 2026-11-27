@@ -162,18 +162,21 @@ class DynamicChartLayoutTests(unittest.TestCase):
             self.insert(source, "absent.xlsx")
         self.assertFalse((self.root / "absent.xlsx").exists())
 
-    def test_fits_short_row_without_changing_height_or_aspect(self):
+    def test_original_size_floats_at_region_start_even_for_short_row(self):
         wb = self.fixture()
         wb.active.row_dimensions[21].height = 45
         source = self.save(wb, "short.xlsx")
-        placed, _ = self.insert(source, "fit.xlsx")
+        placed, _ = self.insert(source, "original-size.xlsx")
         wb = load_workbook(placed)
         self.addCleanup(wb.close)
-        image = wb.active._images[0]
-        anchor = image.anchor
         self.assertEqual(45, wb.active.row_dimensions[21].height)
-        self.assertAlmostEqual(4, anchor.ext.cx / anchor.ext.cy, places=4)
-        self.assertLessEqual((anchor._from.rowOff + anchor.ext.cy) / 9525, 60)
+        for row,image in zip((20,21,22),wb.active._images):
+            anchor = image.anchor
+            self.assertIsInstance(anchor,OneCellAnchor)
+            self.assertEqual((1,row,0,0),(anchor._from.col,anchor._from.row,
+                                        anchor._from.colOff,anchor._from.rowOff))
+            self.assertEqual((800*9525,200*9525),(anchor.ext.cx,anchor.ext.cy))
+            self.assertEqual(self.picture.read_bytes(),image._data())
         self.assertIsNone(wb.active["G21"].value)
 
     def test_no_growth_is_noop_and_crossing_merge_expands(self):

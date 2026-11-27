@@ -52,6 +52,7 @@ class ImageEvidence:
     payload_size: tuple[int, int] | None
     display_size: tuple[int, int] | None
     real: bool
+    in_cell: bool = False
 
 
 def text(value: object) -> str:
@@ -137,7 +138,7 @@ def payload_image_info(payload: bytes) -> tuple[tuple[int, int] | None, bool]:
 
 
 def wps_cell_image_data(path: Path) -> dict[str, ImageEvidence]:
-    """读取 WPS cellimages 中的编号、原始像素和显示尺寸。"""
+    """读取WPS图片原像素及声明尺寸；模式1的实际显示尺寸须按目标单元格另算。"""
     if not zipfile.is_zipfile(path):
         return {}
     rel_ns = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -183,6 +184,31 @@ def wps_cell_image_data(path: Path) -> dict[str, ImageEvidence]:
     return result
 
 
+def cell_image_display_size(sheet, cell, payload_size):
+    """DISPIMG模式1在固定单元格内等比显示，不能把原图声明尺寸当作表内显示尺寸。"""
+    if not payload_size:
+        return None
+    area = next((a for a in sheet.merged_cells.ranges if cell.coordinate in a),None)
+    left,right = (area.min_col,area.max_col) if area else (cell.column,cell.column)
+    top,bottom = (area.min_row,area.max_row) if area else (cell.row,cell.row)
+    width,height = 0.0,0.0
+    for column in range(left,right+1):
+        dimension = next((d for d in sheet.column_dimensions.values()
+                          if d.min is not None and d.min <= column <= (d.max or d.min)),None)
+        if dimension and dimension.hidden:
+            continue
+        chars = dimension.width if dimension else (sheet.sheet_format.defaultColWidth or 8.43)
+        width += chars*7+5 if chars >= 1 else chars*12
+    for row in range(top,bottom+1):
+        dimension = sheet.row_dimensions.get(row)
+        if dimension and dimension.hidden:
+            continue
+        points = dimension.height if dimension and dimension.height is not None else (sheet.sheet_format.defaultRowHeight or 15)
+        height += points*96/72
+    scale = min(width/payload_size[0],height/payload_size[1])
+    return round(payload_size[0]*scale),round(payload_size[1]*scale)
+
+
 def sheet_image_evidence(path: Path, workbook, sheet) -> dict[tuple[int, int], ImageEvidence]:
     """合并普通浮动图片和 WPS DISPIMG 单元格图片证据。"""
     result: dict[tuple[int, int], ImageEvidence] = {}
@@ -207,9 +233,12 @@ def sheet_image_evidence(path: Path, workbook, sheet) -> dict[tuple[int, int], I
         for cell in row:
             if not isinstance(cell.value, str):
                 continue
-            match = re.search(r'DISPIMG\("([^"]+)"', cell.value, re.IGNORECASE)
+            match = re.search(r'DISPIMG\("([^"]+)"(?:\s*,\s*(\d+))?', cell.value, re.IGNORECASE)
             if match and match.group(1) in wps_images:
-                result[(cell.row, cell.column)] = wps_images[match.group(1)]
+                image = wps_images[match.group(1)]
+                display = (cell_image_display_size(sheet,cell,image.payload_size)
+                           if match.group(2) == '1' else image.display_size)
+                result[(cell.row, cell.column)] = ImageEvidence(image.payload_size,display,image.real,match.group(2) == '1')
     return result
 
 
@@ -506,7 +535,8 @@ def validate_category_research(
                     f"第 {row} 行类目截图未保留高清原图："
                     f"原图 {payload[0]}px，显示 {display[0]}px"
                 )
-            if display and not original_size and (display[0] > 420 or display[1] > 170):
+            # 单元格图片按用户固定布局显示，不套用历史浮动缩略图尺寸上限。
+            if display and not image.in_cell and not original_size and (display[0] > 420 or display[1] > 170):
                 failures.append(
                     f"第 {row} 行类目截图显示框过大：{display[0]}×{display[1]}"
                 )
@@ -814,7 +844,7 @@ def validate_final_package(
     reports.append(validate_keyword_research(path))
     reports.append(validate_category_research(path))
     reports.append(validate_overview_charts(path))
-    reports.append(validate_market_analysis(path))
+    # 当前流程的九图位于市场调研页，独立市场分析页仅由历史阶段入口检查。
     reports.append(
         validate_competitor_basics(
             path,

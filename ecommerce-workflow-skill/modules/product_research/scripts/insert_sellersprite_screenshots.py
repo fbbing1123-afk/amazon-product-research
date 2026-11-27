@@ -1,4 +1,4 @@
-"""按分析名称放置三张浮动截图，只修改绘图部件，保留原工作簿格式。"""
+"""按分析名称定位三张原尺寸浮动截图，只修改绘图部件，保留原工作簿格式。"""
 
 from __future__ import annotations
 
@@ -106,7 +106,6 @@ def insert_screenshots(source: Path, output: Path, images: dict[str, Path], shee
             raise ValueError("市场调研页不唯一或不存在，请用 --sheet 明确指定")
         ws = candidates[0]
         regions = locate_chart_regions(ws)
-        sizes = {key: region_pixels(ws, area) for key, area in regions.items()}
         selected_sheet = ws.title
     finally:
         wb.close()
@@ -172,10 +171,14 @@ def insert_screenshots(source: Path, output: Path, images: dict[str, Path], shee
         picture_id = max(ids, default=0) + 1
         results = {}
         for key, area in regions.items():
-            with Image.open(images[key]) as image:
+            payload = images[key].read_bytes()
+            with Image.open(io.BytesIO(payload)) as image:
                 iw, ih = image.size
-                data = io.BytesIO()
-                image.convert("RGB").save(data, format="PNG")
+                # PNG保留原始字节；其它格式仅转PNG，不改变像素尺寸。
+                if image.format != 'PNG':
+                    data = io.BytesIO()
+                    image.convert("RGB").save(data, format="PNG")
+                    payload = data.getvalue()
             rid = old_media.get(key)
             existing = next((r for r in elements(drawing_rels, REL, "Relationship")
                              if r.getAttribute("Id") == rid), None)
@@ -189,14 +192,13 @@ def insert_screenshots(source: Path, output: Path, images: dict[str, Path], shee
                 append(drawing_rels.documentElement, REL, "Relationship", {
                     "Id": rid, "Type": OFFICE + "/image",
                     "Target": posixpath.relpath(media_part, posixpath.dirname(drawing_part))})
-            changes[media_part] = data.getvalue()
-            width, height = sizes[key]
-            scale = min((width - 16) / iw, (height - 16) / ih)
-            cx, cy = round(iw * scale * EMU), round(ih * scale * EMU)
+            changes[media_part] = payload
+            # 只定位到标签右侧图框的起点，按原像素1:1浮动，留给用户手动调整。
+            cx, cy = iw * EMU, ih * EMU
             anchor = append(drawing.documentElement, DRAWING, "xdr:oneCellAnchor", {"xmlns:xdr": DRAWING, "xmlns:a": ART, "xmlns:r": OFFICE})
             start = append(anchor, DRAWING, "xdr:from")
-            for name, value in [("col", area.min_col - 1), ("colOff", round((width - iw * scale) / 2 * EMU)),
-                                ("row", area.min_row - 1), ("rowOff", round((height - ih * scale) / 2 * EMU))]:
+            for name, value in [("col", area.min_col - 1), ("colOff", 0),
+                                ("row", area.min_row - 1), ("rowOff", 0)]:
                 append(start, DRAWING, f"xdr:{name}", text=value)
             append(anchor, DRAWING, "xdr:ext", {"cx": cx, "cy": cy})
             pic = append(anchor, DRAWING, "xdr:pic")
