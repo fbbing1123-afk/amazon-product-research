@@ -14,6 +14,7 @@ from urllib.parse import parse_qs, urlparse
 from openpyxl.cell.cell import MergedCell
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Font, PatternFill, Side
+from openpyxl.utils.cell import coordinate_to_tuple
 
 
 MODULES_DIR = Path(__file__).resolve().parents[2]
@@ -40,6 +41,7 @@ CATEGORY_PRIMARY_SHARE_THRESHOLD = 0.5
 CATEGORY_PRIMARY_COLOR = "D9EAF7"
 CATEGORY_TRANSFER_COLOR = "FCE4D6"
 CATEGORY_SHARE_NOTE = "注：数量占比按有效类目样本计算"
+CATEGORY_DISPLAY_LIMIT = 10
 CATEGORY_TRANSLATION_CACHE_PATH = Path(__file__).resolve().parents[3] / "resources" / "category_translations.json"
 AMAZON_BESTSELLER_ROOT_SLUGS = {
     "Home & Kitchen": "home-garden",
@@ -479,6 +481,11 @@ def clone_category_row_format(ws, template_row: int, target_row: int, max_col: i
         copy_cell_format(src, dst)
 
 
+def displayed_category_summaries(ws) -> list[CategorySummary]:
+    """先用全部有效商品计算占比，再按现有数量排序只展示前10个类目。"""
+    return collect_category_summaries(ws)[:CATEGORY_DISPLAY_LIMIT]
+
+
 def ensure_category_rows(ws, data_row_count: int, first_data_row: int, next_section_row: int) -> int:
     existing_rows = max(0, next_section_row - first_data_row)
     if data_row_count > existing_rows:
@@ -492,6 +499,20 @@ def ensure_category_rows(ws, data_row_count: int, first_data_row: int, next_sect
 
 
 def clear_category_area(ws, first_data_row: int, row_count: int, max_col: int) -> None:
+    # 重建布局时移除旧类目截图，避免被排除的类目或原行序的图片继续显示。
+    kept_images = []
+    for image in ws._images:
+        anchor = image.anchor
+        if isinstance(anchor, str):
+            row, column = coordinate_to_tuple(anchor)
+        elif hasattr(anchor, '_from'):
+            row, column = anchor._from.row + 1, anchor._from.col + 1
+        else:
+            kept_images.append(image)
+            continue
+        if not (first_data_row <= row < first_data_row + row_count and 6 <= column <= 8):
+            kept_images.append(image)
+    ws._images = kept_images
     for row in range(first_data_row, first_data_row + row_count):
         for col in range(1, max_col + 1):
             cell = ws.cell(row, col)
@@ -591,7 +612,7 @@ def fill_category_section(template_wb, source_wb) -> None:
 
     research_ws.cell(section_row, 1).value = category_section_title(research_ws.cell(section_row, 1).value)
 
-    summaries = collect_category_summaries(src_ws)
+    summaries = displayed_category_summaries(src_ws)
     first_data_row = header_row + 1
     next_section_row = find_next_section_row(research_ws, first_data_row)
     max_extra_levels = max((max(0, len(item.levels) - CATEGORY_LEVEL_FIXED_COLS) for item in summaries), default=0)
@@ -632,7 +653,7 @@ def write_missing_category_translation_report(source_wb, output_path: Path) -> N
     """Record untranslated category levels for the agent post-processing step."""
     src_ws = find_source_sheet(source_wb) or source_wb.worksheets[0]
     missing: dict[str, set[str]] = {}
-    for summary in collect_category_summaries(src_ws):
+    for summary in displayed_category_summaries(src_ws):
         for index, level in enumerate(summary.levels):
             translation = summary.translated_levels[index] if index < len(summary.translated_levels) else ""
             if not normalize_text(translation):

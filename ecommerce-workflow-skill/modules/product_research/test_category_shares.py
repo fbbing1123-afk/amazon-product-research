@@ -13,16 +13,109 @@ from PIL import Image as PillowImage, ImageDraw
 
 from modules.product_research.scripts.fill_custom_template import (
     apply_category_share_display, collect_category_summaries, fill_category_section,
-    set_category_monthly_sales,
+    set_category_monthly_sales, write_missing_category_translation_report,
 )
 from modules.product_research.scripts.refresh_category_shares import (
     collect_updates, refresh_category_shares,
 )
 from modules.product_research.scripts.capture_sellersprite_categories import screenshot_clip, stable_screenshot
 from modules.product_research.scripts.refresh_sellersprite_category_images import refresh_images
+from modules.product_research.scripts.capture_category_overviews import iter_category_rows
+import json
 
 
 class CategoryShareTests(unittest.TestCase):
+    def ranked_fixture(self, categories):
+        source = Workbook()
+        sheet = source.active
+        sheet.title = '数据源'
+        sheet.append(['类目路径', '大类目', '月销量'])
+        for count in range(1, categories + 1):
+            for _ in range(count):
+                # 小类目1销量最高，检验展示顺序依据商品数量而不是销量。
+                sheet.append([f'Electronics:Category{count}', 'Electronics', 100000 if count == 1 else 1])
+                sheet.cell(sheet.max_row, 1).hyperlink = f'https://www.amazon.com/b?node={count}'
+        sheet.append(['', 'Electronics', 1])
+        report = Workbook()
+        research = report.active
+        research.title = '市场调研'
+        research['A1'] = '2. 所属平台分类及常用分类节点'
+        research['A2'], research['I2'] = '一级类目', '月总销量'
+        for row in range(3, 15):
+            research.cell(row, 1, '旧类目')
+            research.cell(row, 11, '旧末级').hyperlink = 'https://www.amazon.com/b?node=999'
+        research['A15'], research['G16'] = '3. 数据分析概览', '保留下方内容'
+        return report, source
+
+    def test_only_top_ten_are_displayed_and_scheduled_with_full_sample_shares(self):
+        report, source = self.ranked_fixture(12)
+        source_values = list(source.active.values)
+        fill_category_section(report, source)
+        research = report.active
+        self.assertEqual([f'Category{count}' for count in range(12, 2, -1)],
+                         [str(research.cell(row, 2).value).splitlines()[0] for row in range(3, 13)])
+        self.assertEqual('12', list(iter_category_rows(research))[0]['url'].rstrip('/').split('/')[-1])
+        self.assertEqual(10, len(list(iter_category_rows(research))))
+        self.assertTrue(all(research.cell(row, column).value is None
+                            for row in (13, 14) for column in range(1, 12)))
+        self.assertEqual('3. 数据分析概览', research['A15'].value)
+        self.assertEqual('保留下方内容', research['G16'].value)
+        self.assertEqual(source_values, list(source.active.values))
+        self.assertEqual(12, len(collect_category_summaries(source.active)))
+        _, _, _, updates = collect_updates(report, source)
+        self.assertAlmostEqual(12 / 78, updates[0]['share'])
+        self.assertLess(sum(update['share'] for update in updates), 1)
+        self.assertIn('15.4%', research['I3'].value)
+        report.close()
+        source.close()
+
+    def test_ten_or_fewer_categories_are_all_displayed_and_empty_source_has_no_task(self):
+        for categories in (0, 3, 10):
+            with self.subTest(categories=categories):
+                report, source = self.ranked_fixture(categories)
+                fill_category_section(report, source)
+                self.assertEqual(categories, len(list(iter_category_rows(report.active))))
+                report.close()
+                source.close()
+
+    def test_rebuilding_old_layout_removes_category_images_but_preserves_lower_image_and_size(self):
+        report, source = self.ranked_fixture(12)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image_path = root / 'picture.png'
+            with PillowImage.new('RGB', (80, 40), 'blue') as image:
+                image.save(image_path)
+            for row in (3, 14, 16):
+                report.active.add_image(ExcelImage(str(image_path)), f'F{row}')
+            report.active.row_dimensions[14].height = 140
+            report.active.column_dimensions['F'].width = 40
+            original, output = root / 'original.xlsx', root / 'output.xlsx'
+            report.save(original)
+            report.close()
+            report = load_workbook(original)
+            fill_category_section(report, source)
+            report.save(output)
+            report.close()
+            checked = load_workbook(output)
+            self.assertEqual(1, len(checked.active._images))
+            self.assertEqual(15, checked.active._images[0].anchor._from.row)
+            self.assertEqual(140, checked.active.row_dimensions[14].height)
+            self.assertEqual(40, checked.active.column_dimensions['F'].width)
+            checked.close()
+        source.close()
+
+    def test_missing_translations_only_request_displayed_categories(self):
+        report, source = self.ranked_fixture(12)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'translations.json'
+            write_missing_category_translation_report(source, output)
+            names = {item['english'] for item in json.loads(output.read_text(encoding='utf-8'))['missing_translations']}
+            self.assertNotIn('Category1', names)
+            self.assertNotIn('Category2', names)
+            self.assertIn('Category12', names)
+        report.close()
+        source.close()
+
     def test_waits_until_loading_animation_stops(self):
         session=Mock(send=AsyncMock(side_effect=[{'data':s} for s in ['转动1','转动2','静止','静止','静止']]))
         with patch('modules.product_research.scripts.capture_sellersprite_categories.asyncio.sleep',AsyncMock()):
