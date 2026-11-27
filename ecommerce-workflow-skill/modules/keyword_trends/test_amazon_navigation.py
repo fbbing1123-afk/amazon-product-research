@@ -9,8 +9,14 @@ from keyword_trends import sellersprite_playwright_runner as runner
 
 
 class AmazonNavigationTests(unittest.TestCase):
+    def setUp(self):
+        # 本组保留失败确认页的回归场景，成功恢复由专项测试覆盖。
+        handler = patch('shared.amazon_access.handle_checkpoint', return_value={'status':'unresolved','attempts':2})
+        handler.start()
+        self.addCleanup(handler.stop)
+
     def extract(self, postal_status='already-set', redirect=None, challenge=False, timeout=False):
-        amazon = Mock(url='about:blank')
+        amazon = Mock(url='about:blank', is_closed=Mock(return_value=False))
         def navigate(url, **kwargs):
             amazon.url = 'https://www.amazon.com/checkpoint/continue' if challenge else url
             if timeout:

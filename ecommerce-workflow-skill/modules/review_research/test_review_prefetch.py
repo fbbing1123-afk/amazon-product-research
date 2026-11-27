@@ -183,7 +183,7 @@ class BoundedPrefetchTests(unittest.IsolatedAsyncioTestCase):
             context = Mock(pages=pages)
             async def new_page():
                 page = Mock(url='about:blank', context=context, bring_to_front=AsyncMock(),
-                            is_closed=Mock(return_value=False))
+                            is_closed=Mock(return_value=False), evaluate=AsyncMock(return_value=False))
                 async def close(*args, **kwargs):
                     page.is_closed.return_value = True
                 page.close = AsyncMock(side_effect=close)
@@ -214,7 +214,7 @@ class BoundedPrefetchTests(unittest.IsolatedAsyncioTestCase):
                 trackers[asin] = tracker
                 return tracker
             router.register.side_effect = register
-            async def check(page, *args):
+            async def check(page, *args, **kwargs):
                 if '/checkpoint/' in page.url:
                     raise NeedsUserAction('人工验证')
                 button = Mock(wait_for=AsyncMock(), count=AsyncMock(return_value=1), hover=AsyncMock(), click=AsyncMock())
@@ -230,6 +230,7 @@ class BoundedPrefetchTests(unittest.IsolatedAsyncioTestCase):
                 screenshot_done.set()
                 return {'image':str(root/'category.png')}
             patches = {
+                'shared.amazon_access.handle_checkpoint_async': AsyncMock(return_value={'status':'unresolved','attempts':2}),
                 'scripts.run_review_prefetch.read_plan': Mock(return_value=(asins,[category],False)),
                 'scripts.run_review_prefetch.source_candidates': Mock(return_value={a:{} for a in asins}),
                 'scripts.run_review_prefetch.async_playwright': Mock(return_value=manager),

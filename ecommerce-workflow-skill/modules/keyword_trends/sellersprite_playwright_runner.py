@@ -19,7 +19,9 @@ if str(WORKFLOW_MODULES_DIR) not in sys.path:
     sys.path.insert(0, str(WORKFLOW_MODULES_DIR))
 
 from shared.browser_runtime import get_browser_port
-from shared.amazon_access import amazon_challenge_visible, is_amazon_access_url, pending_amazon_access_page
+from shared.amazon_access import (
+    AmazonAccessRequired, ensure_amazon_access, goto_amazon, is_amazon_access_url, pending_amazon_access_page,
+)
 from shared.marketplaces import (
     amazon_domains,
     ensure_amazon_postal_code,
@@ -1719,15 +1721,26 @@ def check_amazon_login_state(amazon_page) -> dict[str, Any]:
         return {"status": "failed", "error": str(exc)}
 
 
-def require_amazon_access(amazon_page) -> None:
-    """验证出现后停止导航，不以登录探测覆盖人工验证页面。"""
-    if amazon_challenge_visible(amazon_page):
+def require_amazon_access(amazon_page, expected_url=None) -> None:
+    """先处理已知确认页，受阻时保留页面且不进行登录探测。"""
+    try:
+        ensure_amazon_access(amazon_page, expected_url=expected_url)
+    except AmazonAccessRequired as error:
         amazon_page.bring_to_front()
         raise ManualActionRequired(
-            "Amazon需要登录或人工验证，页面已保留；完成后仅继续未完成项。",
+            str(error),
             reason="login" if "/ap/signin" in amazon_page.url else "captcha",
             stage="amazon-access",
-        )
+        ) from error
+
+
+def navigate_amazon(amazon_page, url):
+    """导航超时仍可处理确认页，访问失败统一交给关键词检查点机制。"""
+    try:
+        return goto_amazon(amazon_page, url)
+    except AmazonAccessRequired as error:
+        amazon_page.bring_to_front()
+        raise ManualActionRequired(str(error), reason='captcha', stage='amazon-access') from error
 
 
 def require_amazon_login(amazon_page, site: str = "US") -> dict[str, Any]:
@@ -1790,7 +1803,7 @@ def extract_amazon_result(
             require_amazon_access(pending_page)
         amazon_page = page.context.new_page()
         url = marketplace.amazon_search_url(keyword)
-        amazon_page.goto(url, wait_until="domcontentloaded", timeout=45000)
+        navigate_amazon(amazon_page, url)
         login_state = require_amazon_login(amazon_page, marketplace.code)
         zip_result = ensure_amazon_postal_code(amazon_page, delivery_zip)
         require_amazon_access(amazon_page)
@@ -1801,7 +1814,7 @@ def extract_amazon_result(
                            and current.path.rstrip('/') == '/s'
                            and urllib.parse.parse_qs(current.query).get('k') == [keyword])
             if zip_result.get("status") == "success" or not same_search:
-                amazon_page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                navigate_amazon(amazon_page, url)
                 require_amazon_login(amazon_page, marketplace.code)
         else:
             return {
@@ -1817,7 +1830,7 @@ def extract_amazon_result(
                 "amazonLoginStatus": login_state.get("status"),
             }
         amazon_page.wait_for_timeout(6000)
-        require_amazon_access(amazon_page)
+        require_amazon_access(amazon_page, expected_url=url)
         body_text = amazon_page.evaluate("() => document.body ? document.body.innerText || '' : ''")
         parsed = extract_count_from_amazon_text(str(body_text))
         fields = {

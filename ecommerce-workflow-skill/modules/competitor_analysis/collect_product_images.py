@@ -24,6 +24,9 @@ IMAGE_HOSTS = {'m.media-amazon.com', 'images-na.ssl-images-amazon.com',
 
 sys.path.insert(0, str((Path(__file__).resolve().parent / "..").resolve()))
 from shared.browser_runtime import get_cdp_url
+from shared.amazon_access import (
+    AmazonAccessRequired, ensure_amazon_access_async, goto_amazon_async, is_amazon_access_url, pending_amazon_access_page,
+)
 
 def valid_image_url(url):
     """只使用商品主图节点实际给出的亚马逊图片地址，不推测或改造网址。"""
@@ -75,11 +78,14 @@ async def selected_asin(page):
     return next(iter(distinct)) if values and len(distinct) == 1 else None
 
 
-async def collect_main_image(page, asin, directory, timeout_ms=15000):
-    """读取当前选中ASIN的主图；下载不切换页面、不操作评论或真人验证。"""
+async def collect_main_image(page, asin, directory, timeout_ms=15000, postal_code=None):
+    """处理确认后读取当前选中ASIN主图，不重新触发评论下载。"""
     asin = asin_from_input(asin)
+    if is_amazon_access_url(page.url):
+        await ensure_amazon_access_async(page, expected_url=f'https://www.amazon.com/dp/{asin}')
     if asin_from_input(page.url) != asin:
         raise ValueError('主图页面ASIN与目标不一致')
+    await ensure_amazon_access_async(page, expected_url=f'https://www.amazon.com/dp/{asin}')
     hero = page.locator('#landingImage')
     await hero.wait_for(state='visible', timeout=timeout_ms)
     if await hero.count() != 1:
@@ -91,6 +97,8 @@ async def collect_main_image(page, asin, directory, timeout_ms=15000):
         dynamic:el.getAttribute('data-a-dynamic-image'),src:el.getAttribute('src'),current:el.currentSrc,alt:el.alt})''')
     postal = page.locator('#glow-ingress-line2')
     postal_text = (await postal.inner_text()).strip() if await postal.count() == 1 else ''
+    if postal_code and postal_code not in postal_text:
+        raise ValueError(f'主图页面配送邮编不符：{postal_text}')
     rating_node = page.locator('#acrPopover')
     count_node = page.locator('#acrCustomerReviewText')
     rating_text = await rating_node.first.get_attribute('title') if await rating_node.count() else ''
@@ -154,7 +162,7 @@ async def collect_main_image(page, asin, directory, timeout_ms=15000):
     return result
 
 
-async def collect_batch(asins, output_dir, endpoint):
+async def collect_batch(asins, output_dir, endpoint, postal_code='10001'):
     """独立图片入口，目标可以完全不在商品数据源里，失败页保留给用户。"""
     from playwright.async_api import async_playwright
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -164,21 +172,32 @@ async def collect_batch(asins, output_dir, endpoint):
         browser = await runtime.chromium.connect_over_cdp(endpoint, timeout=15000)
         context = browser.contexts[0]
         for asin in asins:
+            pending = pending_amazon_access_page(context)
+            if pending is not None:
+                try:
+                    await ensure_amazon_access_async(pending)
+                except AmazonAccessRequired as error:
+                    manifest['products'][asin] = {'asin':asin, 'status':'needs_user_action', 'error':str(error)}
+                    write_json(directory/'images.json', manifest)
+                    break
             page = next((p for p in context.pages if re.search(r'/(?:dp|gp/product)/'+asin+r'(?:[/?]|$)', p.url)), None)
             created = page is None
             if created:
                 page = await context.new_page()
             try:
                 if created:
-                    await page.goto(f'https://www.amazon.com/dp/{asin}', wait_until='domcontentloaded', timeout=45000)
-                result = await collect_main_image(page, asin, directory)
+                    await goto_amazon_async(page, f'https://www.amazon.com/dp/{asin}')
+                result = await collect_main_image(page, asin, directory, postal_code=postal_code)
                 if created:
                     await page.close()
             except Exception as error:
-                result = {'asin':asin, 'status':'failed', 'error':str(error), 'page_url':page.url}
+                result = {'asin':asin, 'status':'needs_user_action' if isinstance(error, AmazonAccessRequired) else 'failed',
+                          'error':str(error), 'page_url':page.url}
             manifest['products'][asin] = result
             write_json(directory/'images.json', manifest)
             print(json.dumps(result, ensure_ascii=False), flush=True)
+            if result['status'] == 'needs_user_action':
+                break
     print(f'图片清单：{directory / "images.json"}', flush=True)
     return 0 if all(a['status']=='ok' for a in manifest['products'].values()) else 2
 
@@ -188,8 +207,10 @@ def main():
     parser.add_argument('items', nargs='+', help='ASIN或美国站商品链接，不要求在数据源中')
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--cdp', default=get_cdp_url())
+    parser.add_argument('--postal-code', default='10001')
     args = parser.parse_args()
-    return asyncio.run(collect_batch(list(dict.fromkeys(asin_from_input(v) for v in args.items)), args.output_dir, args.cdp))
+    return asyncio.run(collect_batch(list(dict.fromkeys(asin_from_input(v) for v in args.items)), args.output_dir, args.cdp,
+                                   args.postal_code))
 
 
 if __name__ == '__main__':

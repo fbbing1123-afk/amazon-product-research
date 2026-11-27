@@ -26,6 +26,12 @@ class AccessTests(unittest.TestCase):
 
 
 class CategoryAccessTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        # 本组只核验处理失败后的暂停，实际点击由确认页专项测试覆盖。
+        handler = patch('shared.amazon_access.handle_checkpoint_async', AsyncMock(return_value={'status':'unresolved','attempts':2}))
+        handler.start()
+        self.addCleanup(handler.stop)
+
     async def test_existing_challenge_prevents_category_navigation(self):
         pending = Mock(url='https://www.amazon.com/checkpoint/continue', is_closed=Mock(return_value=False),
                        bring_to_front=AsyncMock())
@@ -62,6 +68,29 @@ class CategoryAccessTests(unittest.IsolatedAsyncioTestCase):
             result = json.loads((args.image_dir/'manifest.json').read_text(encoding='utf-8'))
             self.assertEqual(list(result), [items[0]['url']])
             self.assertEqual(result[items[0]['url']]['status'], 'needs_user_action')
+
+    async def test_success_only_closes_pages_created_by_this_run(self):
+        for existing in (False, True):
+            with self.subTest(existing=existing), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                source = root/'source.xlsx'
+                book = Workbook()
+                book.active.title = '样本-市场调研'
+                book.save(source)
+                book.close()
+                args = SimpleNamespace(input=source, image_dir=root/'images', capture_only=True,
+                                       start=0, limit=5, cdp='fixture', postal_code='10001')
+                url = 'https://www.amazon.com/gp/bestsellers/1'
+                page = Mock(url=url, is_closed=Mock(return_value=False), close=AsyncMock())
+                context = Mock(pages=[page] if existing else [], new_page=AsyncMock(return_value=page))
+                manager = AsyncMock()
+                manager.__aenter__.return_value = Mock(chromium=Mock(connect_over_cdp=AsyncMock(
+                    return_value=Mock(contexts=[context]))))
+                with patch.object(categories, 'iter_category_rows', return_value=[{'url':url,'row':11,'label':'样本'}]), \
+                     patch.object(categories, 'async_playwright', return_value=manager), \
+                     patch.object(categories, 'capture', AsyncMock(return_value={'pixels':[1600,800],'monthly_sales':100})):
+                    self.assertEqual(await categories.run(args), 0)
+                self.assertEqual(page.close.await_count, 0 if existing else 1)
 
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ from product_research.scripts.refresh_sellersprite_category_images import refres
 from review_research.download_sellersprite_reviews import asin_from_input, now_iso, write_json
 from review_research.prefetch_sellersprite_reviews import DownloadRouter, prefetch_one
 from shared.browser_runtime import get_cdp_url
-from shared.amazon_access import AmazonAccessRequired, pending_amazon_access_page
+from shared.amazon_access import AmazonAccessRequired, ensure_amazon_access_async, pending_amazon_access_page
 from shared.quality_gates import validate_category_research, validate_zip_package
 
 
@@ -97,7 +97,7 @@ async def execute(args):
     async def collect_facts(page, asin):
         # 复用正在导出的商品页，主图独立取证，基础字段失败也保留已取到的图片。
         try:
-            asset = await collect_main_image(page, asin, directory/'product-images')
+            asset = await collect_main_image(page, asin, directory/'product-images', postal_code=args.postal_code)
         except Exception as error:
             asset = {'asin':asin, 'status':'failed', 'error':str(error)}
         try:
@@ -164,10 +164,13 @@ async def execute(args):
                                 break
                             pending_page = pending_amazon_access_page(context)
                             if pending_page is not None:
-                                blocked.set()
-                                await pending_page.bring_to_front()
-                                log('amazon_access_paused', url=pending_page.url)
-                                break
+                                try:
+                                    await ensure_amazon_access_async(pending_page, log=log)
+                                except AmazonAccessRequired:
+                                    blocked.set()
+                                    await pending_page.bring_to_front()
+                                    log('amazon_access_paused', url=pending_page.url)
+                                    break
                             log('category_started', row=item['row'], url=item['url'])
                             page = next((p for p in context.pages if p.url == item['url']), None)
                             created, keep_page = page is None, False

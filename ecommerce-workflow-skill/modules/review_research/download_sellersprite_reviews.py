@@ -24,6 +24,9 @@ REQUIRED_HEADERS = {"ASIN", "标题", "内容", "VP评论", "Vine Voice评论", 
 
 sys.path.insert(0, str((Path(__file__).resolve().parent / "..").resolve()))
 from shared.browser_runtime import get_cdp_url
+from shared.amazon_access import (
+    AmazonAccessRequired, ensure_amazon_access, goto_amazon, is_amazon_access_url, pending_amazon_access_page,
+)
 
 class NeedsUserAction(RuntimeError):
     """需要保留页面，交给用户处理登录或真人验证。"""
@@ -180,14 +183,21 @@ def write_json(path: Path, payload: dict) -> None:
     temporary.replace(path)
 
 
-def check_product(page, asin: str) -> None:
-    """核对网页和插件 ASIN，不处理登录、验证码或付费提示。"""
+def check_product(page, asin: str, postal_code='10001') -> None:
+    """处理已知确认页后，核对网页和插件ASIN。"""
+    try:
+        ensure_amazon_access(page, expected_url=f'https://www.amazon.com/dp/{asin}')
+    except AmazonAccessRequired as error:
+        raise NeedsUserAction(str(error)) from error
     try:
         matched = asin_from_input(page.url) == asin
     except ValueError:
         matched = False
     if not matched:
         raise ValueError("页面跳转或 ASIN 不一致，请人工核对商品或登录/验证码页面")
+    location = page.locator('#glow-ingress-line2').inner_text(timeout=10000)
+    if postal_code not in location:
+        raise NeedsUserAction(f'商品页配送邮编不符：{location}')
     panel = page.locator(PANEL)
     panel.wait_for(state="visible", timeout=45_000)
     found = re.search(r"ASIN\s*[:：]\s*([A-Z0-9]{10})\b", panel.inner_text(), re.I)
@@ -228,6 +238,7 @@ class NamedDownload:
         self.state = None
         self.file_path = None
         self.error = None
+        self.started = False
 
     def __enter__(self):
         frame_session = self.page.context.new_cdp_session(self.page)
@@ -282,27 +293,28 @@ class NamedDownload:
     def __exit__(self, *args):
         if self.session is not None:
             try:
-                # 退出后恢复 Chrome 默认下载方式，后续手动下载不继续落入项目目录。
-                self.session.send("Browser.setDownloadBehavior", {"behavior": "default", "eventsEnabled": False})
+                # 未结束的导出保留落盘目录，确认跳转不能把后续文件丢到其它目录。
+                if self.started and self.state not in ('completed', 'canceled'):
+                    self.session.send('Browser.setDownloadBehavior', {
+                        'behavior':'allow', 'downloadPath':str(self.destination), 'eventsEnabled':False})
+                else:
+                    self.session.send('Browser.setDownloadBehavior', {'behavior':'default', 'eventsEnabled':False})
             finally:
                 self.session.detach()
 
 
-def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
+def download_one(page, asin: str, destination: Path, timeout: float, postal_code='10001') -> dict:
     """按实测页面流程点一次按钮；以真实下载事件和文件校验为完成依据。"""
     started = time.monotonic()
-    page.goto(f"https://www.amazon.com/dp/{asin}", wait_until="domcontentloaded", timeout=45_000)
-    blocked_paths = ("/checkpoint/", "/ap/signin", "/errors/validateCaptcha")
-    if any(part in urlparse(page.url).path for part in blocked_paths):
+    try:
+        pending = pending_amazon_access_page(page.context)
+        if pending is not None:
+            ensure_amazon_access(pending)
+        goto_amazon(page, f'https://www.amazon.com/dp/{asin}')
+    except AmazonAccessRequired as error:
         page.bring_to_front()
-        print(f"[{asin}] 等待人工处理登录/真人验证，请在项目浏览器中完成后继续；最多等待 5 分钟", flush=True)
-        manual_deadline = time.monotonic() + 300
-        while any(part in urlparse(page.url).path for part in blocked_paths):
-            if time.monotonic() >= manual_deadline:
-                raise NeedsUserAction("等待人工处理超时，验证页已保留，请完成后仅重试本商品")
-            continue_after_user_check(page)
-            page.wait_for_timeout(1000)
-    check_product(page, asin)
+        raise NeedsUserAction(str(error)) from error
+    check_product(page, asin, postal_code)
     panel = page.locator(PANEL)
     button = panel.get_by_text("评论下载", exact=True)
     button.wait_for(state="visible", timeout=15_000)
@@ -322,9 +334,12 @@ def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
     last_progress = ""
     with NamedDownload(page, destination) as download:
         download_started = time.monotonic()
+        download.started = True
         button.click(timeout=10_000)
         deadline = time.monotonic() + timeout
         while download.state != "completed" and time.monotonic() < deadline:
+            if is_amazon_access_url(page.url):
+                check_product(page, asin, postal_code)
             if download.error:
                 raise ValueError(download.error)
             if download.state == "canceled":
@@ -339,7 +354,7 @@ def download_one(page, asin: str, destination: Path, timeout: float) -> dict:
         if download.state != "completed":
             raise TimeoutError(f"{timeout:g} 秒内未收到下载文件；最后进度：{last_progress or '未出现'}。请检查插件登录或提示；不自动重复点击")
         path = download.completed_path()
-        check_product(page, asin)
+        check_product(page, asin, postal_code)
         payload = read_export(path, asin)
         payload.update({"page_url": page.url, "downloaded_at": now_iso(), "translation_requested": True,
                         "download_seconds": round(time.monotonic() - download_started, 2),
@@ -358,6 +373,7 @@ def main() -> int:
     parser.add_argument("--output-dir", required=True, type=Path, help="本地输出父目录；每次创建独立运行目录")
     parser.add_argument("--cdp", default=get_cdp_url())
     parser.add_argument("--download-timeout", type=float, default=180)
+    parser.add_argument('--postal-code', default='10001')
     parser.add_argument("--import-file", type=Path, help="只读校验已下载文件，仅支持一个 ASIN，不连接浏览器")
     args = parser.parse_args()
     try:
@@ -402,10 +418,10 @@ def main() -> int:
                 page = context.new_page()
                 keep_page = False
                 try:
-                    result = download_one(page, asin, destination, args.download_timeout)
+                    result = download_one(page, asin, destination, args.download_timeout, args.postal_code)
                 except Exception as error:
-                    keep_page = isinstance(error, NeedsUserAction)
-                    result = {"asin": asin, "status": "needs_user_action" if keep_page else "failed", "error": str(error)}
+                    keep_page = True
+                    result = {"asin": asin, "status": "needs_user_action" if isinstance(error, NeedsUserAction) else "failed", "error": str(error)}
                     # 失败截图和原下载文件只留本地，便于定点重试。
                     try:
                         page.screenshot(path=str(destination / "failure.png"))

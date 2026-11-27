@@ -53,7 +53,7 @@ python modules/review_research/download_sellersprite_reviews.py B0DT8TCBNG --imp
 
 ## 验证和异常续跑
 
-Amazon 出现登录、验证码或 `/checkpoint/continue` 时，脚本置前页面并等待最多 5 分钟。不会主动勾选真人验证框；检测到框已被勾选且“Continue shopping”可用时自动点击继续，然后从当前商品续跑。当前对话中一次现场授权操作不扩展为未来任意验证码的自动处理。
+Amazon出现已知`/checkpoint/continue`确认页时，按[共享处理规则](amazon_checkpoint.md)在业务内勾选并提交，默认最多15秒、两次提交。恢复后核验原商品和插件；导出已启动时仅等待原下载，不重复点击。登录、其它验证码或处理失败保留页面及检查点，停止后续商品，不再使用旧的5分钟等待循环。
 
 等待超时会保留验证页，当前商品标为 `needs_user_action`，剩余商品标为 `not_attempted`，停止新增请求。完成验证后只传入未完成的 ASIN 重试，不重跑已成功商品。
 

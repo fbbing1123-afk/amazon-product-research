@@ -23,14 +23,14 @@ from product_research.scripts.capture_category_overviews import iter_category_ro
 from product_research.scripts.fill_custom_template import set_category_monthly_sales
 
 PANEL = '#seller-sprite-best-sellers-box'
-CAPTURE_VERSION = 'category-panel-v2-zoom-aware'
+CAPTURE_VERSION = 'category-panel-v3-explicit-missing'
 CAPTURE_WIDTH = 1600
 
 
 sys.path.insert(0, str((Path(__file__).resolve().parent / "../..").resolve()))
 from shared.browser_runtime import get_cdp_url
 from shared.amazon_access import (
-    AmazonAccessRequired, amazon_challenge_visible_async, is_amazon_access_url, pending_amazon_access_page,
+    AmazonAccessRequired, ensure_amazon_access_async, goto_amazon_async, is_amazon_access_url, pending_amazon_access_page,
 )
 
 def read_sales(text):
@@ -49,11 +49,38 @@ def screenshot_clip(box, scroll, metrics):
             'width': box['width'] * zoom, 'height': box['height'] * zoom, 'scale': 1 / zoom}
 
 
+async def overview_status(target):
+    """区分画布未就绪与平台明确显示--；只允许已观察到的售出件数缺失。"""
+    return await target.locator('.overview').evaluate(r'''e => {
+        const charts = Array.from(e.querySelectorAll('[_echarts_instance_]'));
+        const unavailable = [];
+        const ready = charts.length >= 13 && charts.every(chart => {
+            if (Array.from(chart.querySelectorAll('canvas')).some(c => c.width > 0 && c.height > 0)) return true;
+            if (chart.classList.contains('product-feature')) {
+                unavailable.push('产品特征分析');
+                return true;
+            }
+            if (!chart.classList.contains('sold-out-box')) return false;
+            let card = chart.parentElement;
+            while (card && card !== e && !/^近30天售出件数\s*--$/.test(card.innerText.trim())) card = card.parentElement;
+            if (!card || card === e) return false;
+            if (card.getAnimations({subtree:true}).some(a => a.playState === 'running')) return false;
+            if ([...card.querySelectorAll('[aria-busy="true"], [role="progressbar"]')].some(el => {
+                const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+                return r.width > 0 && r.height > 0 && s.display !== 'none' && s.visibility !== 'hidden';
+            })) return false;
+            unavailable.push('近30天售出件数');
+            return true;
+        });
+        return {ready, unavailable_metrics: unavailable};
+    }''')
+
+
 async def capture(page, url, image, postal_code, on_capture=None):
     pending = pending_amazon_access_page(page.context)
     if pending is not None:
         await pending.bring_to_front()
-        raise AmazonAccessRequired('已有Amazon验证或登录页待处理，暂停类目访问')
+        await ensure_amazon_access_async(pending)
     original_viewport = page.viewport_size
     session = await page.context.new_cdp_session(page)
     target, original_style = None, None
@@ -63,9 +90,8 @@ async def capture(page, url, image, postal_code, on_capture=None):
         await page.bring_to_front()
         await page.set_viewport_size({'width': 2100, 'height': 1400})
         if page.url != url:
-            await page.goto(url, wait_until='domcontentloaded', timeout=45000)
-        if await amazon_challenge_visible_async(page):
-            raise AmazonAccessRequired('Amazon需要人工验证或登录，页面已保留')
+            await goto_amazon_async(page, url)
+        await ensure_amazon_access_async(page, expected_url=url)
         location = await page.locator('#glow-ingress-line2').inner_text(timeout=5000)
         if postal_code not in location:
             raise RuntimeError(f'配送邮编不符：{location}')
@@ -83,20 +109,25 @@ async def capture(page, url, image, postal_code, on_capture=None):
         await page.wait_for_timeout(20000)
         refreshed, deadline = False, time.monotonic() + 120
         while True:
-            if await amazon_challenge_visible_async(page):
-                raise AmazonAccessRequired('类目加载期间出现Amazon验证，页面已保留')
+            access = await ensure_amazon_access_async(page, expected_url=url)
+            if access['status'] == 'cleared':
+                # 确认跳转会重新注入插件，重新核验邮编、排版并等待满20秒。
+                location = await page.locator('#glow-ingress-line2').inner_text(timeout=5000)
+                if postal_code not in location:
+                    raise AmazonAccessRequired(f'确认页恢复后配送邮编不符：{location}')
+                await panel.wait_for(state='visible', timeout=30000)
+                await target.wait_for(state='visible', timeout=10000)
+                original_style = await target.get_attribute('style')
+                await target.evaluate('(e,w)=>{e.style.width=w+"px";e.style.maxWidth="none";window.dispatchEvent(new Event("resize"));}', CAPTURE_WIDTH)
+                await page.wait_for_timeout(20000)
+                refreshed = False
             text = await panel.inner_text(timeout=5000)
             if '需要登录' in text:
                 raise RuntimeError('卖家精灵插件未登录')
             sales = read_sales(text)
-            # 产品特征无数据时，插件会初始化空图；其它12项仍须绘制完成。
-            charts_ready = await target.locator('.overview').evaluate('''e => {
-                const charts = Array.from(e.querySelectorAll('[_echarts_instance_]'));
-                return charts.length >= 13 && charts.every(chart =>
-                    chart.classList.contains('product-feature') ||
-                    Array.from(chart.querySelectorAll('canvas')).some(c => c.width > 0 && c.height > 0));
-            }''')
-            if sales is not None and charts_ready:
+            # 明确缺失保留原样；其它画布、固定等待和三帧稳定检查仍须通过。
+            chart_status = await overview_status(target)
+            if sales is not None and chart_status['ready']:
                 break
             if time.monotonic() > deadline:
                 raise TimeoutError('类目样本或概览图未在120秒内完整加载')
@@ -145,6 +176,7 @@ async def capture(page, url, image, postal_code, on_capture=None):
             on_capture()
         image.write_bytes(content)
         return {'monthly_sales':sales,'image':str(image.resolve()),'pixels':list(size),'text':text,
+                'unavailable_metrics':chart_status['unavailable_metrics'],
                 'url':page.url,'capture_version':CAPTURE_VERSION,'bounds':box,
                 'browser_zoom':metrics['visualViewport'].get('zoom'),
                 'captured_at':datetime.now(timezone.utc).isoformat()}
@@ -191,7 +223,7 @@ async def run(args):
             context = browser.contexts[0]
             for item in items:
                 url, started = item['url'], time.monotonic()
-                page = None
+                page, created = None, False
                 print(f"[类目] 开始 {item['label']}，第{item['row']}行", flush=True)
                 try:
                     prior = results.get(url,{})
@@ -201,6 +233,7 @@ async def run(args):
                         page = next((p for p in context.pages if p.url == url),None)
                         if page is None:
                             page = await context.new_page()
+                            created = True
                         node = re.search(r'/(\d+)(?:/|$)',url)[1]
                         result = await capture(page,url,args.image_dir/f'{node}.png',args.postal_code)
                         result['status'] = 'ok'
@@ -227,6 +260,9 @@ async def run(args):
                     wb.close()
                     wb = load_workbook(args.output,rich_text=True)
                     ws = next(ws for ws in wb if ws.title.endswith('市场调研'))
+                # 成功后清理本轮新建页，避免大批类目堆积；已有页及失败页保留。
+                if result['status'] == 'ok' and created and page is not None and not page.is_closed():
+                    await page.close()
                 if result['status'] == 'needs_user_action':
                     break
     finally:

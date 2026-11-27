@@ -25,6 +25,7 @@ MISSING = {"", "/", "-", "--", "n/a", "none", "null", "暂无", "无数据"}
 
 sys.path.insert(0, str((Path(__file__).resolve().parent / "..").resolve()))
 from shared.browser_runtime import get_cdp_url
+from shared.amazon_access import AmazonAccessRequired, ensure_amazon_access, goto_amazon, pending_amazon_access_page
 
 def normalize_selling_points(value) -> str | None:
     """保留原始卖点内容，只清理空项和重复条目，不强行凑足或截断五条。"""
@@ -231,32 +232,40 @@ def resolve_product(asin: str, candidates: dict, fetch_page=None, fields=None) -
                 result["fields"][field] = {**item, "source": item.get("source", "sellersprite_plugin") if item["value"] is not None else "missing"}
         except Exception as error:
             result["errors"].append(f"网页补取失败：{error}")
+            if isinstance(error, AmazonAccessRequired):
+                result['access_paused'] = True
     result["missing_fields"] = [fields[field] for field in fields if result["fields"][field]["value"] is None]
     result["status"] = "complete" if not result["missing_fields"] else "incomplete"
+    if result.get('access_paused'):
+        result['status'] = 'needs_user_action'
     return result
 
 
 class PluginCollector:
     """按需连接已登录项目浏览器；仅关闭本脚本创建的页面。"""
 
-    def __init__(self, endpoint: str, timeout: float = 25):
+    def __init__(self, endpoint: str, timeout: float = 25, postal_code='10001'):
         self.endpoint = endpoint
         self.timeout = timeout
+        self.postal_code = postal_code
         self.runtime = None
         self.page = None
+        self.access_paused = False
 
     def __enter__(self):
         return self
 
     def __exit__(self, *args):
         try:
-            if self.page is not None:
+            if self.page is not None and not self.access_paused:
                 self.page.close()
         finally:
             if self.runtime is not None:
                 self.runtime.stop()
 
     def __call__(self, asin: str, needed: list[str]):
+        if self.access_paused:
+            raise AmazonAccessRequired('已有访问受阻页面，暂停新的竞品取数')
         if self.page is None:
             from playwright.sync_api import sync_playwright
 
@@ -265,16 +274,39 @@ class PluginCollector:
             browser = self.runtime.chromium.connect_over_cdp(self.endpoint, timeout=20_000)
             if not browser.contexts:
                 raise RuntimeError("项目浏览器没有已登录上下文，请先打开项目浏览器")
-            self.page = browser.contexts[0].new_page()
+            context = browser.contexts[0]
+            pending = pending_amazon_access_page(context)
+            if pending is not None:
+                try:
+                    ensure_amazon_access(pending)
+                except AmazonAccessRequired:
+                    self.access_paused = True
+                    raise
+            self.page = context.new_page()
         page = self.page
-        page.goto(f"https://www.amazon.com/dp/{asin}", wait_until="domcontentloaded", timeout=40_000)
+        target_url = f'https://www.amazon.com/dp/{asin}'
+        try:
+            goto_amazon(page, target_url, timeout=40000)
+            location = page.locator('#glow-ingress-line2').inner_text(timeout=5000)
+            if self.postal_code not in location:
+                raise AmazonAccessRequired(f'竞品页配送邮编不符：{location}')
+        except AmazonAccessRequired:
+            self.access_paused = True
+            raise
         deadline = time.monotonic() + self.timeout
         last_error = "请检查所选商品字段/推荐问题是否展示，以及所需插件是否启用并登录"
         latest = None
         previous = None
         while time.monotonic() < deadline:
-            if "/ap/signin" in page.url or "/errors/validateCaptcha" in page.url:
-                raise RuntimeError("页面要求登录或验证码，请人工处理后重试")
+            try:
+                access = ensure_amazon_access(page, expected_url=target_url)
+                if access['status'] == 'cleared':
+                    location = page.locator('#glow-ingress-line2').inner_text(timeout=5000)
+                    if self.postal_code not in location:
+                        raise AmazonAccessRequired(f'确认恢复后配送邮编不符：{location}')
+            except AmazonAccessRequired:
+                self.access_paused = True
+                raise
             try:
                 if asin_from_input(page.url) != asin:
                     raise ValueError("页面已跳转到其它 ASIN")
@@ -317,6 +349,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True, help="取数结果 JSON，不修改 Excel")
     parser.add_argument("--cdp", default=get_cdp_url())
     parser.add_argument("--timeout", type=float, default=25)
+    parser.add_argument('--postal-code', default='10001')
     parser.add_argument("--source-only", action="store_true", help="仅检查 Excel，不打开网页")
     parser.add_argument("--fields", nargs="+", choices=list(AVAILABLE_FIELDS), default=list(ALL_FIELDS),
                         help="默认基础三项及卖点；可单选 selling_points 或 alexa_questions")
@@ -330,7 +363,7 @@ def main():
     source = read_source(args.workbook, asins, args.source_sheet, fields)
     report = {"schema_version": SCHEMA, "site": "US", "currency": "USD", "requested_fields": list(fields), "products": []}
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with PluginCollector(args.cdp, args.timeout) as collector:
+    with PluginCollector(args.cdp, args.timeout, args.postal_code) as collector:
         for asin in asins:
             print(f"正在处理 {asin}", flush=True)
             result = resolve_product(asin, source[asin], None if args.source_only else collector, fields)
@@ -342,6 +375,8 @@ def main():
             temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
             temporary.replace(args.output)
             print(json.dumps(result, ensure_ascii=False), flush=True)
+            if result.get('access_paused'):
+                break
     return 0 if all(item["status"] == "complete" for item in report["products"]) else 2
 
 
