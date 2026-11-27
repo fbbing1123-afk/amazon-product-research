@@ -42,7 +42,6 @@ class BrowserRuntimeTests(unittest.TestCase):
         scripts = {
             'scripts/run_workflow.py': {'keyword_backfill_debugger_address': '127.0.0.1:19233', 'keyword_trends_debug_port': 19233},
             'scripts/run_review_prefetch.py': {'cdp': 'http://127.0.0.1:19233', 'max_downloads': 2},
-            'scripts/amazon_human_gate.py': {'debugger_address': '127.0.0.1:19233'},
             'scripts/repair_keyword_amazon_results.py': {'port': 19233},
             'modules/competitor_analysis/collect_basic_facts.py': {'cdp': 'http://127.0.0.1:19233'},
             'modules/competitor_analysis/collect_product_images.py': {'cdp': 'http://127.0.0.1:19233'},
