@@ -17,7 +17,7 @@
 
 各阶段由AI按 [执行顺序](ecommerce-workflow-skill/docs/new_workflow_trial.md) 衔接，交付前执行 [验收规范](ecommerce-workflow-skill/docs/delivery_checks.md)。目前不是单个命令完成全部业务，不能无参数运行旧总入口。
 
-Amazon已知确认页按[接入说明](ecommerce-workflow-skill/docs/amazon_checkpoint.md)在业务内唤醒目标页、尝试勾选并继续。确认通过却跳到其它普通页面时自动重进原目标一次，随后核验目标、邮编及插件；仍失败则保留进度。已启动评论导出不重复触发。已使用用户Excel进行美国站真实试跑，实际确认恢复及剩余限制见接入说明；本轮代码纳入本地Git测试版，未推送GitHub。
+Amazon已知确认页按[接入说明](ecommerce-workflow-skill/docs/amazon_checkpoint.md)在业务内唤醒目标页、尝试勾选并继续。确认通过却跳到其它普通页面时自动重进原目标一次，随后核验目标、邮编及插件；仍失败则保留进度。已启动评论导出不重复触发。已使用用户Excel进行美国站真实试跑，实际确认恢复及剩余限制见接入说明；上述功能已纳入当前main主线；本轮业务验证范围保持不变。
 
 ## 测试与版本
 
@@ -25,4 +25,4 @@ Amazon已知确认页按[接入说明](ecommerce-workflow-skill/docs/amazon_chec
 
 同事测试包不带Git历史、账号状态、真实商品数据、截图、旧评价缓存或依赖目录；包含已确认的空数据源模板。包内 `PACKAGE-MANIFEST.json` 标明源提交及文件SHA256。
 
-公开GitHub的main版可能落后于此测试包，暂不要用main覆盖本目录。测试包无需GitHub账号即可使用；本地整理不代表已经推送。维护者打包方式见 [分发说明](ecommerce-workflow-skill/docs/distribution.md)。
+GitHub默认main提供当前主线源码，桌面20261127-test1测试包固定对应7787304；本次主线同步仅补充发布状态说明，业务代码与该包一致。GitHub的“Code → Download ZIP”是源码快照，不含测试包生成器附加的PACKAGE-MANIFEST.json；独立测试包以包内清单为准，无需GitHub账号即可使用。维护者打包方式见 [分发说明](ecommerce-workflow-skill/docs/distribution.md)。

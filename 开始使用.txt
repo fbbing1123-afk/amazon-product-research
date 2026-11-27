@@ -10,8 +10,8 @@
 
 推荐Windows、Python3.12、Node22/24、Chrome、WPS。需要AI有本地命令和浏览器操作能力，差评分析需要实际子智能体能力。此包由AI串联各阶段，不是双击一键全跑。
 最终采用WPS单元格图片，Codex内置预览可能显示#NAME?，请用WPS查看。
-本包不含真实商品数据、业务报告、账号、Cookie、浏览器配置和依赖。无需Git或GitHub账号，不用GitHub main覆盖本包。未添加代理/网络预检。
+本包不含真实商品数据、业务报告、账号、Cookie、浏览器配置和依赖。解压使用无需Git；独立测试包无需GitHub账号。GitHub main是当前源码主线，测试包是固定版本，更新时不要混用不同版本文件。未添加代理/网络预检。
 
 使用步骤：ecommerce-workflow-skill/docs/使用指南.md
 改动、验证范围及反馈步骤：ecommerce-workflow-skill/docs/test_release_20261127.md
-包内PACKAGE-MANIFEST.json记录准确源码提交和逐文件SHA256。
+独立测试包内PACKAGE-MANIFEST.json记录源码提交和逐文件SHA256；GitHub直接下载的源码ZIP没有此附加清单，版本以仓库提交为准。
